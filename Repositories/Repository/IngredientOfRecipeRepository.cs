@@ -9,18 +9,19 @@ using System.Threading.Tasks;
 
 namespace Repositories.Repository
 {
-    public class PlanDetailRepository : GenericRepository<PlanDetail>, IPlanDetailRepository
+    public class IngredientOfRecipeRepository : GenericRepository<IngredientOfRecipe>, IIngredientOfRecipeRepository
     {
-        public PlanDetailRepository(BLW_FOR_KIDContext dbContext) : base(dbContext)
+        public IngredientOfRecipeRepository(BLW_FOR_KIDContext dbContext) : base(dbContext)
         {
         }
-        public async Task<bool> AddRange(List<PlanDetail> planDetails)
+
+        public async Task<bool> AddRange(List<IngredientOfRecipe> ingredientOfRecipes)
         {
             try
             {
-                foreach (PlanDetail planDetail in planDetails)
+                foreach (var ingredientOfRecipe in ingredientOfRecipes)
                 {
-                    dbSet.Add(planDetail);
+                    dbSet.Add(ingredientOfRecipe);
                 }
                 await dbContext.SaveChangesAsync();
                 return true;
@@ -31,14 +32,14 @@ namespace Repositories.Repository
             }
         }
 
-        public async Task<bool> RemoveRange(string planId)
+        public async Task<bool> RemoveRange(string recipeId)
         {
             try
             {
-                var planDetails = dbSet.Where(x => x.PlanId == planId).ToList();
-                foreach (PlanDetail planDetail in planDetails)
+                var ingredientOfRecipes = dbSet.Where(x => x.RecipeId == recipeId).ToList();
+                foreach (var ingredientOfRecipe in ingredientOfRecipes)
                 {
-                    dbSet.Remove(planDetail);
+                    dbSet.Remove(ingredientOfRecipe);
                 }
                 await dbContext.SaveChangesAsync();
                 return true;
