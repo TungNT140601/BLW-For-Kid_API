@@ -57,10 +57,7 @@ namespace Repositories.Repository
                     await dbContext.SaveChangesAsync();
                     return true;
                 }
-                else
-                {
-                    throw new Exception($"Not Found {nameof(T)}");
-                }
+                return false;
             }
             catch (Exception ex)
             {
@@ -111,10 +108,7 @@ namespace Repositories.Repository
                     await dbContext.SaveChangesAsync();
                     return true;
                 }
-                else
-                {
-                    throw new Exception($"Not Found {nameof(T)}");
-                }
+                return false;
             }
             catch (Exception ex)
             {

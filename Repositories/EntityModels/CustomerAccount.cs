@@ -9,9 +9,9 @@ namespace Repositories.EntityModels
         {
             Babies = new HashSet<Baby>();
             Chats = new HashSet<Chat>();
+            Favorites = new HashSet<Favorite>();
             PaymentHistories = new HashSet<PaymentHistory>();
             Ratings = new HashSet<Rating>();
-            Recipes = new HashSet<Recipe>();
         }
 
         public string CustomerId { get; set; } = null!;
@@ -42,9 +42,8 @@ namespace Repositories.EntityModels
 
         public virtual ICollection<Baby> Babies { get; set; }
         public virtual ICollection<Chat> Chats { get; set; }
+        public virtual ICollection<Favorite> Favorites { get; set; }
         public virtual ICollection<PaymentHistory> PaymentHistories { get; set; }
         public virtual ICollection<Rating> Ratings { get; set; }
-
-        public virtual ICollection<Recipe> Recipes { get; set; }
     }
 }

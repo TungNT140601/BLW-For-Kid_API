@@ -173,6 +173,7 @@ GO
 CREATE TABLE [dbo].[Favorite](
 	[CustomerId] [nvarchar](20) NOT NULL,
 	[RecipeId] [nvarchar](20) NOT NULL,
+	[FavoriteTime] [DATETIME] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[CustomerId] ASC,
