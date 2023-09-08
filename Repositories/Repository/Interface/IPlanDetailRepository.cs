@@ -9,5 +9,7 @@ namespace Repositories.Repository.Interface
 {
     public interface IPlanDetailRepository : IGenericRepository<PlanDetail>
     {
+        Task<bool> AddRange(List<PlanDetail> planDetails);
+        Task<bool> RemoveRange(string planId);
     }
 }
