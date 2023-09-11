@@ -292,10 +292,18 @@ GO
 CREATE TABLE [dbo].[PaymentHistory](
 	[PaymentId] [nvarchar](20) NOT NULL,
 	[CustomerId] [nvarchar](20) NOT NULL,
-	[PurchaseTime] [datetime] NOT NULL,
+	[Amount] [nvarchar](255) NULL,
+	[CreateDateS] [nvarchar](255) NOT NULL,
+	[CreateDate] [datetime](255) NOT NULL,
+	[IpAddr] [nvarchar](255) NOT NULL,
+	[OrderInfo] [text] NOT NULL,
+	[TxnRef] [nvarchar](255) NOT NULL,
+	[ResponseCode] [nvarchar](255) NULL,
+	[TransactionNo] [nvarchar](255) NULL,
+	[PurchaseTime] [datetime] NULL,
 	[NumOfMonth] [int] NULL,
-	[StartDate] [datetime] NOT NULL,
-	[EndDate] [datetime] NOT NULL,
+	[StartDate] [datetime] NULL,
+	[EndDate] [datetime] NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[PaymentId] ASC
