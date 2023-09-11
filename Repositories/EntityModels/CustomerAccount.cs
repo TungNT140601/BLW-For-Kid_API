@@ -31,7 +31,7 @@ namespace Repositories.EntityModels
         public DateTime? LastPurchaseDate { get; set; }
         public bool? IsTried { get; set; }
         public int? NumOfTried { get; set; }
-        public int? WasTried { get; set; }
+        public bool? WasTried { get; set; }
         public DateTime? StartTriedDate { get; set; }
         public DateTime? EndTriedDate { get; set; }
         public int? NumOfPremiumMonths { get; set; }
