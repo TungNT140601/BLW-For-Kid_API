@@ -148,6 +148,7 @@ CREATE TABLE [dbo].[Expert](
 	[Avatar] [text] NULL,
 	[DateOfBirth] [datetime] NULL,
 	[Gender] [int] NULL,
+	[Username] [nvarchar](255) NULL,
 	[Password] [nvarchar](255) NULL,
 	[Name] [nvarchar](255) NULL,
 	[Title] [nvarchar](255) NULL,
