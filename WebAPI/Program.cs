@@ -1,8 +1,12 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repositories.DataAccess;
+using Repositories.Repository;
+using Repositories.Repository.Interface;
+using Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,7 +36,7 @@ builder.Services.AddAuthentication(option =>
 });
 var config = new ConfigurationBuilder()
         .SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("appsettings.json",true,true)
+        .AddJsonFile("appsettings.json", true, true)
         .Build();
 builder.Services.AddCors(options =>
 {
@@ -76,6 +80,12 @@ builder.Services.AddSwaggerGen(
         });
                 }
             );
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+
+
 
 var app = builder.Build();
 

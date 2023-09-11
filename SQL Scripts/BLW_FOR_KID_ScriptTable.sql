@@ -103,7 +103,7 @@ CREATE TABLE [dbo].[CustomerAccount](
 	[LastPurchaseDate] [datetime] NULL,
 	[IsTried] [bit] NULL,
 	[NumOfTried] [int] NULL,
-	[WasTried] [int] NULL,
+	[WasTried] [bit] NULL,
 	[StartTriedDate] [datetime] NULL,
 	[EndTriedDate] [datetime] NULL,
 	[NumOfPremiumMonths] [int] NULL,
