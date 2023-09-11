@@ -148,6 +148,7 @@ CREATE TABLE [dbo].[Expert](
 	[Avatar] [text] NULL,
 	[DateOfBirth] [datetime] NULL,
 	[Gender] [int] NULL,
+	[Username] [nvarchar](255) NULL,
 	[Password] [nvarchar](255) NULL,
 	[Name] [nvarchar](255) NULL,
 	[Title] [nvarchar](255) NULL,
@@ -173,6 +174,7 @@ GO
 CREATE TABLE [dbo].[Favorite](
 	[CustomerId] [nvarchar](20) NOT NULL,
 	[RecipeId] [nvarchar](20) NOT NULL,
+	[FavoriteTime] [DATETIME] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[CustomerId] ASC,

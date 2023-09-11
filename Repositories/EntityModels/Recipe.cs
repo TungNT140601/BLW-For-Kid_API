@@ -8,10 +8,10 @@ namespace Repositories.EntityModels
         public Recipe()
         {
             Directions = new HashSet<Direction>();
+            Favorites = new HashSet<Favorite>();
             IngredientOfRecipes = new HashSet<IngredientOfRecipe>();
             PlanDetails = new HashSet<PlanDetail>();
             Ratings = new HashSet<Rating>();
-            Customers = new HashSet<CustomerAccount>();
         }
 
         public string RecipeId { get; set; } = null!;
@@ -38,10 +38,9 @@ namespace Repositories.EntityModels
         public virtual StaffAccount? StaffDeleteNavigation { get; set; }
         public virtual StaffAccount? StaffUpdateNavigation { get; set; }
         public virtual ICollection<Direction> Directions { get; set; }
+        public virtual ICollection<Favorite> Favorites { get; set; }
         public virtual ICollection<IngredientOfRecipe> IngredientOfRecipes { get; set; }
         public virtual ICollection<PlanDetail> PlanDetails { get; set; }
         public virtual ICollection<Rating> Ratings { get; set; }
-
-        public virtual ICollection<CustomerAccount> Customers { get; set; }
     }
 }

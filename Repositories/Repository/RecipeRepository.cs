@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Repositories.Repository
 {
-    public class BabyRepository : GenericRepository<Baby>, IBabyRepository
+    public class RecipeRepository : GenericRepository<Recipe>, IRecipeRepository
     {
-        public BabyRepository(BLW_FOR_KIDContext dbContext) : base(dbContext)
+        public RecipeRepository(BLW_FOR_KIDContext dbContext) : base(dbContext)
         {
         }
     }
