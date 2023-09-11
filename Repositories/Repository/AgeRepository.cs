@@ -1,4 +1,5 @@
-﻿using Repositories.EntityModels;
+﻿using Repositories.DataAccess;
+using Repositories.EntityModels;
 using Repositories.Repository.Interface;
 using System;
 using System.Collections.Generic;
@@ -10,5 +11,8 @@ namespace Repositories.Repository
 {
     public class AgeRepository : GenericRepository<Age>, IAgeRepository
     {
+        public AgeRepository(BLW_FOR_KIDContext dbContext) : base(dbContext)
+        {
+        }
     }
 }

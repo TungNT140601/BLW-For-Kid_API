@@ -15,14 +15,6 @@ namespace Repositories.Repository
         protected readonly BLW_FOR_KIDContext dbContext;
         protected readonly DbSet<T> dbSet;
 
-        public GenericRepository()
-        {
-            if (this.dbContext == null)
-            {
-                this.dbContext = new BLW_FOR_KIDContext();
-            }
-            dbSet = this.dbContext.Set<T>();
-        }
         public GenericRepository(BLW_FOR_KIDContext dbContext)
         {
             if (this.dbContext == null)
