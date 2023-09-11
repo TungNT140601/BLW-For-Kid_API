@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Repositories.EntityModels;
+using Repositories.Ultilities;
 using Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -283,6 +284,35 @@ namespace WebAPI.Controllers
                 });
             }
         }
+        [HttpGet]
+        public IActionResult GetPaymentUrl(double price, string ipAddress)
+        {
+            var paymentInfo = configuration.GetSection("Payment");
+            string url = paymentInfo["Url"];
+            string returnUrl = paymentInfo["ReturnUrl"];
+            string tmnCode = paymentInfo["TmnCode"];
+            string hashSecret = paymentInfo["HashSecret"];
+            price = Math.Round(price, 2) * 100;
+            PayLib pay = new PayLib();
 
+            pay.AddRequestData("vnp_Version", paymentInfo["vnp_Version"]); //Phiên bản api mà merchant kết nối. Phiên bản hiện tại là 2.1.0
+            pay.AddRequestData("vnp_Command", paymentInfo["vnp_Command"]); //Mã API sử dụng, mã cho giao dịch thanh toán là 'pay'
+            pay.AddRequestData("vnp_TmnCode", tmnCode); //Mã website của merchant trên hệ thống của VNPAY (khi đăng ký tài khoản sẽ có trong mail VNPAY gửi về)
+            pay.AddRequestData("vnp_Amount", price + ""); //số tiền cần thanh toán, công thức: số tiền * 100 - ví dụ 10.000 (mười nghìn đồng) --> 1000000
+            pay.AddRequestData("vnp_BankCode", ""); //Mã Ngân hàng thanh toán (tham khảo: https://sandbox.vnpayment.vn/apis/danh-sach-ngan-hang/), có thể để trống, người dùng có thể chọn trên cổng thanh toán VNPAY
+            pay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss")); //ngày thanh toán theo định dạng yyyyMMddHHmmss
+            pay.AddRequestData("vnp_CurrCode", paymentInfo["vnp_CurrCode"]); //Đơn vị tiền tệ sử dụng thanh toán. Hiện tại chỉ hỗ trợ VND
+            pay.AddRequestData("vnp_IpAddr", ipAddress); //Địa chỉ IP của khách hàng thực hiện giao dịch
+            pay.AddRequestData("vnp_Locale", paymentInfo["vnp_Locale"]); //Ngôn ngữ giao diện hiển thị - Tiếng Việt (vn), Tiếng Anh (en)
+            pay.AddRequestData("vnp_OrderInfo", $"Thanh toan goi premium - Gia tien: {price}vnd"); //Thông tin mô tả nội dung thanh toán
+            pay.AddRequestData("vnp_OrderType", paymentInfo["vnp_OrderType"]); //topup: Nạp tiền điện thoại - billpayment: Thanh toán hóa đơn - fashion: Thời trang - other: Thanh toán trực tuyến
+            pay.AddRequestData("vnp_ReturnUrl", returnUrl); //URL thông báo kết quả giao dịch khi Khách hàng kết thúc thanh toán
+            string vnp_TxnRef = DateTime.Now.Ticks.ToString();
+            pay.AddRequestData("vnp_TxnRef", vnp_TxnRef); //mã hóa đơn
+
+            string paymentUrl = pay.CreateRequestUrl(url, hashSecret);
+
+            return Ok(paymentUrl = paymentUrl);
+        }
     }
 }

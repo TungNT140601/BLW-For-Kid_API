@@ -84,7 +84,7 @@ namespace Repositories.DataAccess
                     .WithMany(p => p.Babies)
                     .HasForeignKey(d => d.CustomerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Baby__CustomerId__778AC167");
+                    .HasConstraintName("FK__Baby__CustomerId__30C33EC3");
             });
 
             modelBuilder.Entity<Chat>(entity =>
@@ -105,19 +105,19 @@ namespace Repositories.DataAccess
                     .WithMany(p => p.Chats)
                     .HasForeignKey(d => d.CustomerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Chat__CustomerId__787EE5A0");
+                    .HasConstraintName("FK__Chat__CustomerId__31B762FC");
 
                 entity.HasOne(d => d.Expert)
                     .WithMany(p => p.Chats)
                     .HasForeignKey(d => d.ExpertId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Chat__ExpertId__797309D9");
+                    .HasConstraintName("FK__Chat__ExpertId__32AB8735");
             });
 
             modelBuilder.Entity<ChatHistory>(entity =>
             {
                 entity.HasKey(e => new { e.ChatId, e.SendTime })
-                    .HasName("PK__ChatHist__A8D990B19C8C57A1");
+                    .HasName("PK__ChatHist__A8D990B1E0FBBA4E");
 
                 entity.ToTable("ChatHistory");
 
@@ -135,26 +135,38 @@ namespace Repositories.DataAccess
                     .WithMany(p => p.ChatHistories)
                     .HasForeignKey(d => d.ChatId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__ChatHisto__ChatI__7A672E12");
+                    .HasConstraintName("FK__ChatHisto__ChatI__339FAB6E");
             });
 
             modelBuilder.Entity<CustomerAccount>(entity =>
             {
                 entity.HasKey(e => e.CustomerId)
-                    .HasName("PK__Customer__A4AE64D833D4EB58");
+                    .HasName("PK__Customer__A4AE64D84755C741");
 
                 entity.ToTable("CustomerAccount");
 
-                entity.HasIndex(e => e.FacebookId, "UQ__Customer__4D656465304D2703")
+                entity.HasIndex(e => e.FacebookId, "UQ__Customer__4D6564650AB2F8C2")
                     .IsUnique();
 
-                entity.HasIndex(e => e.GoogleId, "UQ__Customer__A6FBF2FB07EBD589")
+                entity.HasIndex(e => e.FacebookId, "UQ__Customer__4D6564657DE77162")
                     .IsUnique();
 
-                entity.HasIndex(e => e.Email, "UQ__Customer__A9D105347871E8CA")
+                entity.HasIndex(e => e.GoogleId, "UQ__Customer__A6FBF2FB21619F0A")
                     .IsUnique();
 
-                entity.HasIndex(e => e.PhoneNum, "UQ__Customer__DF8F1A024BDC65F3")
+                entity.HasIndex(e => e.GoogleId, "UQ__Customer__A6FBF2FBB92F110D")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Email, "UQ__Customer__A9D10534761E45B9")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Email, "UQ__Customer__A9D10534799251F8")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.PhoneNum, "UQ__Customer__DF8F1A02172B49D1")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.PhoneNum, "UQ__Customer__DF8F1A02B8817E76")
                     .IsUnique();
 
                 entity.Property(e => e.CustomerId).HasMaxLength(20);
@@ -216,23 +228,35 @@ namespace Repositories.DataAccess
                     .WithMany(p => p.Directions)
                     .HasForeignKey(d => d.RecipeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Direction__Recip__7B5B524B");
+                    .HasConstraintName("FK__Direction__Recip__3493CFA7");
             });
 
             modelBuilder.Entity<Expert>(entity =>
             {
                 entity.ToTable("Expert");
 
-                entity.HasIndex(e => e.FacebookId, "UQ__Expert__4D6564653E2E1D17")
+                entity.HasIndex(e => e.FacebookId, "UQ__Expert__4D65646521CC31B5")
                     .IsUnique();
 
-                entity.HasIndex(e => e.GoogleId, "UQ__Expert__A6FBF2FB7BDC10DB")
+                entity.HasIndex(e => e.FacebookId, "UQ__Expert__4D65646564A85132")
                     .IsUnique();
 
-                entity.HasIndex(e => e.Email, "UQ__Expert__A9D10534E16415D5")
+                entity.HasIndex(e => e.GoogleId, "UQ__Expert__A6FBF2FB01CB3C3D")
                     .IsUnique();
 
-                entity.HasIndex(e => e.PhoneNum, "UQ__Expert__DF8F1A0243264AA4")
+                entity.HasIndex(e => e.GoogleId, "UQ__Expert__A6FBF2FBCA1C1C71")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Email, "UQ__Expert__A9D105340088999A")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Email, "UQ__Expert__A9D10534FDD2DBF3")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.PhoneNum, "UQ__Expert__DF8F1A02670A4979")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.PhoneNum, "UQ__Expert__DF8F1A02A751EA48")
                     .IsUnique();
 
                 entity.Property(e => e.ExpertId).HasMaxLength(20);
@@ -267,6 +291,8 @@ namespace Repositories.DataAccess
 
                 entity.Property(e => e.Title).HasMaxLength(255);
 
+                entity.Property(e => e.Username).HasMaxLength(255);
+
                 entity.Property(e => e.WorkProgress).HasColumnType("text");
 
                 entity.Property(e => e.WorkUnit).HasMaxLength(255);
@@ -275,7 +301,7 @@ namespace Repositories.DataAccess
             modelBuilder.Entity<Favorite>(entity =>
             {
                 entity.HasKey(e => new { e.CustomerId, e.RecipeId })
-                    .HasName("PK__Favorite__BB73FC539FBC6CDC");
+                    .HasName("PK__Favorite__BB73FC5373E9B8F6");
 
                 entity.ToTable("Favorite");
 
@@ -289,19 +315,19 @@ namespace Repositories.DataAccess
                     .WithMany(p => p.Favorites)
                     .HasForeignKey(d => d.CustomerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Favorite__Custom__7C4F7684");
+                    .HasConstraintName("FK__Favorite__Custom__3587F3E0");
 
                 entity.HasOne(d => d.Recipe)
                     .WithMany(p => p.Favorites)
                     .HasForeignKey(d => d.RecipeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Favorite__Recipe__7D439ABD");
+                    .HasConstraintName("FK__Favorite__Recipe__367C1819");
             });
 
             modelBuilder.Entity<GrowHistory>(entity =>
             {
                 entity.HasKey(e => e.GrowId)
-                    .HasName("PK__GrowHist__241DFFF026EB6D1F");
+                    .HasName("PK__GrowHist__241DFFF05CB07601");
 
                 entity.ToTable("GrowHistory");
 
@@ -323,13 +349,13 @@ namespace Repositories.DataAccess
                     .WithMany(p => p.GrowHistories)
                     .HasForeignKey(d => d.BabyId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__GrowHisto__BabyI__7E37BEF6");
+                    .HasConstraintName("FK__GrowHisto__BabyI__37703C52");
             });
 
             modelBuilder.Entity<GrowImage>(entity =>
             {
                 entity.HasKey(e => e.ImageId)
-                    .HasName("PK__GrowImag__7516F70C226426DC");
+                    .HasName("PK__GrowImag__7516F70C76BA71B0");
 
                 entity.ToTable("GrowImage");
 
@@ -344,7 +370,7 @@ namespace Repositories.DataAccess
                 entity.HasOne(d => d.Grow)
                     .WithMany(p => p.GrowImages)
                     .HasForeignKey(d => d.GrowId)
-                    .HasConstraintName("FK__GrowImage__GrowI__7F2BE32F");
+                    .HasConstraintName("FK__GrowImage__GrowI__3864608B");
             });
 
             modelBuilder.Entity<Ingredient>(entity =>
@@ -376,23 +402,23 @@ namespace Repositories.DataAccess
                 entity.HasOne(d => d.StaffCreateNavigation)
                     .WithMany(p => p.IngredientStaffCreateNavigations)
                     .HasForeignKey(d => d.StaffCreate)
-                    .HasConstraintName("FK__Ingredien__Staff__00200768");
+                    .HasConstraintName("FK__Ingredien__Staff__395884C4");
 
                 entity.HasOne(d => d.StaffDeleteNavigation)
                     .WithMany(p => p.IngredientStaffDeleteNavigations)
                     .HasForeignKey(d => d.StaffDelete)
-                    .HasConstraintName("FK__Ingredien__Staff__02084FDA");
+                    .HasConstraintName("FK__Ingredien__Staff__00200768");
 
                 entity.HasOne(d => d.StaffUpdateNavigation)
                     .WithMany(p => p.IngredientStaffUpdateNavigations)
                     .HasForeignKey(d => d.StaffUpdate)
-                    .HasConstraintName("FK__Ingredien__Staff__01142BA1");
+                    .HasConstraintName("FK__Ingredien__Staff__3A4CA8FD");
             });
 
             modelBuilder.Entity<IngredientOfRecipe>(entity =>
             {
                 entity.HasKey(e => new { e.IngredientId, e.RecipeId })
-                    .HasName("PK__Ingredie__A1732AD1685B8D51");
+                    .HasName("PK__Ingredie__A1732AD1628E07E6");
 
                 entity.ToTable("IngredientOfRecipe");
 
@@ -404,13 +430,13 @@ namespace Repositories.DataAccess
                     .WithMany(p => p.IngredientOfRecipes)
                     .HasForeignKey(d => d.IngredientId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Ingredien__Ingre__02FC7413");
+                    .HasConstraintName("FK__Ingredien__Ingre__01142BA1");
 
                 entity.HasOne(d => d.Recipe)
                     .WithMany(p => p.IngredientOfRecipes)
                     .HasForeignKey(d => d.RecipeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Ingredien__Recip__03F0984C");
+                    .HasConstraintName("FK__Ingredien__Recip__02084FDA");
             });
 
             modelBuilder.Entity<Meal>(entity =>
@@ -438,41 +464,57 @@ namespace Repositories.DataAccess
                 entity.HasOne(d => d.StaffCreateNavigation)
                     .WithMany(p => p.MealStaffCreateNavigations)
                     .HasForeignKey(d => d.StaffCreate)
-                    .HasConstraintName("FK__Meal__StaffCreat__04E4BC85");
+                    .HasConstraintName("FK__Meal__StaffCreat__02FC7413");
 
                 entity.HasOne(d => d.StaffDeleteNavigation)
                     .WithMany(p => p.MealStaffDeleteNavigations)
                     .HasForeignKey(d => d.StaffDelete)
-                    .HasConstraintName("FK__Meal__StaffDelet__05D8E0BE");
+                    .HasConstraintName("FK__Meal__StaffDelet__03F0984C");
 
                 entity.HasOne(d => d.StaffUpdateNavigation)
                     .WithMany(p => p.MealStaffUpdateNavigations)
                     .HasForeignKey(d => d.StaffUpdate)
-                    .HasConstraintName("FK__Meal__StaffUpdat__06CD04F7");
+                    .HasConstraintName("FK__Meal__StaffUpdat__04E4BC85");
             });
 
             modelBuilder.Entity<PaymentHistory>(entity =>
             {
                 entity.HasKey(e => e.PaymentId)
-                    .HasName("PK__PaymentH__9B556A389DD13CA1");
+                    .HasName("PK__PaymentH__9B556A38ABEF5236");
 
                 entity.ToTable("PaymentHistory");
 
                 entity.Property(e => e.PaymentId).HasMaxLength(20);
 
+                entity.Property(e => e.Amount).HasMaxLength(255);
+
+                entity.Property(e => e.CreateDate).HasColumnType("datetime");
+
+                entity.Property(e => e.CreateDateS).HasMaxLength(255);
+
                 entity.Property(e => e.CustomerId).HasMaxLength(20);
 
                 entity.Property(e => e.EndDate).HasColumnType("datetime");
 
+                entity.Property(e => e.IpAddr).HasMaxLength(255);
+
+                entity.Property(e => e.OrderInfo).HasColumnType("text");
+
                 entity.Property(e => e.PurchaseTime).HasColumnType("datetime");
 
+                entity.Property(e => e.ResponseCode).HasMaxLength(255);
+
                 entity.Property(e => e.StartDate).HasColumnType("datetime");
+
+                entity.Property(e => e.TransactionNo).HasMaxLength(255);
+
+                entity.Property(e => e.TxnRef).HasMaxLength(255);
 
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.PaymentHistories)
                     .HasForeignKey(d => d.CustomerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__PaymentHi__Custo__07C12930");
+                    .HasConstraintName("FK__PaymentHi__Custo__40F9A68C");
             });
 
             modelBuilder.Entity<Plan>(entity =>
@@ -490,7 +532,7 @@ namespace Repositories.DataAccess
                 entity.HasOne(d => d.Age)
                     .WithMany(p => p.Plans)
                     .HasForeignKey(d => d.AgeId)
-                    .HasConstraintName("FK__Plan__AgeId__08B54D69");
+                    .HasConstraintName("FK__Plan__AgeId__05D8E0BE");
             });
 
             modelBuilder.Entity<PlanDetail>(entity =>
@@ -509,13 +551,13 @@ namespace Repositories.DataAccess
                     .WithMany(p => p.PlanDetails)
                     .HasForeignKey(d => d.PlanId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__PlanDetai__PlanI__09A971A2");
+                    .HasConstraintName("FK__PlanDetai__PlanI__06CD04F7");
 
                 entity.HasOne(d => d.Recipe)
                     .WithMany(p => p.PlanDetails)
                     .HasForeignKey(d => d.RecipeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__PlanDetai__Recip__0A9D95DB");
+                    .HasConstraintName("FK__PlanDetai__Recip__07C12930");
             });
 
             modelBuilder.Entity<Rating>(entity =>
@@ -540,13 +582,13 @@ namespace Repositories.DataAccess
                     .WithMany(p => p.Ratings)
                     .HasForeignKey(d => d.CustomerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Rating__Customer__0B91BA14");
+                    .HasConstraintName("FK__Rating__Customer__08B54D69");
 
                 entity.HasOne(d => d.Recipe)
                     .WithMany(p => p.Ratings)
                     .HasForeignKey(d => d.RecipeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Rating__RecipeId__0C85DE4D");
+                    .HasConstraintName("FK__Rating__RecipeId__09A971A2");
             });
 
             modelBuilder.Entity<Recipe>(entity =>
@@ -580,40 +622,46 @@ namespace Repositories.DataAccess
                 entity.HasOne(d => d.Age)
                     .WithMany(p => p.Recipes)
                     .HasForeignKey(d => d.AgeId)
-                    .HasConstraintName("FK__Recipe__AgeId__0D7A0286");
+                    .HasConstraintName("FK__Recipe__AgeId__0A9D95DB");
 
                 entity.HasOne(d => d.Meal)
                     .WithMany(p => p.Recipes)
                     .HasForeignKey(d => d.MealId)
-                    .HasConstraintName("FK__Recipe__MealId__0E6E26BF");
+                    .HasConstraintName("FK__Recipe__MealId__0B91BA14");
 
                 entity.HasOne(d => d.StaffCreateNavigation)
                     .WithMany(p => p.RecipeStaffCreateNavigations)
                     .HasForeignKey(d => d.StaffCreate)
-                    .HasConstraintName("FK__Recipe__StaffCre__0F624AF8");
+                    .HasConstraintName("FK__Recipe__StaffCre__0C85DE4D");
 
                 entity.HasOne(d => d.StaffDeleteNavigation)
                     .WithMany(p => p.RecipeStaffDeleteNavigations)
                     .HasForeignKey(d => d.StaffDelete)
-                    .HasConstraintName("FK__Recipe__StaffDel__10566F31");
+                    .HasConstraintName("FK__Recipe__StaffDel__0D7A0286");
 
                 entity.HasOne(d => d.StaffUpdateNavigation)
                     .WithMany(p => p.RecipeStaffUpdateNavigations)
                     .HasForeignKey(d => d.StaffUpdate)
-                    .HasConstraintName("FK__Recipe__StaffUpd__114A936A");
+                    .HasConstraintName("FK__Recipe__StaffUpd__0E6E26BF");
             });
 
             modelBuilder.Entity<StaffAccount>(entity =>
             {
                 entity.HasKey(e => e.StaffId)
-                    .HasName("PK__StaffAcc__96D4AB173CECAACA");
+                    .HasName("PK__StaffAcc__96D4AB17B89A01DA");
 
                 entity.ToTable("StaffAccount");
 
-                entity.HasIndex(e => e.GoogleId, "UQ__StaffAcc__A6FBF2FB88A4DA6B")
+                entity.HasIndex(e => e.GoogleId, "UQ__StaffAcc__A6FBF2FBA8AA4C4B")
                     .IsUnique();
 
-                entity.HasIndex(e => e.Email, "UQ__StaffAcc__A9D10534CD872732")
+                entity.HasIndex(e => e.GoogleId, "UQ__StaffAcc__A6FBF2FBD1821040")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Email, "UQ__StaffAcc__A9D1053499613242")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Email, "UQ__StaffAcc__A9D10534ED52EFC4")
                     .IsUnique();
 
                 entity.Property(e => e.StaffId).HasMaxLength(20);
