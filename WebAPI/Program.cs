@@ -83,8 +83,9 @@ builder.Services.AddSwaggerGen(
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IStaffAccountRepository, StaffAccountRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
-
+builder.Services.AddScoped<IStaffAccountService, StaffAccountService>();
 
 
 var app = builder.Build();

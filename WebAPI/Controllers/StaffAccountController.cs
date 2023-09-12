@@ -3,18 +3,19 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.EntityModels;
 using Services;
+using System.Security.Claims;
 using WebAPI.ViewModels;
 
 namespace WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class StaffAccountController : ControllerBase
     {
-        protected readonly IStaffAccountService _staffAccountService;
+        protected readonly StaffAccountService _staffAccountService;
         private readonly IMapper _mapper;
 
-        public StaffAccountController(IStaffAccountService staffAccountService, IMapper mapper)
+        public StaffAccountController(StaffAccountService staffAccountService, IMapper mapper)
         {
             _staffAccountService = staffAccountService;
             _mapper = mapper;
@@ -82,6 +83,13 @@ namespace WebAPI.Controllers
                         Message = "Password cannot be empty!!!"
                     });
                 }
+                else if (string.IsNullOrEmpty(model.Fullname))
+                {
+                    return StatusCode(400, new
+                    {
+                        Message = "Fullname cannot be empty!!!"
+                    });
+                }
                 else
                 {
                     var staffAccount = _mapper.Map<StaffAccount>(model);
@@ -108,18 +116,11 @@ namespace WebAPI.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(model.Email))
+                if (string.IsNullOrEmpty(model.Fullname))
                 {
                     return StatusCode(400, new
                     {
-                        Message = "Email cannot be empty!!!"
-                    });
-                }
-                else if (string.IsNullOrEmpty(model.Password))
-                {
-                    return StatusCode(400, new
-                    {
-                        Message = "Password cannot be empty!!!"
+                        Message = "FullName cannot be empty!!!"
                     });
                 }
                 else
@@ -171,6 +172,42 @@ namespace WebAPI.Controllers
             catch(Exception e)
             {
                 return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePWdStaffAccount(ChangePwdStaffAccountVM changePwd)
+        {
+            try
+            {                
+                if (User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value == "Staff")
+                {
+                    var cusId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                    var check = _staffAccountService.ChangePwdStaff(cusId, changePwd.OldPassword, changePwd.NewPassword).Result;
+                    return check ? Ok(new
+                    {
+                        Status = "Change Success"
+                    }) : Ok(new
+                    {
+                        Status = "Change Fail"
+                    });
+                }
+                else
+                {
+                    return StatusCode(400, new
+                    {
+                        Status = "Error",
+                        ErrorMessage = "Role Denied"
+                    });
+                }
+            }
+            catch (AggregateException ae)
+            {
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ae.InnerExceptions[0].Message
+                });
             }
         }
     }

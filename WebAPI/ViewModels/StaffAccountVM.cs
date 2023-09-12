@@ -21,12 +21,18 @@ namespace WebAPI.ViewModels
         [Required(ErrorMessage = "This Field is Required!!!!")]
         public string? Username { get; set; }
         public string? Password { get; set; }
+        public string? Fullname { get; set; }
     }
 
     public class StaffAccountUpdateVM
     {
         public string Id { get; set; }
-        public string? Email { get; set; }
-        public string? Password { get; set; }
+        public string? Fullname { get; set; }
+    }
+
+    public class ChangePwdStaffAccountVM
+    {
+        public string OldPassword { get; set; }
+        public string NewPassword { get; set; }
     }
 }
