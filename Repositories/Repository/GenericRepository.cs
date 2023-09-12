@@ -94,8 +94,7 @@ namespace Repositories.Repository
                 var check = dbSet.Find(id);
                 if (check != null)
                 {
-                    var entry = dbSet.Attach(check);
-                    dbContext.Entry(entry).State = EntityState.Detached;
+                    dbContext.Entry(check).State = EntityState.Detached;
                     dbSet.Update(item);
                     await dbContext.SaveChangesAsync();
                     return true;
