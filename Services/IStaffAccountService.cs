@@ -1,5 +1,6 @@
 ﻿using Repositories.EntityModels;
 using Repositories.Repository.Interface;
+using Repositories.Ultilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,10 @@ namespace Services
         {
             try
             {
+                account.StaffId = AutoGenId.AutoGenerateId();
+                account.Role = 1;
+                account.IsActive = true;
+                account.IsDelete = false;
                 var check = repository.GetAll(x => x.Username == account.Username & x.IsActive == true);
                 if(check != null)
                 {
@@ -106,7 +111,9 @@ namespace Services
                 }
                 else
                 {
-                    return await repository.Update(account.StaffId, account);
+                    accountStaff.Email = account.Email;
+                    accountStaff.Password = account.Password;
+                    return await repository.Update(account.StaffId, accountStaff);
                 }
             }
             catch (Exception e)
