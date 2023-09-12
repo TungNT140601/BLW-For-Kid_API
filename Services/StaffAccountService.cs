@@ -16,6 +16,7 @@ namespace Services
         Task<bool> Add(StaffAccount account);
         Task<bool> Update(StaffAccount account);
         Task<bool> Delete(string id);
+        Task<bool> ChangePwdStaff(string staffId, string oldPwd, string newPwd);
     }
 
     public class StaffAccountService : IStaffAccountService
@@ -34,7 +35,7 @@ namespace Services
                 account.Role = 1;
                 account.IsActive = true;
                 account.IsDelete = false;
-                var check = repository.GetAll(x => x.Username == account.Username & x.IsActive == true);
+                var check = repository.GetAll(x => x.Username == account.Username && x.IsActive == true && x.IsDelete == false);
                 if(check != null)
                 {
                     throw new Exception("Username Exist!!!");
@@ -111,12 +112,39 @@ namespace Services
                 }
                 else
                 {
-                    accountStaff.Email = account.Email;
-                    accountStaff.Password = account.Password;
+                    accountStaff.Fullname = account.Password;
                     return await repository.Update(account.StaffId, accountStaff);
                 }
             }
             catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public Task<bool> ChangePwdStaff(string staffId, string oldPwd, string newPwd)
+        {
+            try
+            {
+                var staffAccount = repository.Get(staffId).Result;
+                if(staffAccount != null)
+                {
+                    if(staffAccount.Password == oldPwd)
+                    {
+                        staffAccount.StaffId = newPwd;
+                        return repository.Update(staffAccount.StaffId, staffAccount);
+                    }
+                    else
+                    {
+                        throw new Exception("Old Password incorrect!!!");
+                    }
+                }
+                else
+                {
+                    throw new Exception("Not Found Account");
+                }
+            }
+            catch(Exception e)
             {
                 throw new Exception(e.Message);
             }
