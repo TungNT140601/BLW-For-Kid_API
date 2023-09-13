@@ -112,7 +112,7 @@ namespace Services
                 }
                 else
                 {
-                    accountStaff.Fullname = account.Password;
+                    accountStaff.Fullname = account.Fullname;
                     return await repository.Update(account.StaffId, accountStaff);
                 }
             }
@@ -131,7 +131,7 @@ namespace Services
                 {
                     if(staffAccount.Password == oldPwd)
                     {
-                        staffAccount.StaffId = newPwd;
+                        staffAccount.Password = newPwd;
                         return repository.Update(staffAccount.StaffId, staffAccount);
                     }
                     else

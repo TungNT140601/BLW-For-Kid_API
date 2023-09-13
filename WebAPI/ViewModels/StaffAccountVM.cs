@@ -18,7 +18,6 @@ namespace WebAPI.ViewModels
     public class StaffAccountAddVM
     {
         public string? Email { get; set; }
-        [Required(ErrorMessage = "This Field is Required!!!!")]
         public string? Username { get; set; }
         public string? Password { get; set; }
         public string? Fullname { get; set; }

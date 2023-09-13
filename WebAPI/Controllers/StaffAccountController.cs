@@ -76,6 +76,13 @@ namespace WebAPI.Controllers
                         Message = "Email cannot be empty!!!"
                     });
                 }
+               else if (string.IsNullOrEmpty(model.Username))
+                {
+                    return StatusCode(400, new
+                    {
+                        Message = "Username cannot be empty!!!"
+                    });
+                }
                 else if(string.IsNullOrEmpty(model.Password))
                 {
                     return StatusCode(400, new
