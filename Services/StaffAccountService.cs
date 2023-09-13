@@ -17,6 +17,7 @@ namespace Services
         Task<bool> Update(StaffAccount account);
         Task<bool> Delete(string id);
         Task<bool> ChangePwdStaff(string staffId, string oldPwd, string newPwd);
+        Task<StaffAccount> CheckLogin(string username);
     }
 
     public class StaffAccountService : IStaffAccountService
@@ -145,6 +146,23 @@ namespace Services
                 }
             }
             catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public Task<StaffAccount> CheckLogin(string username)
+        {
+            try
+            {
+                var account = repository.Get(username);
+                if (account == null)
+                {
+                    throw new Exception("Not Found Account");
+                }
+                return account;
+            }
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }

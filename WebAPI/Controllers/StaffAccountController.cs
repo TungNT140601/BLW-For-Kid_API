@@ -217,5 +217,50 @@ namespace WebAPI.Controllers
                 });
             }
         }
+
+        [HttpPost]
+        public IActionResult LoginAdminOrStaff(string username, string password)
+        {
+            try
+            {
+                var account = _staffAccountService.CheckLogin(username).Result;
+                if (account != null)
+                {
+                    if (account.Password != password)
+                    {
+                        return StatusCode(400, new
+                        {
+                            Message = "Password incorrect!!!"
+                        });
+                    }
+                    else
+                    {
+                        if (account.Role == 0 || account.Role == 1)
+                        {
+                            return Ok(new
+                            {
+                                Message = "Login success!!!"
+                            });
+                        }
+                        else
+                        {
+                            return StatusCode(400, new
+                            {
+                                Message = "You do not have permission!!!"
+                            });
+                        }
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            catch (AggregateException ae)
+            {
+                return BadRequest();
+            }
+        }
     }
 }
