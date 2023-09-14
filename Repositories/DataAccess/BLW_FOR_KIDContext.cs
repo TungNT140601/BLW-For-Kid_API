@@ -34,6 +34,7 @@ namespace Repositories.DataAccess
         public virtual DbSet<PaymentHistory> PaymentHistories { get; set; } = null!;
         public virtual DbSet<Plan> Plans { get; set; } = null!;
         public virtual DbSet<PlanDetail> PlanDetails { get; set; } = null!;
+        public virtual DbSet<PremiumPackage> PremiumPackages { get; set; } = null!;
         public virtual DbSet<Rating> Ratings { get; set; } = null!;
         public virtual DbSet<Recipe> Recipes { get; set; } = null!;
         public virtual DbSet<StaffAccount> StaffAccounts { get; set; } = null!;
@@ -480,41 +481,51 @@ namespace Repositories.DataAccess
             modelBuilder.Entity<PaymentHistory>(entity =>
             {
                 entity.HasKey(e => e.PaymentId)
-                    .HasName("PK__PaymentH__9B556A38ABEF5236");
+                    .HasName("PK__PaymentH__9B556A3817E37DCF");
 
                 entity.ToTable("PaymentHistory");
 
                 entity.Property(e => e.PaymentId).HasMaxLength(20);
 
-                entity.Property(e => e.Amount).HasMaxLength(255);
+                entity.Property(e => e.Amount).HasColumnType("money");
 
-                entity.Property(e => e.CreateDate).HasColumnType("datetime");
-
-                entity.Property(e => e.CreateDateS).HasMaxLength(255);
+                entity.Property(e => e.CreateDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
 
                 entity.Property(e => e.CustomerId).HasMaxLength(20);
 
                 entity.Property(e => e.EndDate).HasColumnType("datetime");
 
-                entity.Property(e => e.IpAddr).HasMaxLength(255);
+                entity.Property(e => e.MomoOrderId).HasMaxLength(255);
 
-                entity.Property(e => e.OrderInfo).HasColumnType("text");
+                entity.Property(e => e.MomoOrderInfo).HasColumnType("text");
 
-                entity.Property(e => e.PurchaseTime).HasColumnType("datetime");
+                entity.Property(e => e.MomoPayType).HasMaxLength(255);
 
-                entity.Property(e => e.ResponseCode).HasMaxLength(255);
+                entity.Property(e => e.MomoRequestId).HasMaxLength(255);
+
+                entity.Property(e => e.MomoResponseMsg).HasColumnType("text");
+
+                entity.Property(e => e.MomoResultCode).HasMaxLength(255);
+
+                entity.Property(e => e.PackageId).HasMaxLength(20);
+
+                entity.Property(e => e.PaymentChannel).HasMaxLength(255);
 
                 entity.Property(e => e.StartDate).HasColumnType("datetime");
-
-                entity.Property(e => e.TransactionNo).HasMaxLength(255);
-
-                entity.Property(e => e.TxnRef).HasMaxLength(255);
 
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.PaymentHistories)
                     .HasForeignKey(d => d.CustomerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__PaymentHi__Custo__40F9A68C");
+                    .HasConstraintName("FK__PaymentHi__Custo__625A9A57");
+
+                entity.HasOne(d => d.Package)
+                    .WithMany(p => p.PaymentHistories)
+                    .HasForeignKey(d => d.PackageId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__PaymentHi__Packa__634EBE90");
             });
 
             modelBuilder.Entity<Plan>(entity =>
@@ -558,6 +569,20 @@ namespace Repositories.DataAccess
                     .HasForeignKey(d => d.RecipeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__PlanDetai__Recip__07C12930");
+            });
+
+            modelBuilder.Entity<PremiumPackage>(entity =>
+            {
+                entity.HasKey(e => e.PackageId)
+                    .HasName("PK__PremiumP__322035CC74BDAC45");
+
+                entity.ToTable("PremiumPackage");
+
+                entity.Property(e => e.PackageId).HasMaxLength(20);
+
+                entity.Property(e => e.PackageAmount).HasColumnType("money");
+
+                entity.Property(e => e.PackageName).HasMaxLength(255);
             });
 
             modelBuilder.Entity<Rating>(entity =>
