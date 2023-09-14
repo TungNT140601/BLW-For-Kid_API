@@ -25,6 +25,7 @@ namespace Services
         bool CheckPhoneExist(string phone);
         Task<bool> ChangePassword(string cusId, string oldPassword, string newPassword);
         Task<bool> ResetPassword(string phoneNum, string newPassword);
+        Task<CustomerAccount> CheckPremium(string cusId);
     }
     public class CustomerService : ICustomerService
     {
@@ -336,6 +337,27 @@ namespace Services
                 {
                     throw new Exception("Không tìm thấy tài khoản");
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<CustomerAccount> CheckPremium(string cusId)
+        {
+            try
+            {
+                var customer = await customerRepository.Get(cusId);
+                if (customer != null)
+                {
+                    if (customer.LastEndPremiumDate != null && customer.IsPremium.Value && customer.LastEndPremiumDate > DateTime.Now)
+                    {
+                        customer.IsPremium = false;
+                        await customerRepository.Update(customer.CustomerId, customer);
+                    }
+                }
+                return customer;
             }
             catch (Exception ex)
             {

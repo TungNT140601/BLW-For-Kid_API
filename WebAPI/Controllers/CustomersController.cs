@@ -257,23 +257,35 @@ namespace WebAPI.Controllers
         {
             try
             {
-                if (User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value == "Customer")
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    var cusId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-                    return await customerService.Update(Validate(customerVM)) ? Ok(new
+                    if (role == "Customer")
                     {
-                        Status = "Update Success"
-                    }) : Ok(new
+                        var cusId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                        return await customerService.Update(Validate(customerVM)) ? Ok(new
+                        {
+                            Status = "Update Success"
+                        }) : Ok(new
+                        {
+                            Status = "Update Fail"
+                        });
+                    }
+                    else
                     {
-                        Status = "Update Fail"
-                    });
+                        return StatusCode(400, new
+                        {
+                            Status = "Error",
+                            ErrorMessage = "Role Denied"
+                        });
+                    }
                 }
                 else
                 {
-                    return StatusCode(400, new
+                    return StatusCode(401, new
                     {
-                        Status = "Error",
-                        ErrorMessage = "Role Denied"
+                        Status = "Not Login",
+                        ErrorMessage = "You are not login"
                     });
                 }
             }
