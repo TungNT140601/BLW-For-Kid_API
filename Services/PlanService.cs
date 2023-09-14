@@ -25,7 +25,8 @@ namespace Services
         private readonly IAgeRepository ageRepository;
         private readonly IMealRepository mealRepository;
         private readonly IRecipeRepository recipeRepository;
-        public PlanService(IPlanRepository planRepository, IPlanDetailRepository planDetailRepository, IAgeRepository ageRepository, IRecipeRepository recipeRepository, IMealRepository mealRepository)
+        public PlanService(IPlanRepository planRepository, IPlanDetailRepository planDetailRepository
+            , IAgeRepository ageRepository, IRecipeRepository recipeRepository, IMealRepository mealRepository)
         {
             this.planRepository = planRepository;
             this.planDetailRepository = planDetailRepository;
