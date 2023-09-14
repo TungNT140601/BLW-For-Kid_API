@@ -12,16 +12,16 @@ namespace WebAPI.Controllers
     [ApiController]
     public class StaffAccountController : ControllerBase
     {
-        protected readonly StaffAccountService _staffAccountService;
+        protected readonly IStaffAccountService _staffAccountService;
         private readonly IMapper _mapper;
 
-        public StaffAccountController(StaffAccountService staffAccountService, IMapper mapper)
+        public StaffAccountController(IStaffAccountService staffAccountService, IMapper mapper)
         {
             _staffAccountService = staffAccountService;
             _mapper = mapper;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
         public async Task<IActionResult> GetStaff(string id)
         {
             try
@@ -118,7 +118,7 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
         public async Task<IActionResult> UpdateStaff(string id, StaffAccountUpdateVM model)
         {
             try
@@ -152,7 +152,7 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
         public async Task<IActionResult> DeleteStaff(string id)
         {
             try
