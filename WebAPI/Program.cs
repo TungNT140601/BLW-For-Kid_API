@@ -86,6 +86,10 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IStaffAccountRepository, StaffAccountRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IStaffAccountService, StaffAccountService>();
+builder.Services.AddScoped<IIngredientService, IngredientService>();
+builder.Services.AddScoped<IIngredientRepository, IngredientRepository>();
+builder.Services.AddScoped<IExpertService, ExpertService>();
+builder.Services.AddScoped<IExpertRepository, ExpertRepository>();
 
 
 var app = builder.Build();
