@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Repositories.Repository.Interface
 {
-    public interface IBabyRepository : IGenericRepository<Baby>
+    public interface IRatingRepository : IGenericRepository<Rating>
     {
     }
 }
