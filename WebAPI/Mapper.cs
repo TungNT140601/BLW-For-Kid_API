@@ -11,6 +11,11 @@ namespace WebAPI
             CreateMap<CustomerAccount, CustomerVM>();
             CreateMap<CustomerVM, CustomerAccount>();
 
+            CreateMap<Ingredient, IngredientVM>();
+            CreateMap<IngredientVM, Ingredient>();
+
+            CreateMap<Expert, ExpertVM>();
+            CreateMap<ExpertVM, Expert>();
         }
     }
 }
