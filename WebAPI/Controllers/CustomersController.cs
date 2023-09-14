@@ -252,6 +252,50 @@ namespace WebAPI.Controllers
                 });
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> GetInfo()
+        {
+            try
+            {
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
+                {
+                    if (role == "Customer")
+                    {
+                        var cus = await customerService.Get(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+                        return Ok(new
+                        {
+                            Status = "Success",
+                            Data = mapper.Map<CustomerVM>(cus)
+                        });
+                    }
+                    else
+                    {
+                        return StatusCode(400, new
+                        {
+                            Status = "Error",
+                            ErrorMessage = "Role Denied"
+                        });
+                    }
+                }
+                else
+                {
+                    return StatusCode(401, new
+                    {
+                        Status = "Not Login",
+                        ErrorMessage = "You are not login"
+                    });
+                }
+            }
+            catch (AggregateException ae)
+            {
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ae.InnerExceptions[0].Message
+                });
+            }
+        }
         [HttpPost]
         public async Task<IActionResult> UpdateInfo(CustomerVM customerVM)
         {
@@ -299,14 +343,22 @@ namespace WebAPI.Controllers
             }
         }
         [HttpGet]
-        public async Task<IActionResult> GetPaymentMomoUrl(string channel, string packageId, string ipAddress,long amount)
+        public async Task<IActionResult> GetPaymentMomoUrl(string channel, string packageId, string ipAddress, long amount)
         {
-            return Ok(GetUrlMomo(amount));
+            string url = "";
+            if (channel == "momo")
+            {
+                url = GetUrlMomo(amount);
+            }
+            return Ok(new
+            {
+                Url = url
+            });
         }
         [HttpGet]
         public async Task<IActionResult> GetResultMomoPayment(string partnerCode
-            ,string orderId,string requestId,long amount,string orderInfo, string orderType
-            ,string transId,string resultCode,string message,string payType,long responseTime,string extraData, string signature)
+            , string orderId, string requestId, long amount, string orderInfo, string orderType
+            , string transId, string resultCode, string message, string payType, long responseTime, string extraData, string signature)
         {
             return Ok(new
             {
