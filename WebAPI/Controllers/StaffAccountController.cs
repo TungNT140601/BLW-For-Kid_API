@@ -46,17 +46,38 @@ namespace WebAPI.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
         [HttpGet]
         public async Task<IActionResult> GetStaff(string id)
         {
             try
             {
-                return Ok(new
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    Status = 1,
-                    Message = "Success",
-                    Data = _mapper.Map<StaffAccount>(_staffAccountService.GetStaffAccount(id))
-                }); 
+                    if (role == "Admin" || role == "Staff")
+                    {
+                        return Ok(new
+                        {
+                            Status = 1,
+                            Message = "Success",
+                            Data = _mapper.Map<StaffAccount>(_staffAccountService.GetStaffAccount(id))
+                        });
+                    }
+                    else
+                    {
+                        return StatusCode(400, new
+                        {
+                            Status = -1,
+                            Message = "Role Denied"
+                        });
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+                
             }
             catch (Exception e)
             {
@@ -69,18 +90,38 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var list = _staffAccountService.GetAllStaffAccount();
-                var staffAccount = new List<StaffAccount>();
-                foreach (var item in list)
-                {SS
-                    staffAccount.Add(_mapper.Map<StaffAccount>(item));
-                }
-                return Ok(new
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    Status = 1,
-                    Message = "Success",
-                    Data = staffAccount
-                });
+                    if (role == "Admin")
+                    {
+                        var list = _staffAccountService.GetAllStaffAccount();
+                        var staffAccount = new List<StaffAccount>();
+                        foreach (var item in list)
+                        {
+                            staffAccount.Add(_mapper.Map<StaffAccount>(item));
+                        }
+                        return Ok(new
+                        {
+                            Status = 1,
+                            Message = "Success",
+                            Data = staffAccount
+                        });
+                    }
+                    else
+                    {
+                        return StatusCode(400, new
+                        {
+                            Status = -1,
+                            Message = "Role Denied"
+                        });
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+                
             }
             catch
             (Exception e)
@@ -94,7 +135,27 @@ namespace WebAPI.Controllers
         {
             try
             {
-                if(string.IsNullOrEmpty(model.Email))
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
+                {
+                    if(role == "Admin")
+                    {
+
+                    }
+                    else
+                    {
+                        return StatusCode(400, new
+                        {
+                            Status = -1,
+                            Message = "Role Denied"
+                        });
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+                if (string.IsNullOrEmpty(model.Email))
                 {
                     return StatusCode(400, new
                     {
@@ -123,30 +184,18 @@ namespace WebAPI.Controllers
                     });
                 }
                 else
-                {                   
-                    if(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value == "Staff")
+                {       
+                    var staffAccount = _mapper.Map<StaffAccount>(model);
+                    var check = _staffAccountService.Add(staffAccount);
+                    return await check ? Ok(new
                     {
-                        var staffAccount = _mapper.Map<StaffAccount>(model);
-                        var check = _staffAccountService.Add(staffAccount);
-                        return await check ? Ok(new
-                        {
-                            Status = 1,
-                            Message = "Success"
-                        }) : Ok(new
-                        {
-                            Status = 0,
-                            Message = "Fail"
-                        });
-                    }
-                    else
+                        Status = 1,
+                        Message = "Success"
+                    }) : Ok(new
                     {
-                        return StatusCode(400, new
-                        {
-                            Status = "Error",
-                            Message = "Role denied"
-                        });
-                    }
-                    
+                        Status = 0,
+                        Message = "Fail"
+                     });                   
                 }            
             }
             catch(Exception e)
@@ -160,28 +209,47 @@ namespace WebAPI.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(model.Fullname))
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    return StatusCode(400, new
+                    if (role == "Admin" || role == "Staff")
                     {
-                        Message = "FullName cannot be empty!!!"
-                    });
+                        if (string.IsNullOrEmpty(model.Fullname))
+                        {
+                            return StatusCode(400, new
+                            {
+                                Message = "FullName cannot be empty!!!"
+                            });
+                        }
+                        else
+                        {
+                            model.Id = id;
+                            var staffAccount = _mapper.Map<StaffAccount>(model);
+                            var check = _staffAccountService.Add(staffAccount);
+                            return await check ? Ok(new
+                            {
+                                Status = 1,
+                                Message = "Success"
+                            }) : Ok(new
+                            {
+                                Status = 0,
+                                Message = "Fail"
+                            });
+                        }
+                    }
+                    else
+                    {
+                        return StatusCode(400, new
+                        {
+                            Status = -1,
+                            Message = "Role Denied"
+                        });
+                    }
                 }
                 else
                 {
-                    model.Id = id;
-                    var staffAccount = _mapper.Map<StaffAccount>(model);
-                    var check = _staffAccountService.Add(staffAccount);
-                    return await check ? Ok(new
-                    {
-                        Status = 1,
-                        Message = "Success"
-                    }) : Ok(new
-                    {
-                        Status = 0,
-                        Message = "Fail"
-                    });
-                }
+                    return Unauthorized();
+                }                
             }
             catch(Exception e)
             {
@@ -194,24 +262,44 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var acccountStaff = _staffAccountService.GetStaffAccount(id);
-                if(acccountStaff != null)
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    var check = _staffAccountService.Delete(id);
-                    return await check ? Ok(new
+                    if (role == "Admin")
                     {
-                        Status = 1,
-                        Message = "Success"
-                    }) : Ok(new
+                        var acccountStaff = _staffAccountService.GetStaffAccount(id);
+                        if (acccountStaff != null)
+                        {
+                            var check = _staffAccountService.Delete(id);
+                            return await check ? Ok(new
+                            {
+                                Status = 1,
+                                Message = "Success"
+                            }) : Ok(new
+                            {
+                                Status = 0,
+                                Message = "Fail"
+                            });
+                        }
+                        else
+                        {
+                            return NotFound();
+                        }
+                    }
+                    else
                     {
-                        Status = 0,
-                        Message = "Fail"
-                    });
+                        return StatusCode(400, new
+                        {
+                            Status = -1,
+                            Message = "Role Denied"
+                        });
+                    }
                 }
                 else
                 {
-                    return NotFound();
+                    return Unauthorized();
                 }
+                
             }
             catch(Exception e)
             {
@@ -260,6 +348,7 @@ namespace WebAPI.Controllers
         {
             try
             {
+                var role = "";
                 var account = _staffAccountService.CheckLogin(username).Result;
                 if (account != null)
                 {
@@ -274,10 +363,20 @@ namespace WebAPI.Controllers
                     {
                         if (account.Role == 0 || account.Role == 1)
                         {
+                            if(account.Role == 0)
+                            {
+                                role = "Admin";
+                            }
+                            else if(account.Role == 1)
+                            {
+                                role = "Staff";
+                            }
                             return Ok(new
                             {
-                                Message = "Login success!!!"
+                                Message = "Login success!!!",
+                                Token = GenerateJwtToken(account.StaffId, role)
                             });
+                            
                         }
                         else
                         {

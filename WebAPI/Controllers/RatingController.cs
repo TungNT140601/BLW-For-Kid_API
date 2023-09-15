@@ -1,8 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Repositories.EntityModels;
 using Services;
+using System.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using WebAPI.ViewModels;
 
 namespace WebAPI.Controllers
@@ -11,6 +16,7 @@ namespace WebAPI.Controllers
     [ApiController]
     public class RatingController : ControllerBase
     {
+        private readonly IConfiguration configuration;
         private readonly IRatingService ratingService;
         private readonly IMapper mapper;
 
@@ -18,6 +24,27 @@ namespace WebAPI.Controllers
         {
             this.ratingService = ratingService;
             this.mapper = mapper;
+        }
+
+        private string GenerateJwtToken(string id)
+        {
+            var jwtSettings = configuration.GetSection("JwtSettings");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var claims = new List<Claim>
+            {
+            new Claim(ClaimTypes.NameIdentifier, id),
+            new Claim(ClaimTypes.Role, "Customer")
+        };
+            var token = new JwtSecurityToken(
+                issuer: jwtSettings["Issuer"],
+                audience: jwtSettings["Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(30),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         [HttpGet]
@@ -35,7 +62,7 @@ namespace WebAPI.Controllers
                 {
                     Status = 1,
                     Data = rating
-            });
+                });
             }
             catch (Exception ex)
             {
@@ -66,15 +93,35 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var rating = mapper.Map<Rating>(model);
-                var check = ratingService.Add(rating);
-                return await check ? Ok(new
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    Message = "Add Success!!!"
-                }) : Ok(new
+                    if (role == "Customer")
+                    {
+                        var rating = mapper.Map<Rating>(model);
+                        var check = ratingService.Add(rating);
+                        return await check ? Ok(new
+                        {
+                            Message = "Add Success!!!"
+                        }) : Ok(new
+                        {
+                            Message = "Add Fail"
+                        });
+                    }
+                    else
+                    {
+                        return StatusCode(400, new
+                        {
+                            Status = -1,
+                            Message = "Role Denied"
+                        });
+                    }
+                }
+                else
                 {
-                    Message = "Add Fail"
-                });
+                    return Unauthorized();
+                }
+                
             }
             catch (Exception ex)
             {
@@ -87,15 +134,35 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var rating = mapper.Map<Rating>(model);
-                var check = ratingService.Update(rating);
-                return await check ? Ok(new
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
+                {
+                    if (role == "Customer")
+                    {
+                        var rating = mapper.Map<Rating>(model);
+                        var check = ratingService.Update(rating);
+                        return await check ? Ok(new
                 {
                     Message = "Update Success!!!"
                 }) : Ok(new
                 {
                     Message = "Update Fail"
                 });
+                    }
+                    else
+                    {
+                        return StatusCode(400, new
+                        {
+                            Status = -1,
+                            Message = "Role Denied"
+                        });
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+                
             }
             catch (Exception ex)
             {
@@ -107,15 +174,35 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> DeleteRating(string id)
         {
             try
-            {              
-                var check = ratingService.Delete(id);
-                return await check ? Ok(new
+            {
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    Message = "Delete Success!!!"
-                }) : Ok(new
+                    if (role == "Customer")
+                    {
+                        var check = ratingService.Delete(id);
+                        return await check ? Ok(new
+                        {
+                            Message = "Delete Success!!!"
+                        }) : Ok(new
+                        {
+                            Message = "Delete Fail"
+                        });
+                    }
+                    else
+                    {
+                        return StatusCode(400, new
+                        {
+                            Status = -1,
+                            Message = "Role Denied"
+                        });
+                    }
+                }
+                else
                 {
-                    Message = "Delete Fail"
-                });
+                    return Unauthorized();
+                }
+                
             }
             catch (Exception ex)
             {
