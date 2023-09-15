@@ -1,9 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Repositories.EntityModels;
 using Services;
 using System;
+using System.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using WebAPI.ViewModels;
 
 namespace WebAPI.Controllers
@@ -12,6 +17,7 @@ namespace WebAPI.Controllers
     [ApiController]
     public class FavoriteController : ControllerBase
     {
+        private readonly IConfiguration configuration;
         private readonly IFavoriteService _favoriteService;
         private readonly IMapper _mapper;
 
@@ -19,6 +25,26 @@ namespace WebAPI.Controllers
         {
             _favoriteService = favoriteService;
             _mapper = mapper;
+        }
+        private string GenerateJwtToken(string id)
+        {
+            var jwtSettings = configuration.GetSection("JwtSettings");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var claims = new List<Claim>
+            {
+            new Claim(ClaimTypes.NameIdentifier, id),
+            new Claim(ClaimTypes.Role, "Customer")
+        };
+            var token = new JwtSecurityToken(
+                issuer: jwtSettings["Issuer"],
+                audience: jwtSettings["Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(30),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         [HttpGet]
@@ -50,15 +76,35 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var favorite = _mapper.Map<Favorite>(model);
-                var check = _favoriteService.Add(favorite);
-                return await check ? Ok(new
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    Message = "Add Success!!!"
-                }) : Ok(new
+                    if(role == "Customer")
+                    {
+                        var favorite = _mapper.Map<Favorite>(model);
+                        var check = _favoriteService.Add(favorite);
+                        return await check ? Ok(new
+                        {
+                            Message = "Add Success!!!"
+                        }) : Ok(new
+                        {
+                            Message = "Add Fail"
+                        });
+                    }
+                    else
+                    {
+                        return StatusCode(400, new
+                        {
+                            Status = -1,
+                            Message = "Role Denied"
+                        });
+                    }
+                }
+                else
                 {
-                    Message = "Add Fail"
-                });
+                    return Unauthorized();
+                }
+
             }
             catch (Exception e)
             {
@@ -70,13 +116,33 @@ namespace WebAPI.Controllers
         {
             try
             {
-                return await _favoriteService.Delete(cusId, recipeId) ? Ok(new
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    Message = "Delete Success!!!"
-                }) : Ok(new
+                    if (role == "Customer")
+                    {
+                        return await _favoriteService.Delete(cusId, recipeId) ? Ok(new
+                        {
+                            Message = "Delete Success!!!"
+                        }) : Ok(new
+                        {
+                            Message = "Delete Fail"
+                        });
+                    }
+                    else
+                    {
+                        return StatusCode(400, new
+                        {
+                            Status = -1,
+                            Message = "Role Denied"
+                        });
+                    }
+                }
+                else
                 {
-                    Message = "Delete Fail"
-                });
+                    return Unauthorized();
+                }
+
             }
             catch(Exception e)
             {
