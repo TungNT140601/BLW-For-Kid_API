@@ -1,8 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Repositories.EntityModels;
 using Services;
+using System.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using WebAPI.ViewModels;
 
 namespace WebAPI.Controllers
@@ -11,13 +16,15 @@ namespace WebAPI.Controllers
     [ApiController]
     public class ExpertController : ControllerBase
     {
+        private readonly IConfiguration configuration;
         private readonly IExpertService expertService;
         private readonly IMapper mapper;
 
-        public ExpertController(IExpertService expertService, IMapper mapper)
+        public ExpertController(IExpertService expertService, IMapper mapper, IConfiguration configuration)
         {
             this.expertService = expertService;
             this.mapper = mapper;
+            this.configuration = configuration;
         }
 
         [HttpGet]
@@ -157,7 +164,7 @@ namespace WebAPI.Controllers
                 //var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 //if (!string.IsNullOrEmpty(role))
                 //{
-                //if (role == "ADMIN" && role == "STAFF")
+                //if (role == "ADMIN" || role == "STAFF")
                 //{
                 var check = expertService.Delete(id);
                 return await check ? Ok(new
@@ -195,15 +202,36 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var check = expertService.ResetPassword(resetPassword.Phone, resetPassword.NewPassword).Result;
-                return check ? Ok(new
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    Status = "Reset Success"
-                }) : Ok(new
+                    if (role == "Expert")
+                    {
+                        var id = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                        var check = expertService.ResetPassword(id,resetPassword.OldPassword, resetPassword.NewPassword).Result;
+                        return check ? Ok(new
+                        {
+                            Status = "Reset Success"
+                        }) : Ok(new
+                        {
+                            Status = "Reset Fail"
+                        });
+                    }
+                    else
+                    {
+                        return Ok(new
+                        {
+                            Status = 0,
+                            Message = "Role Denied",
+                            Data = new { }
+                        });
+                    }
+                }
+                else
                 {
-                    Status = "Reset Fail"
-                });
-            }
+                    return BadRequest();
+                }
+                }
             catch (AggregateException ae)
             {
                 return StatusCode(400, new
@@ -219,26 +247,6 @@ namespace WebAPI.Controllers
             if (string.IsNullOrEmpty(expertVM.Email.Trim()))
             {
                 throw new Exception("Expert Email cannot be empty!!!");
-            }
-            if (string.IsNullOrEmpty(expertVM.GoogleId.Trim()))
-            {
-                throw new Exception("Expert GoogleId cannot be empty!!!");
-            }
-            if (string.IsNullOrEmpty(expertVM.FacebookId.Trim()))
-            {
-                throw new Exception("Expert GoogleId cannot be empty!!!");
-            }
-            if (string.IsNullOrEmpty(expertVM.PhoneNum.Trim()))
-            {
-                throw new Exception("Expert GoogleId cannot be a negative number!!!");
-            }
-            if (string.IsNullOrEmpty(expertVM.Avatar.Trim()))
-            {
-                throw new Exception("Expert Avatar cannot be a negative number!!!");
-            }
-            if (expertVM.DateOfBirth == DateTime.Now)
-            {
-                throw new Exception("Expert DateOfBirth cannot be a date now!!!");
             }
             if (expertVM.Gender < 0)
             {
@@ -257,35 +265,59 @@ namespace WebAPI.Controllers
             {
                 throw new Exception("Expert Name cannot be empty!!!");
             }
-            if (string.IsNullOrEmpty(expertVM.Title.Trim()))
-            {
-                throw new Exception("Expert Title cannot be empty!!!");
-            }
-            if (string.IsNullOrEmpty(expertVM.Position.Trim()))
-            {
-                throw new Exception("Expert Position cannot be empty!!!");
-            }
-            if (string.IsNullOrEmpty(expertVM.WorkUnit.Trim()))
-            {
-                throw new Exception("Expert WorkUnit cannot be empty!!!");
-            }
-            if (string.IsNullOrEmpty(expertVM.Description.Trim()))
-            {
-                throw new Exception("Expert Description cannot be empty!!!");
-            }
-            if (string.IsNullOrEmpty(expertVM.ProfessionalQualification.Trim()))
-            {
-                throw new Exception("Expert ProfessionalQualification cannot be empty!!!");
-            }
-            if (string.IsNullOrEmpty(expertVM.WorkProgress.Trim()))
-            {
-                throw new Exception("Expert WorkProgress cannot be empty!!!");
-            }
-            if (string.IsNullOrEmpty(expertVM.Achievements.Trim()))
-            {
-                throw new Exception("Expert Achievements cannot be empty!!!");
-            }
+            
             return mapper.Map<Expert>(expertVM);
+        }
+
+        private string GenerateJwtToken(string id)
+        {
+            var jwtSettings = configuration.GetSection("JwtSettings");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var claims = new List<Claim>
+            {
+            new Claim(ClaimTypes.NameIdentifier, id),
+            new Claim(ClaimTypes.Role, "Expert")
+        };
+            var token = new JwtSecurityToken(
+                issuer: jwtSettings["Issuer"],
+                audience: jwtSettings["Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(30),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LoginExpert(ExpLogin expLogin)
+        {
+            try
+            {
+                var exp = expertService.LoginExpert(expLogin.Username, expLogin.Password).Result;
+                return Ok(new
+                {
+                    Status = "Login Success",
+                    Data = new
+                    {
+                        Fullname = exp.Name,
+                        Avatar = exp.Avatar,
+                        Phonenum = exp.PhoneNum,
+                    },
+                    Token = GenerateJwtToken(exp.ExpertId)
+                });
+            }
+            catch (AggregateException ae)
+            {
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    Data = new { },
+                    Token = "",
+                    ErrorMessage = ae.InnerExceptions[0].Message
+                });
+            }
         }
     }
 }
