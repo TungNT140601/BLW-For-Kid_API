@@ -96,7 +96,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Customer")
+                    if (role == CommonValues.CUSTOMER)
                     {
                         var rating = mapper.Map<Rating>(model);
                         var check = ratingService.Add(rating);
@@ -137,7 +137,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Customer")
+                    if (role == CommonValues.CUSTOMER)
                     {
                         var rating = mapper.Map<Rating>(model);
                         var check = ratingService.Update(rating);
@@ -178,7 +178,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Customer")
+                    if (role == CommonValues.CUSTOMER)
                     {
                         var check = ratingService.Delete(id);
                         return await check ? Ok(new

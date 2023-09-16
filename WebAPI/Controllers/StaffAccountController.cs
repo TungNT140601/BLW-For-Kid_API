@@ -55,7 +55,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Admin" || role == "Staff")
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                     {
                         return Ok(new
                         {
@@ -93,7 +93,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Admin")
+                    if (role == CommonValues.ADMIN)
                     {
                         var list = _staffAccountService.GetAllStaffAccount();
                         var staffAccount = new List<StaffAccount>();
@@ -138,9 +138,50 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if(role == "Admin")
+                    if(role == CommonValues.ADMIN)
                     {
-
+                        if (string.IsNullOrEmpty(model.Email))
+                        {
+                            return StatusCode(400, new
+                            {
+                                Message = "Email cannot be empty!!!"
+                            });
+                        }
+                        else if (string.IsNullOrEmpty(model.Username))
+                        {
+                            return StatusCode(400, new
+                            {
+                                Message = "Username cannot be empty!!!"
+                            });
+                        }
+                        else if (string.IsNullOrEmpty(model.Password))
+                        {
+                            return StatusCode(400, new
+                            {
+                                Message = "Password cannot be empty!!!"
+                            });
+                        }
+                        else if (string.IsNullOrEmpty(model.Fullname))
+                        {
+                            return StatusCode(400, new
+                            {
+                                Message = "Fullname cannot be empty!!!"
+                            });
+                        }
+                        else
+                        {
+                            var staffAccount = _mapper.Map<StaffAccount>(model);
+                            var check = _staffAccountService.Add(staffAccount);
+                            return await check ? Ok(new
+                            {
+                                Status = 1,
+                                Message = "Success"
+                            }) : Ok(new
+                            {
+                                Status = 0,
+                                Message = "Fail"
+                            });
+                        }
                     }
                     else
                     {
@@ -155,48 +196,7 @@ namespace WebAPI.Controllers
                 {
                     return Unauthorized();
                 }
-                if (string.IsNullOrEmpty(model.Email))
-                {
-                    return StatusCode(400, new
-                    {
-                        Message = "Email cannot be empty!!!"
-                    });
-                }
-               else if (string.IsNullOrEmpty(model.Username))
-                {
-                    return StatusCode(400, new
-                    {
-                        Message = "Username cannot be empty!!!"
-                    });
-                }
-                else if(string.IsNullOrEmpty(model.Password))
-                {
-                    return StatusCode(400, new
-                    {
-                        Message = "Password cannot be empty!!!"
-                    });
-                }
-                else if (string.IsNullOrEmpty(model.Fullname))
-                {
-                    return StatusCode(400, new
-                    {
-                        Message = "Fullname cannot be empty!!!"
-                    });
-                }
-                else
-                {       
-                    var staffAccount = _mapper.Map<StaffAccount>(model);
-                    var check = _staffAccountService.Add(staffAccount);
-                    return await check ? Ok(new
-                    {
-                        Status = 1,
-                        Message = "Success"
-                    }) : Ok(new
-                    {
-                        Status = 0,
-                        Message = "Fail"
-                     });                   
-                }            
+                
             }
             catch(Exception e)
             {
@@ -212,7 +212,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Admin" || role == "Staff")
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                     {
                         if (string.IsNullOrEmpty(model.Fullname))
                         {
@@ -265,7 +265,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Admin")
+                    if (role == CommonValues.ADMIN)
                     {
                         var acccountStaff = _staffAccountService.GetStaffAccount(id);
                         if (acccountStaff != null)
@@ -365,11 +365,11 @@ namespace WebAPI.Controllers
                         {
                             if(account.Role == 0)
                             {
-                                role = "Admin";
+                                role = CommonValues.ADMIN;
                             }
                             else if(account.Role == 1)
                             {
-                                role = "Staff";
+                                role = CommonValues.STAFF;
                             }
                             return Ok(new
                             {

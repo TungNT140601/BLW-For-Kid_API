@@ -1,5 +1,6 @@
 ﻿using Repositories.EntityModels;
 using Repositories.Repository.Interface;
+using Repositories.Ultilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,8 @@ namespace Services
         {
             try
             {
+                age.AgeId = AutoGenId.AutoGenerateId();
+                age.IsDelete = false;
                 return repository.Add(age);
             }
             catch(Exception ex)

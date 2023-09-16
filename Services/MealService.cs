@@ -1,4 +1,6 @@
 ﻿using Repositories.EntityModels;
+using Repositories.Repository.Interface;
+using Repositories.Ultilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,36 +13,107 @@ namespace Services
     {
         IEnumerable<Meal> GetAllMeal();
         Task<Meal> GetMeal(string id);
-        Task<bool> AddMeal(Meal age);
-        Task<bool> UpdateMeal(Meal age);
+        Task<bool> AddMeal(Meal meal);
+        Task<bool> UpdateMeal(Meal meal);
         Task<bool> DeleteMeal(string id);
     }
 
-    public class MealService : IAgeService
+    public class MealService : IMealService
     {
-        public Task<bool> AddAge(Age age)
+        private readonly IMealRepository repository;
+        public MealService(IMealRepository repository)
         {
-            throw new NotImplementedException();
+            this.repository = repository;
         }
 
-        public Task<bool> UpdateAge(Age age)
+        public Task<bool> AddMeal(Meal meal)
         {
-            throw new NotImplementedException();
+            try
+            {
+                meal.MealId = AutoGenId.AutoGenerateId();
+                meal.IsDelete = false;
+                return repository.Add(meal);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
-        public Task<bool> DeleteAge(string id)
+        public async Task<bool> DeleteMeal(string id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var check = await repository.Get(id);
+                if(check != null)
+                {
+                    check.IsDelete = true;
+                    return await repository.Update(id, check);
+                }
+                else 
+                {
+                    throw new Exception("Not Found Meal");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
-        public Task<Age> GetAge(string id)
+        public IEnumerable<Meal> GetAllMeal()
         {
-            throw new NotImplementedException();
+            try
+            {
+                return repository.GetAll(x => x.IsDelete == false);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
-        public IEnumerable<Age> GetAllAge()
+        public Task<Meal> GetMeal(string id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var check =  repository.Get(id);
+                if( check != null)
+                {
+                    return check;
+                }
+                else
+                {
+                    throw new Exception("Not Found Meal");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<bool> UpdateMeal(Meal meal)
+        {
+            try
+            {
+                var check = await repository.Get(meal.MealId);
+                if (check != null)
+                {
+                    check.MealName = meal.MealName;
+                    check.StaffUpdate = meal.StaffUpdate;
+                    check.UpdateTime = meal.UpdateTime;
+                    return await repository.Update(meal.MealId, check);
+                }
+                else
+                {
+                    throw new Exception("Not Found Meal");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }
