@@ -101,6 +101,11 @@ namespace Services
                 var pre = repository.Get(premiumPackage.PackageId).Result;
                 if (pre != null)
                 {
+                    pre.PackageName = premiumPackage.PackageName;
+                    pre.PackageAmount = premiumPackage.PackageAmount;
+                    pre.PackageDiscount = premiumPackage.PackageDiscount;
+                    pre.PackageMonth = premiumPackage.PackageMonth;
+                    
                     return repository.Update(premiumPackage.PackageId, pre);
                 }
                 else
