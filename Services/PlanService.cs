@@ -13,7 +13,7 @@ namespace Services
     public interface IPlanService
     {
         Task<Plan> GetPlan(string id);
-        IEnumerable<Plan> GetPlans();
+        Task<IEnumerable<Plan>> GetPlans();
         Task<bool> Add(Plan plan, List<PlanDetail> planDetails);
         Task<bool> Update(Plan plan, List<PlanDetail> planDetails);
         Task<bool> Delete(string id);
@@ -23,13 +23,16 @@ namespace Services
         private readonly IPlanRepository planRepository;
         private readonly IPlanDetailRepository planDetailRepository;
         private readonly IAgeRepository ageRepository;
+        private readonly IMealRepository mealRepository;
         private readonly IRecipeRepository recipeRepository;
-        public PlanService(IPlanRepository planRepository, IPlanDetailRepository planDetailRepository, IAgeRepository ageRepository, IRecipeRepository recipeRepository)
+        public PlanService(IPlanRepository planRepository, IPlanDetailRepository planDetailRepository
+            , IAgeRepository ageRepository, IRecipeRepository recipeRepository, IMealRepository mealRepository)
         {
             this.planRepository = planRepository;
             this.planDetailRepository = planDetailRepository;
             this.ageRepository = ageRepository;
             this.recipeRepository = recipeRepository;
+            this.mealRepository = mealRepository;
         }
 
         public async Task<bool> Add(Plan plan, List<PlanDetail> planDetails)
@@ -42,7 +45,7 @@ namespace Services
                 {
                     throw new Exception("Plan Name Exist!!!");
                 }
-                var age = ageRepository.Get(plan.AgeId);
+                var age = await ageRepository.Get(plan.AgeId);
                 if (age == null)
                 {
                     throw new Exception("Age Not Found!!!");
@@ -51,6 +54,7 @@ namespace Services
                 planId = plan.PlanId;
                 plan.PlanDetails = new List<PlanDetail>();
                 var addPlan = await planRepository.Add(plan);
+                var addPlanDetail = false;
                 if (addPlan)
                 {
                     foreach (var planDetail in planDetails)
@@ -63,29 +67,35 @@ namespace Services
                             throw new Exception("Recipe Not Found!!!");
                         }
                     }
+                    addPlanDetail = await planDetailRepository.AddRange(planDetails);
                 }
-                return await planDetailRepository.AddRange(planDetails) && addPlan;
+                if (addPlanDetail == false || addPlan == false)
+                {
+                    throw new Exception("Add Fail!!!");
+                }
+                return true;
             }
             catch (Exception ex)
             {
+                await planDetailRepository.RemoveRange(planId);
                 await planRepository.Delete(planId);
                 throw new Exception(ex.Message);
             }
         }
 
-        public Task<bool> Delete(string id)
+        public async Task<bool> Delete(string id)
         {
             try
             {
-                var plan = planRepository.Get(id);
+                var plan = await planRepository.Get(id);
                 if (plan == null)
                 {
                     throw new Exception("Not Found Plan");
                 }
                 else
                 {
-                    plan.Result.IsDelete = true;
-                    return planRepository.Update(id, plan.Result);
+                    plan.IsDelete = true;
+                    return await planRepository.Update(id, plan);
                 }
             }
             catch (Exception ex)
@@ -94,16 +104,25 @@ namespace Services
             }
         }
 
-        public Task<Plan> GetPlan(string id)
+        public async Task<Plan> GetPlan(string id)
         {
             try
             {
-                var plan = planRepository.Get(id);
-                if (plan == null)
+                var plan = await planRepository.Get(id);
+                if (plan == null || plan.IsDelete.Value == false)
                 {
                     throw new Exception("Not Found Plan");
                 }
-                plan.Result.PlanDetails = planDetailRepository.GetAll(x => x.PlanId == id).ToList();
+                plan.PlanDetails = planDetailRepository.GetAll(x => x.PlanId == id).ToList();
+                if (plan.PlanDetails != null)
+                {
+                    foreach (var planDetail in plan.PlanDetails)
+                    {
+                        planDetail.Recipe = await recipeRepository.Get(planDetail.RecipeId);
+                        planDetail.Recipe.Age = await ageRepository.Get(planDetail.Recipe.AgeId);
+                        planDetail.Recipe.Meal = await mealRepository.Get(planDetail.Recipe.MealId);
+                    }
+                }
                 return plan;
             }
             catch (Exception ex)
@@ -112,11 +131,19 @@ namespace Services
             }
         }
 
-        public IEnumerable<Plan> GetPlans()
+        public async Task<IEnumerable<Plan>> GetPlans()
         {
             try
             {
-                return planRepository.GetAll(x => x.IsDelete == false);
+                var plans = planRepository.GetAll(x => x.IsDelete == false);
+                if (plans != null)
+                {
+                    foreach (var plan in plans)
+                    {
+                        plan.Age = await ageRepository.Get(plan.AgeId);
+                    }
+                }
+                return plans;
             }
             catch (Exception ex)
             {
@@ -130,14 +157,14 @@ namespace Services
             var planDetailBk = new List<PlanDetail>();
             try
             {
-                var check = planRepository.Get(plan.PlanId);
-                if (check.Result == null)
+                var check = await planRepository.Get(plan.PlanId);
+                if (check == null)
                 {
                     throw new Exception("Not Found Plan");
                 }
                 else
                 {
-                    planBk = check.Result;
+                    planBk = check;
                     planDetailBk = planDetailRepository.GetAll(x => x.PlanId == planBk.PlanId).ToList();
                 }
 
@@ -153,6 +180,7 @@ namespace Services
                 }
                 plan.PlanDetails = new List<PlanDetail>();
                 var updateCheck = await planRepository.Update(plan.PlanId, plan);
+                var updatePlanDetail = true;
                 if (updateCheck)
                 {
                     await planDetailRepository.RemoveRange(plan.PlanId);
@@ -166,8 +194,17 @@ namespace Services
                             throw new Exception("Recipe Not Found!!!");
                         }
                     }
+                    updatePlanDetail = await planDetailRepository.AddRange(planDetails);
                 }
-                return await planDetailRepository.AddRange(planDetails) && updateCheck;
+                if (updatePlanDetail && updateCheck)
+                {
+                    return true;
+                }
+                else
+                {
+                    throw new Exception("Update Fail");
+                }
+
             }
             catch (Exception ex)
             {

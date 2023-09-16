@@ -1,4 +1,5 @@
 ﻿using Repositories.EntityModels;
+using Repositories.Repository;
 using Repositories.Repository.Interface;
 using Repositories.Ultilities;
 using System;
@@ -16,7 +17,8 @@ namespace Services
         Task<bool> Add(Expert expert);
         Task<bool> Update(Expert expert);
         Task<bool> Delete(string id);
-        Task<bool> ResetPassword(string phoneNum, string newPassword);
+        Task<bool> ResetPassword(string expertID, string oldPassword, string newPassword);
+        Task<Expert> LoginExpert(string username, string password);
     }
     public class ExpertService : IExpertService
     {
@@ -54,13 +56,13 @@ namespace Services
         {
             try
             {
-                if (expertRepository.GetAll(x => x.ExpertId == expert.ExpertId && x.IsDelete == false && x.IsActive == false).Any())
+                if (expertRepository.GetAll(x => x.ExpertId != expert.ExpertId && x.Username == expert.Username && x.IsDelete == false).Any())
                 {
-                    throw new Exception("ID exist");
+                    throw new Exception("Name exist");
                 }
                 expert.ExpertId = AutoGenId.AutoGenerateId();
                 expert.IsDelete = false;
-                expert.IsActive = false;
+                expert.IsActive = true;
                 return expertRepository.Add(expert);
             }
             catch (Exception ex)
@@ -76,7 +78,7 @@ namespace Services
                 var expert = expertRepository.Get(id);
                 if (expert != null)
                 {
-                    expert.Result.IsDelete = true;
+                    expert.Result.IsDelete = false;
                     return expertRepository.Update(id, expert.Result);
                 }
                 else
@@ -95,9 +97,21 @@ namespace Services
             try
             {
                 var expert = expertRepository.Get(item.ExpertId).Result;
-                if (expertRepository.GetAll(x => x.ExpertId != item.ExpertId && x.Username == item.Username && x.IsDelete == false).Any())
+                if (expertRepository.GetAll(x => x.ExpertId != item.ExpertId && x.Email == item.Email && x.IsDelete == false).Any())
                 {
-                    throw new Exception("Name exist");
+                    throw new Exception("Email exist");
+                }
+                if (expertRepository.GetAll(x => x.ExpertId != item.ExpertId && x.GoogleId == item.GoogleId && x.IsDelete == false).Any())
+                {
+                    throw new Exception("GoogleId exist");
+                }
+                if (expertRepository.GetAll(x => x.ExpertId != item.ExpertId && x.FacebookId == item.FacebookId && x.IsDelete == false).Any())
+                {
+                    throw new Exception("FacebookId exist");
+                }
+                if (expertRepository.GetAll(x => x.ExpertId != item.ExpertId && x.PhoneNum == item.PhoneNum && x.IsDelete == false).Any())
+                {
+                    throw new Exception("PhoneNum exist");
                 }
                 expert.Email = item.Email;
                 expert.GoogleId = item.GoogleId;
@@ -106,8 +120,6 @@ namespace Services
                 expert.Avatar = item.Avatar;
                 expert.DateOfBirth = item.DateOfBirth;
                 expert.Gender = item.Gender;
-                expert.Username = item.Username;
-                expert.Password = item.Password;
                 expert.Name = item.Name;
                 expert.Title = item.Title;
                 expert.Position = item.Position;
@@ -116,7 +128,7 @@ namespace Services
                 expert.ProfessionalQualification = item.Position;
                 expert.WorkProgress = item.WorkProgress;
                 expert.Achievements = item.Achievements;
-                expert.IsActive = false;
+                expert.IsActive = true;
                 expert.IsDelete = false;
                 return expertRepository.Update(expert.ExpertId, item);
             }
@@ -126,13 +138,17 @@ namespace Services
             }
         }
 
-        public async Task<bool> ResetPassword(string phoneNum, string newPassword)
+        public async Task<bool> ResetPassword(string expertID, string oldPassword, string newPassword)
         {
             try
             {
-                var exp = expertRepository.GetAll(x => x.PhoneNum == phoneNum).FirstOrDefault();
+                var exp = await expertRepository.Get(expertID);
                 if (exp != null)
                 {
+                    if(exp.Password != oldPassword)
+                    {
+                        throw new Exception("Mật khẩu không đúng");
+                    }
                     exp.Password = newPassword;
                     return await expertRepository.Update(exp.ExpertId, exp);
                 }
@@ -140,6 +156,52 @@ namespace Services
                 {
                     throw new Exception("Không tìm thấy tài khoản");
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Expert> LoginExpert(string username, string password)
+        {
+            try
+            {
+                var exp = expertRepository.GetAll(x => x.Username == username && x.Password == password).FirstOrDefault();
+                if (exp == null)
+                {
+                    exp = new Expert
+                    {
+                        ExpertId = AutoGenId.AutoGenerateId(),
+                        Username = username,
+                        Password = password,
+                        IsActive = true,
+                        IsDelete = false,
+                       
+                        
+                    };
+                    if (await expertRepository.Add(exp))
+                    {
+                        return exp;
+                    }
+                }
+                else
+                {
+                    if (exp.IsActive == false)
+                    {
+                        throw new Exception("Tài khoản bị khóa");
+                    }
+                    if (exp.IsDelete == true)
+                    {
+                        throw new Exception("Tài khoản bị xóa khỏi hệ thống");
+                    }
+                    
+                    if (await expertRepository.Update(exp.ExpertId, exp))
+                    {
+                        return exp;
+                    }
+                }
+                return null;
             }
             catch (Exception ex)
             {

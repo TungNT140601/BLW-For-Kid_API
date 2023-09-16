@@ -13,7 +13,7 @@
         public string? PhoneNum { get; set; }
         public bool? IsPremium { get; set; }
         public bool? IsTried { get; set; }
-        public int? WasTried { get; set; }
+        public bool? WasTried { get; set; }
     }
     public class CusLoginEmail
     {
