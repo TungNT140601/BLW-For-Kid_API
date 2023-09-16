@@ -97,7 +97,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Admin")
+                    if (role == CommonValues.ADMIN)
                     {
                         if (string.IsNullOrEmpty(model.PackageName))
                         {
@@ -169,7 +169,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Admin")
+                    if (role == CommonValues.ADMIN)
                     {
                         if (string.IsNullOrEmpty(model.PackageName))
                         {
@@ -241,7 +241,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Admin")
+                    if (role == CommonValues.ADMIN)
                     {
                         var pre = packageService.Get(id);
                         if (pre != null)

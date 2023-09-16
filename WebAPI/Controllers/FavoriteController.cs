@@ -79,7 +79,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if(role == "Customer")
+                    if(role == CommonValues.CUSTOMER)
                     {
                         var favorite = _mapper.Map<Favorite>(model);
                         var check = _favoriteService.Add(favorite);
@@ -119,7 +119,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Customer")
+                    if (role == CommonValues.CUSTOMER)
                     {
                         return await _favoriteService.Delete(cusId, recipeId) ? Ok(new
                         {
