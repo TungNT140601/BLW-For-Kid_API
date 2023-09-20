@@ -71,15 +71,15 @@ namespace Services
             }
         }
 
-        public Task<bool> Delete(string id)
+        public async Task<bool> Delete(string id)
         {
             try
             {
-                var rating = repository.Get(id).Result;
+                var rating = await repository.Get(id);
                 if(rating != null) 
                 {
                     rating.IsDelete = true;
-                    return repository.Update(id, rating);
+                    return await repository.Update(id, rating);
                 }
                 else
                 {
@@ -92,17 +92,17 @@ namespace Services
             }
         }
 
-        public Task<bool> Update(Rating rating)
+        public async Task<bool> Update(Rating rating)
         {
             try
             {
-                var ratingOfCus = repository.Get(rating.RatingId).Result;
+                var ratingOfCus = await repository.Get(rating.RatingId);
                 if(ratingOfCus != null)
                 {
                     ratingOfCus.Rate = rating.Rate;
                     ratingOfCus.Comment = rating.Comment;
                     ratingOfCus.RatingImage = rating.RatingImage;
-                    return repository.Update(rating.RatingId, ratingOfCus);
+                    return await repository.Update(rating.RatingId, ratingOfCus);
                 }
                 else
                 {
