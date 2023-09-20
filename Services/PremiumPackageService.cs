@@ -73,15 +73,15 @@ namespace Services
             }
         }
 
-        public Task<bool> Delete(string id)
+        public async Task<bool> Delete(string id)
         {
             try
             {
-                var pre = repository.Get(id).Result;
+                var pre = await repository.Get(id);
                 if( pre != null)
                 {
                     pre.IsDelete = true;
-                    return repository.Update(id, pre);
+                    return await repository.Update(id, pre);
                 }
                 else
                 {
@@ -94,11 +94,11 @@ namespace Services
             }
         }
 
-        public Task<bool> Update(PremiumPackage premiumPackage)
+        public async Task<bool> Update(PremiumPackage premiumPackage)
         {
             try
             {
-                var pre = repository.Get(premiumPackage.PackageId).Result;
+                var pre = await repository.Get(premiumPackage.PackageId);
                 if (pre != null)
                 {
                     pre.PackageName = premiumPackage.PackageName;
@@ -106,7 +106,7 @@ namespace Services
                     pre.PackageDiscount = premiumPackage.PackageDiscount;
                     pre.PackageMonth = premiumPackage.PackageMonth;
                     
-                    return repository.Update(premiumPackage.PackageId, pre);
+                    return await repository.Update(premiumPackage.PackageId, pre);
                 }
                 else
                 {

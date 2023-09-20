@@ -344,12 +344,12 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult LoginAdminOrStaff(string username, string password)
+        public async Task<IActionResult> LoginAdminOrStaff(string username, string password)
         {
             try
             {
                 var role = "";
-                var account = _staffAccountService.CheckLogin(username).Result;
+                var account = await _staffAccountService.CheckLogin(username);
                 if (account != null)
                 {
                     if (account.Password != password)
@@ -374,6 +374,16 @@ namespace WebAPI.Controllers
                             return Ok(new
                             {
                                 Message = "Login success!!!",
+                                Data = new
+                                {
+                                    Id = account.StaffId,
+                                    Email = account.Email,
+                                    GoogleId = account.GoogleId,
+                                    Username = account.Username,
+                                    FullName = account.Fullname,
+                                    Role = account.Role,
+                                    IsActive = account.IsActive
+                                },
                                 Token = GenerateJwtToken(account.StaffId, role)
                             });
                             

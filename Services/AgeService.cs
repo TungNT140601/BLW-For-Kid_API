@@ -40,15 +40,15 @@ namespace Services
             }
         }
 
-        public Task<bool> UpdateAge(Age age)
+        public async Task<bool> UpdateAge(Age age)
         {
             try
             {
-                var check = repository.Get(age.AgeId).Result;
+                var check = await repository.Get(age.AgeId);
                 if (check != null)
                 {
                     check.AgeName = age.AgeName;
-                    return repository.Update(age.AgeId, check);
+                    return await repository.Update(age.AgeId, check);
                 }
                 else
                 {
@@ -61,15 +61,15 @@ namespace Services
             }
         }
 
-        public Task<bool> DeleteAge(string id)
+        public async Task<bool> DeleteAge(string id)
         {
             try
             {
-                var check = repository.Get(id).Result;
+                var check = await repository.Get(id);
                 if (check != null)
                 {
                     check.IsDelete = true;
-                    return repository.Update(id, check);
+                    return await repository.Update(id, check);
                 }
                 else
                 {

@@ -52,11 +52,11 @@ namespace Services
             }        
         }
 
-        public Task<bool> Delete(string id)
+        public async Task<bool> Delete(string id)
         {
             try
             {
-                var account = repository.Get(id).Result;
+                var account = await repository.Get(id);
                 if(account != null)
                 {
                     account.IsDelete = false;
@@ -106,7 +106,7 @@ namespace Services
         {
             try
             {
-                var accountStaff = repository.Get(account.StaffId).Result;
+                var accountStaff = await repository.Get(account.StaffId);
                 if( accountStaff == null)
                 {
                     throw new Exception("Not Found Account");
@@ -123,11 +123,11 @@ namespace Services
             }
         }
 
-        public Task<bool> ChangePwdStaff(string staffId, string oldPwd, string newPwd)
+        public async Task<bool> ChangePwdStaff(string staffId, string oldPwd, string newPwd)
         {
             try
             {
-                var staffAccount = repository.Get(staffId).Result;
+                var staffAccount = await repository.Get(staffId);
                 if(staffAccount != null)
                 {
                     if(staffAccount.Password == oldPwd)
