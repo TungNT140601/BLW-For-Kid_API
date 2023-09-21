@@ -17,6 +17,17 @@ namespace WebAPI
             CreateMap<Expert, ExpertVM>();
             CreateMap<ExpertVM, Expert>();
 
+            CreateMap<StaffAccount, StaffAccountVM>().ReverseMap();
+
+            CreateMap<Rating, RatingVM>().ReverseMap();
+
+            CreateMap<PremiumPackage, PremiumPackage >().ReverseMap();
+
+            CreateMap<Meal, MealVM>().ReverseMap();
+
+            CreateMap<Favorite, FavoriteVM>().ReverseMap();
+
+            CreateMap<Age, AgeVM>().ReverseMap();
         }
 
 
