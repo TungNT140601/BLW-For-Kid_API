@@ -26,13 +26,20 @@ namespace Services
         {
             this.repository = repository;
         }
-        public Task<bool> AddAge(Age age)
+        public async Task<bool> AddAge(Age age)
         {
             try
             {
-                age.AgeId = AutoGenId.AutoGenerateId();
-                age.IsDelete = false;
-                return repository.Add(age);
+                if (string.IsNullOrEmpty(age.AgeName))
+                {
+                    throw new Exception("AgeName cannot be empty!!!");
+                }
+                else
+                {
+                    age.AgeId = AutoGenId.AutoGenerateId();
+                    age.IsDelete = false;
+                    return await repository.Add(age);
+                }               
             }
             catch(Exception ex)
             {
@@ -47,8 +54,15 @@ namespace Services
                 var check = await repository.Get(age.AgeId);
                 if (check != null)
                 {
-                    check.AgeName = age.AgeName;
-                    return await repository.Update(age.AgeId, check);
+                    if (string.IsNullOrEmpty(age.AgeName))
+                    {
+                        throw new Exception("AgeName cannot be empty!!!");
+                    }
+                    else
+                    {
+                        check.AgeName = age.AgeName;
+                        return await repository.Update(age.AgeId, check);
+                    }            
                 }
                 else
                 {
@@ -82,11 +96,11 @@ namespace Services
             }
         }
 
-        public Task<Age> GetAge(string id)
+        public async Task<Age> GetAge(string id)
         {
             try
             {
-                var check = repository.Get(id);
+                var check = await repository.Get(id);
                 if (check != null)
                 {
                     return check;

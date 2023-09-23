@@ -26,13 +26,20 @@ namespace Services
             this.repository = repository;
         }
 
-        public Task<bool> AddMeal(Meal meal)
+        public async Task<bool> AddMeal(Meal meal)
         {
             try
             {
-                meal.MealId = AutoGenId.AutoGenerateId();
-                meal.IsDelete = false;
-                return repository.Add(meal);
+                if (string.IsNullOrEmpty(meal.MealName))
+                {
+                    throw new Exception("MealName cannot be empty!!!");
+                }
+                else
+                {
+                    meal.MealId = AutoGenId.AutoGenerateId();
+                    meal.IsDelete = false;
+                    return await repository.Add(meal);
+                }
             }
             catch (Exception ex)
             {
@@ -45,12 +52,12 @@ namespace Services
             try
             {
                 var check = await repository.Get(id);
-                if(check != null)
+                if (check != null)
                 {
                     check.IsDelete = true;
                     return await repository.Update(id, check);
                 }
-                else 
+                else
                 {
                     throw new Exception("Not Found Meal");
                 }
@@ -73,12 +80,12 @@ namespace Services
             }
         }
 
-        public Task<Meal> GetMeal(string id)
+        public async Task<Meal> GetMeal(string id)
         {
             try
             {
-                var check =  repository.Get(id);
-                if( check != null)
+                var check = await repository.Get(id);
+                if (check != null)
                 {
                     return check;
                 }
@@ -100,10 +107,17 @@ namespace Services
                 var check = await repository.Get(meal.MealId);
                 if (check != null)
                 {
-                    check.MealName = meal.MealName;
-                    check.StaffUpdate = meal.StaffUpdate;
-                    check.UpdateTime = meal.UpdateTime;
-                    return await repository.Update(meal.MealId, check);
+                    if (string.IsNullOrEmpty(meal.MealName))
+                    {
+                        throw new Exception("MealName cannot be empty!!!");
+                    }
+                    else
+                    {
+                        check.MealName = meal.MealName;
+                        check.StaffUpdate = meal.StaffUpdate;
+                        check.UpdateTime = meal.UpdateTime;
+                        return await repository.Update(meal.MealId, check);
+                    }
                 }
                 else
                 {

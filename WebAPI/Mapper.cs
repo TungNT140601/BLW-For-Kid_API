@@ -18,8 +18,12 @@ namespace WebAPI
             CreateMap<ExpertVM, Expert>();
 
             CreateMap<StaffAccount, StaffAccountVM>().ReverseMap();
+            CreateMap<StaffAccount, StaffAccountAddVM>().ReverseMap();
+            CreateMap<StaffAccount, StaffAccountUpdateVM>().ReverseMap();
+            CreateMap<StaffAccount, ChangePwdStaffAccountVM>().ReverseMap();
 
             CreateMap<Rating, RatingVM>().ReverseMap();
+            CreateMap<Rating, RatingUpdateVM>().ReverseMap();
 
             CreateMap<PremiumPackage, PremiumPackage >().ReverseMap();
 
@@ -29,7 +33,5 @@ namespace WebAPI
 
             CreateMap<Age, AgeVM>().ReverseMap();
         }
-
-
     }
 }

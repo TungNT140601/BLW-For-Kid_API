@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
             this.configuration = configuration;
         }
 
-        private string GenerateJwtToken(string id,string role)
+        private string GenerateJwtToken(string id, string role)
         {
             var jwtSettings = configuration.GetSection("JwtSettings");
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
@@ -54,7 +54,7 @@ namespace WebAPI.Controllers
             try
             {
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if(role == CommonValues.ADMIN || role == CommonValues.STAFF) 
+                if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                 {
                     var list = _ageService.GetAllAge();
                     var age = new List<Age>();
@@ -72,9 +72,9 @@ namespace WebAPI.Controllers
                 {
                     return Unauthorized();
                 }
-                
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -88,7 +88,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                 {
-                    var age = _ageService.GetAge(id);
+                    var age = await _ageService.GetAge(id);
                     return Ok(new
                     {
                         Status = 1,
@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
                 else
                 {
                     return Unauthorized();
-                }               
+                }
             }
             catch (Exception ex)
             {
@@ -114,25 +114,15 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                 {
-                    if (string.IsNullOrEmpty(model.AgeName))
+                    var age = _mapper.Map<Age>(model);
+                    var check = await _ageService.AddAge(age);
+                    return check ? Ok(new
                     {
-                        return StatusCode(400, new
-                        {
-                            Message = "AgeName cannot empty!!!"
-                        });
-                    }
-                    else
+                        Message = "Add Success!!!"
+                    }) : Ok(new
                     {
-                        var age = _mapper.Map<Age>(model);
-                        var check = _ageService.AddAge(age);
-                        return await check ? Ok(new
-                        {
-                            Message = "Add Success!!!"
-                        }) : Ok(new
-                        {
-                            Message = "Add Fail!!!"
-                        });
-                    }
+                        Message = "Add Fail!!!"
+                    });
                 }
                 else
                 {
@@ -153,25 +143,15 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                 {
-                    if (string.IsNullOrEmpty(model.AgeName))
+                    var age = _mapper.Map<Age>(model);
+                    var check = await _ageService.UpdateAge(age);
+                    return check ? Ok(new
                     {
-                        return StatusCode(400, new
-                        {
-                            Message = "AgeName cannot empty!!!"
-                        });
-                    }
-                    else
+                        Message = "Update Success!!!"
+                    }) : Ok(new
                     {
-                        var age = _mapper.Map<Age>(model);
-                        var check = _ageService.UpdateAge(age);
-                        return await check ? Ok(new
-                        {
-                            Message = "Update Success!!!"
-                        }) : Ok(new
-                        {
-                            Message = "Update Fail!!!"
-                        });
-                    }
+                        Message = "Update Fail!!!"
+                    });
                 }
                 else
                 {
@@ -192,8 +172,8 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                 {
-                    var check = _ageService.DeleteAge(id);
-                    return await check ? Ok(new
+                    var check = await _ageService.DeleteAge(id);
+                    return check ? Ok(new
                     {
                         Message = "Delete Success!!!"
                     }) : Ok(new
