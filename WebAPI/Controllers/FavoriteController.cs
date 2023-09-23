@@ -61,7 +61,6 @@ namespace WebAPI.Controllers
                 return Ok(new
                 {
                     Status = 1,
-                    Message = "Success",
                     Data = favorite
                 });
             }
@@ -82,8 +81,8 @@ namespace WebAPI.Controllers
                     if(role == CommonValues.CUSTOMER)
                     {
                         var favorite = _mapper.Map<Favorite>(model);
-                        var check = _favoriteService.Add(favorite);
-                        return await check ? Ok(new
+                        var check = await _favoriteService.Add(favorite);
+                        return check ? Ok(new
                         {
                             Message = "Add Success!!!"
                         }) : Ok(new

@@ -87,7 +87,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                 {
-                    var meal = _mealService.GetMeal(id);
+                    var meal = await _mealService.GetMeal(id);
                     return Ok(new
                     {
                         Status = 1,
@@ -113,25 +113,15 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                 {
-                    if (string.IsNullOrEmpty(model.MealName))
+                    var meal = _mapper.Map<Meal>(model);
+                    var check = await _mealService.AddMeal(meal);
+                    return check ? Ok(new
                     {
-                        return StatusCode(400, new
-                        {
-                            Message = "MealName cannot empty!!!"
-                        });
-                    }
-                    else
+                        Message = "Add Success!!!"
+                    }) : Ok(new
                     {
-                        var meal = _mapper.Map<Meal>(model);
-                        var check = _mealService.AddMeal(meal);
-                        return await check ? Ok(new
-                        {
-                            Message = "Add Success!!!"
-                        }) : Ok(new
-                        {
-                            Message = "Add Fail!!!"
-                        });
-                    }
+                        Message = "Add Fail!!!"
+                    });
                 }
                 else
                 {
@@ -152,25 +142,15 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                 {
-                    if (string.IsNullOrEmpty(model.MealName))
+                    var meal = _mapper.Map<Meal>(model);
+                    var check = await _mealService.UpdateMeal(meal);
+                    return check ? Ok(new
                     {
-                        return StatusCode(400, new
-                        {
-                            Message = "MealName cannot empty!!!"
-                        });
-                    }
-                    else
+                        Message = "Update Success!!!"
+                    }) : Ok(new
                     {
-                        var meal = _mapper.Map<Meal>(model);
-                        var check = _mealService.UpdateMeal(meal);
-                        return await check ? Ok(new
-                        {
-                            Message = "Update Success!!!"
-                        }) : Ok(new
-                        {
-                            Message = "Update Fail!!!"
-                        });
-                    }
+                        Message = "Update Fail!!!"
+                    });
                 }
                 else
                 {
@@ -191,8 +171,8 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                 {
-                    var check = _mealService.DeleteMeal(id);
-                    return await check ? Ok(new
+                    var check = await _mealService.DeleteMeal(id);
+                    return check ? Ok(new
                     {
                         Message = "Delete Success!!!"
                     }) : Ok(new

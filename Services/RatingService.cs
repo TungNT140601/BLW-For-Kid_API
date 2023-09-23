@@ -37,11 +37,11 @@ namespace Services
             }
         }
 
-        public Task<Rating> GetRating(string id)
+        public async Task<Rating> GetRating(string id)
         {
             try
             {
-                var rating = repository.Get(id); 
+                var rating = await repository.Get(id); 
                 if(rating != null)
                 {
                     return rating;
@@ -56,14 +56,14 @@ namespace Services
                 throw new Exception(ex.Message);
             }
         }
-        public Task<bool> Add(Rating rating)
+        public async Task<bool> Add(Rating rating)
         {
             try
             {
                 rating.RatingId = AutoGenId.AutoGenerateId();
                 rating.Date = DateTime.Now;
                 rating.IsDelete = false;
-                return repository.Add(rating);
+                return await repository.Add(rating);
             }
             catch (Exception ex)
             {

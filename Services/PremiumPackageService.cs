@@ -32,17 +32,17 @@ namespace Services
             {
                 return repository.GetAll(x => x.IsDelete == false);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
-        public Task<PremiumPackage> Get(string id)
+        public async Task<PremiumPackage> Get(string id)
         {
             try
             {
-                var pre = repository.Get(id);
-                if(pre != null)
+                var pre = await repository.Get(id);
+                if (pre != null)
                 {
                     return pre;
                 }
@@ -58,14 +58,33 @@ namespace Services
         }
 
 
-        public Task<bool> Add(PremiumPackage premiumPackage)
+        public async Task<bool> Add(PremiumPackage premiumPackage)
         {
             try
             {
-                premiumPackage.PackageId = AutoGenId.AutoGenerateId();
-                premiumPackage.IsDelete = false;
+                if (string.IsNullOrEmpty(premiumPackage.PackageName))
+                {
+                    throw new Exception("PackageName cannot be empty!!!");
+                }
+                else if (premiumPackage.PackageAmount < 0)
+                {
+                    throw new Exception("PackageAmount cannot small than 0!!!");
+                }
+                else if (premiumPackage.PackageDiscount < 0)
+                {
+                    throw new Exception("PackageDiscount cannot small than 0!!!");
+                }
+                else if (premiumPackage.PackageMonth < 0)
+                {
+                    throw new Exception("PackageMonth cannot small than 0!!!");
+                }
+                else
+                {
+                    premiumPackage.PackageId = AutoGenId.AutoGenerateId();
+                    premiumPackage.IsDelete = false;
+                    return await repository.Add(premiumPackage);
+                }
 
-                return repository.Add(premiumPackage);
             }
             catch (Exception ex)
             {
@@ -78,7 +97,7 @@ namespace Services
             try
             {
                 var pre = await repository.Get(id);
-                if( pre != null)
+                if (pre != null)
                 {
                     pre.IsDelete = true;
                     return await repository.Update(id, pre);
@@ -101,12 +120,32 @@ namespace Services
                 var pre = await repository.Get(premiumPackage.PackageId);
                 if (pre != null)
                 {
-                    pre.PackageName = premiumPackage.PackageName;
-                    pre.PackageAmount = premiumPackage.PackageAmount;
-                    pre.PackageDiscount = premiumPackage.PackageDiscount;
-                    pre.PackageMonth = premiumPackage.PackageMonth;
-                    
-                    return await repository.Update(premiumPackage.PackageId, pre);
+
+                    if (string.IsNullOrEmpty(premiumPackage.PackageName))
+                    {
+                        throw new Exception("PackageName cannot be empty!!!");
+                    }
+                    else if (premiumPackage.PackageAmount < 0)
+                    {
+                        throw new Exception("PackageAmount cannot small than 0!!!");
+                    }
+                    else if (premiumPackage.PackageDiscount < 0)
+                    {
+                        throw new Exception("PackageDiscount cannot small than 0!!!");
+                    }
+                    else if (premiumPackage.PackageMonth < 0)
+                    {
+                        throw new Exception("PackageMonth cannot small than 0!!!");
+                    }
+                    else
+                    {
+                        pre.PackageName = premiumPackage.PackageName;
+                        pre.PackageAmount = premiumPackage.PackageAmount;
+                        pre.PackageDiscount = premiumPackage.PackageDiscount;
+                        pre.PackageMonth = premiumPackage.PackageMonth;
+
+                        return await repository.Update(premiumPackage.PackageId, pre);
+                    }
                 }
                 else
                 {
