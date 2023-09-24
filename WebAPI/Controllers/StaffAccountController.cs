@@ -55,13 +55,15 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Admin" || role == "Staff")
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                     {
+                        var staff = await _staffAccountService.GetStaffAccount(id);
+                        var check = _mapper.Map<StaffAccountVM>(staff);
                         return Ok(new
                         {
                             Status = 1,
                             Message = "Success",
-                            Data = _mapper.Map<StaffAccount>(_staffAccountService.GetStaffAccount(id))
+                            Data = check
                         });
                     }
                     else
@@ -77,7 +79,7 @@ namespace WebAPI.Controllers
                 {
                     return Unauthorized();
                 }
-                
+
             }
             catch (Exception e)
             {
@@ -93,7 +95,7 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Admin")
+                    if (role == CommonValues.ADMIN)
                     {
                         var list = _staffAccountService.GetAllStaffAccount();
                         var staffAccount = new List<StaffAccount>();
@@ -121,7 +123,7 @@ namespace WebAPI.Controllers
                 {
                     return Unauthorized();
                 }
-                
+
             }
             catch
             (Exception e)
@@ -138,9 +140,19 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if(role == "Admin")
+                    if (role == CommonValues.ADMIN)
                     {
-
+                        var staffAccount = _mapper.Map<StaffAccount>(model);
+                        var check = await _staffAccountService.Add(staffAccount);
+                        return check ? Ok(new
+                        {
+                            Status = 1,
+                            Message = "Success"
+                        }) : Ok(new
+                        {
+                            Status = 0,
+                            Message = "Fail"
+                        });
                     }
                     else
                     {
@@ -155,50 +167,9 @@ namespace WebAPI.Controllers
                 {
                     return Unauthorized();
                 }
-                if (string.IsNullOrEmpty(model.Email))
-                {
-                    return StatusCode(400, new
-                    {
-                        Message = "Email cannot be empty!!!"
-                    });
-                }
-               else if (string.IsNullOrEmpty(model.Username))
-                {
-                    return StatusCode(400, new
-                    {
-                        Message = "Username cannot be empty!!!"
-                    });
-                }
-                else if(string.IsNullOrEmpty(model.Password))
-                {
-                    return StatusCode(400, new
-                    {
-                        Message = "Password cannot be empty!!!"
-                    });
-                }
-                else if (string.IsNullOrEmpty(model.Fullname))
-                {
-                    return StatusCode(400, new
-                    {
-                        Message = "Fullname cannot be empty!!!"
-                    });
-                }
-                else
-                {       
-                    var staffAccount = _mapper.Map<StaffAccount>(model);
-                    var check = _staffAccountService.Add(staffAccount);
-                    return await check ? Ok(new
-                    {
-                        Status = 1,
-                        Message = "Success"
-                    }) : Ok(new
-                    {
-                        Status = 0,
-                        Message = "Fail"
-                     });                   
-                }            
+
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
@@ -212,30 +183,20 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Admin" || role == "Staff")
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                     {
-                        if (string.IsNullOrEmpty(model.Fullname))
+                        model.Id = id;
+                        var staffAccount = _mapper.Map<StaffAccount>(model);
+                        var check = await _staffAccountService.Update(staffAccount);
+                        return check ? Ok(new
                         {
-                            return StatusCode(400, new
-                            {
-                                Message = "FullName cannot be empty!!!"
-                            });
-                        }
-                        else
+                            Status = 1,
+                            Message = "Success"
+                        }) : Ok(new
                         {
-                            model.Id = id;
-                            var staffAccount = _mapper.Map<StaffAccount>(model);
-                            var check = _staffAccountService.Add(staffAccount);
-                            return await check ? Ok(new
-                            {
-                                Status = 1,
-                                Message = "Success"
-                            }) : Ok(new
-                            {
-                                Status = 0,
-                                Message = "Fail"
-                            });
-                        }
+                            Status = 0,
+                            Message = "Fail"
+                        });
                     }
                     else
                     {
@@ -249,9 +210,9 @@ namespace WebAPI.Controllers
                 else
                 {
                     return Unauthorized();
-                }                
+                }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
@@ -265,13 +226,13 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Admin")
+                    if (role == CommonValues.ADMIN)
                     {
-                        var acccountStaff = _staffAccountService.GetStaffAccount(id);
+                        var acccountStaff = await _staffAccountService.GetStaffAccount(id);
                         if (acccountStaff != null)
                         {
-                            var check = _staffAccountService.Delete(id);
-                            return await check ? Ok(new
+                            var check = await _staffAccountService.Delete(id);
+                            return check ? Ok(new
                             {
                                 Status = 1,
                                 Message = "Success"
@@ -299,9 +260,9 @@ namespace WebAPI.Controllers
                 {
                     return Unauthorized();
                 }
-                
+
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
@@ -311,11 +272,11 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> ChangePWdStaffAccount(ChangePwdStaffAccountVM changePwd)
         {
             try
-            {                
+            {
                 if (User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value == "Staff")
                 {
                     var cusId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-                    var check = _staffAccountService.ChangePwdStaff(cusId, changePwd.OldPassword, changePwd.NewPassword).Result;
+                    var check = await _staffAccountService.ChangePwdStaff(cusId, changePwd.OldPassword, changePwd.NewPassword);
                     return check ? Ok(new
                     {
                         Status = "Change Success"
@@ -344,47 +305,47 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult LoginAdminOrStaff(string username, string password)
+        public async Task<IActionResult> LoginAdminOrStaff(string username, string password)
         {
             try
             {
                 var role = "";
-                var account = _staffAccountService.CheckLogin(username).Result;
+                var account = await _staffAccountService.CheckLogin(username, password);
                 if (account != null)
                 {
-                    if (account.Password != password)
+                    if (account.Role == 0 || account.Role == 1)
                     {
-                        return StatusCode(400, new
+                        if (account.Role == 0)
                         {
-                            Message = "Password incorrect!!!"
+                            role = CommonValues.ADMIN;
+                        }
+                        else if (account.Role == 1)
+                        {
+                            role = CommonValues.STAFF;
+                        }
+                        return Ok(new
+                        {
+                            Message = "Login success!!!",
+                            Data = new
+                            {
+                                Id = account.StaffId,
+                                Email = account.Email,
+                                GoogleId = account.GoogleId,
+                                Username = account.Username,
+                                FullName = account.Fullname,
+                                Role = account.Role,
+                                IsActive = account.IsActive
+                            },
+                            Token = GenerateJwtToken(account.StaffId, role)
                         });
+
                     }
                     else
                     {
-                        if (account.Role == 0 || account.Role == 1)
+                        return StatusCode(400, new
                         {
-                            if(account.Role == 0)
-                            {
-                                role = "Admin";
-                            }
-                            else if(account.Role == 1)
-                            {
-                                role = "Staff";
-                            }
-                            return Ok(new
-                            {
-                                Message = "Login success!!!",
-                                Token = GenerateJwtToken(account.StaffId, role)
-                            });
-                            
-                        }
-                        else
-                        {
-                            return StatusCode(400, new
-                            {
-                                Message = "You do not have permission!!!"
-                            });
-                        }
+                            Message = "You do not have permission!!!"
+                        });
                     }
                 }
                 else

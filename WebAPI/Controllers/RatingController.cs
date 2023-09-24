@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var rating = ratingService.GetRating(id);
+                var rating = await ratingService.GetRating(id);
                 return Ok(new
                 {
                     Status = 1,
@@ -89,18 +89,18 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddRating(RatingAddVM model)
+        public async Task<IActionResult> AddRating(RatingVM model)
         {
             try
             {
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Customer")
+                    if (role == CommonValues.CUSTOMER)
                     {
                         var rating = mapper.Map<Rating>(model);
-                        var check = ratingService.Add(rating);
-                        return await check ? Ok(new
+                        var check = await ratingService.Add(rating);
+                        return check ? Ok(new
                         {
                             Message = "Add Success!!!"
                         }) : Ok(new
@@ -121,7 +121,7 @@ namespace WebAPI.Controllers
                 {
                     return Unauthorized();
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -137,17 +137,17 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Customer")
+                    if (role == CommonValues.CUSTOMER)
                     {
                         var rating = mapper.Map<Rating>(model);
-                        var check = ratingService.Update(rating);
-                        return await check ? Ok(new
-                {
-                    Message = "Update Success!!!"
-                }) : Ok(new
-                {
-                    Message = "Update Fail"
-                });
+                        var check = await ratingService.Update(rating);
+                        return check ? Ok(new
+                        {
+                            Message = "Update Success!!!"
+                        }) : Ok(new
+                        {
+                            Message = "Update Fail"
+                        });
                     }
                     else
                     {
@@ -162,7 +162,7 @@ namespace WebAPI.Controllers
                 {
                     return Unauthorized();
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -178,10 +178,10 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Customer")
+                    if (role == CommonValues.CUSTOMER)
                     {
-                        var check = ratingService.Delete(id);
-                        return await check ? Ok(new
+                        var check = await ratingService.Delete(id);
+                        return check ? Ok(new
                         {
                             Message = "Delete Success!!!"
                         }) : Ok(new
@@ -202,12 +202,12 @@ namespace WebAPI.Controllers
                 {
                     return Unauthorized();
                 }
-                
+
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
-    } 
+    }
 }

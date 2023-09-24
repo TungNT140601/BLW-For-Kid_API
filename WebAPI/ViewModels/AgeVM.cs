@@ -2,5 +2,6 @@
 {
     public class AgeVM
     {
+        public string? AgeName { get; set; }
     }
 }

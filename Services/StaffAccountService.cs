@@ -17,7 +17,7 @@ namespace Services
         Task<bool> Update(StaffAccount account);
         Task<bool> Delete(string id);
         Task<bool> ChangePwdStaff(string staffId, string oldPwd, string newPwd);
-        Task<StaffAccount> CheckLogin(string username);
+        Task<StaffAccount> CheckLogin(string username, string password);
     }
 
     public class StaffAccountService : IStaffAccountService
@@ -32,42 +32,61 @@ namespace Services
         {
             try
             {
-                account.StaffId = AutoGenId.AutoGenerateId();
-                account.Role = 1;
-                account.IsActive = true;
-                account.IsDelete = false;
                 var check = repository.GetAll(x => x.Username == account.Username && x.IsActive == true && x.IsDelete == false);
-                if(check != null)
+                if (check != null)
                 {
                     throw new Exception("Username Exist!!!");
                 }
                 else
                 {
-                    return await repository.Add(account);
+                    if (string.IsNullOrEmpty(account.Email))
+                    {
+                        throw new Exception("Email cannot be empty!!!");
+                    }
+                    else if (string.IsNullOrEmpty(account.Username))
+                    {
+                        throw new Exception("Username cannot be empty!!!");
+                    }
+                    else if (string.IsNullOrEmpty(account.Password))
+                    {
+                        throw new Exception("Password cannot be empty!!!");
+                    }
+                    else if (string.IsNullOrEmpty(account.Fullname))
+                    {
+                        throw new Exception("Fullname cannot be empty!!!");
+                    }
+                    else
+                    {
+                        account.StaffId = AutoGenId.AutoGenerateId();
+                        account.Role = 1;
+                        account.IsActive = true;
+                        account.IsDelete = false;
+                        return await repository.Add(account);
+                    }
                 }
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
-            }        
+            }
         }
 
-        public Task<bool> Delete(string id)
+        public async Task<bool> Delete(string id)
         {
             try
             {
-                var account = repository.Get(id).Result;
-                if(account != null)
+                var account = await repository.Get(id);
+                if (account != null)
                 {
                     account.IsDelete = false;
-                    return repository.Update(id, account);
+                    return await repository.Update(id, account);
                 }
                 else
                 {
                     throw new Exception("Not Found Account");
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
@@ -85,12 +104,12 @@ namespace Services
             }
         }
 
-        public Task<StaffAccount> GetStaffAccount(string id)
+        public async Task<StaffAccount> GetStaffAccount(string id)
         {
             try
             {
-                var account = repository.Get(id);
-                if(account == null)
+                var account = await repository.Get(id);
+                if (account == null)
                 {
                     throw new Exception("Not Found Account");
                 }
@@ -106,15 +125,22 @@ namespace Services
         {
             try
             {
-                var accountStaff = repository.Get(account.StaffId).Result;
-                if( accountStaff == null)
+                var accountStaff = await repository.Get(account.StaffId);
+                if (accountStaff == null)
                 {
                     throw new Exception("Not Found Account");
                 }
                 else
                 {
-                    accountStaff.Fullname = account.Fullname;
-                    return await repository.Update(account.StaffId, accountStaff);
+                    if (string.IsNullOrEmpty(account.Fullname))
+                    {
+                        throw new Exception("FullName cannot be empty!!!");
+                    }
+                    else
+                    {
+                        accountStaff.Fullname = account.Fullname;
+                        return await repository.Update(account.StaffId, accountStaff);
+                    }
                 }
             }
             catch (Exception e)
@@ -123,17 +149,17 @@ namespace Services
             }
         }
 
-        public Task<bool> ChangePwdStaff(string staffId, string oldPwd, string newPwd)
+        public async Task<bool> ChangePwdStaff(string staffId, string oldPwd, string newPwd)
         {
             try
             {
-                var staffAccount = repository.Get(staffId).Result;
-                if(staffAccount != null)
+                var staffAccount = await repository.Get(staffId);
+                if (staffAccount != null)
                 {
-                    if(staffAccount.Password == oldPwd)
+                    if (staffAccount.Password == oldPwd)
                     {
                         staffAccount.Password = newPwd;
-                        return repository.Update(staffAccount.StaffId, staffAccount);
+                        return await repository.Update(staffAccount.StaffId, staffAccount);
                     }
                     else
                     {
@@ -145,20 +171,27 @@ namespace Services
                     throw new Exception("Not Found Account");
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
         }
 
-        public Task<StaffAccount> CheckLogin(string username)
+        public async Task<StaffAccount> CheckLogin(string username, string password)
         {
             try
             {
-                var account = repository.Get(username);
+                var account = await repository.Get(username);
                 if (account == null)
                 {
                     throw new Exception("Not Found Account");
+                }
+                else
+                {
+                    if(account.Password != password)
+                    {
+                        throw new Exception("Password Incorrect!!!");
+                    }
                 }
                 return account;
             }

@@ -64,7 +64,7 @@ namespace WebAPI.Controllers
                     Data = pre
                 });
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var pre = packageService.Get(id);
+                var pre = await packageService.Get(id);
                 var check = mapper.Map<PremiumPackage>(pre);
                 return Ok(new
                 {
@@ -97,48 +97,17 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Admin")
+                    if (role == CommonValues.ADMIN)
                     {
-                        if (string.IsNullOrEmpty(model.PackageName))
+                        var pre = mapper.Map<PremiumPackage>(model);
+                        var check = await packageService.Add(pre);
+                        return check ? Ok(new
                         {
-                            return StatusCode(400, new
-                            {
-                                Message = "Package Name cannot empty!!!"
-                            });
-                        }
-                        else if (model.PackageAmount < 0)
+                            Message = "Add Success"
+                        }) : Ok(new
                         {
-                            return StatusCode(400, new
-                            {
-                                Message = "PackageAmount cannot small than 0!!!"
-                            });
-                        }
-                        else if (model.PackageDiscount < 0)
-                        {
-                            return StatusCode(400, new
-                            {
-                                Message = "PackageDiscount cannot small than 0!!!"
-                            });
-                        }
-                        else if (model.PackageMonth < 0)
-                        {
-                            return StatusCode(400, new
-                            {
-                                Message = "PackageMonth cannot small than 0!!!"
-                            });
-                        }
-                        else
-                        {
-                            var pre = mapper.Map<PremiumPackage>(model);
-                            var check = packageService.Add(pre);
-                            return await check ? Ok(new
-                            {
-                                Message = "Add Success"
-                            }) : Ok(new
-                            {
-                                Message = "Add Fail"
-                            });
-                        }
+                            Message = "Add Fail"
+                        });
                     }
                     else
                     {
@@ -153,7 +122,7 @@ namespace WebAPI.Controllers
                 {
                     return Unauthorized();
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -169,48 +138,17 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Admin")
+                    if (role == CommonValues.ADMIN)
                     {
-                        if (string.IsNullOrEmpty(model.PackageName))
+                        var pre = mapper.Map<PremiumPackage>(model);
+                        var check = await packageService.Update(pre);
+                        return check ? Ok(new
                         {
-                            return StatusCode(400, new
-                            {
-                                Message = "Package Name cannot empty!!!"
-                            });
-                        }
-                        else if (model.PackageAmount < 0)
+                            Message = "Update Success"
+                        }) : Ok(new
                         {
-                            return StatusCode(400, new
-                            {
-                                Message = "PackageAmount cannot small than 0!!!"
-                            });
-                        }
-                        else if (model.PackageDiscount < 0)
-                        {
-                            return StatusCode(400, new
-                            {
-                                Message = "PackageDiscount cannot small than 0!!!"
-                            });
-                        }
-                        else if (model.PackageMonth < 0)
-                        {
-                            return StatusCode(400, new
-                            {
-                                Message = "PackageMonth cannot small than 0!!!"
-                            });
-                        }
-                        else
-                        {
-                            var pre = mapper.Map<PremiumPackage>(model);
-                            var check = packageService.Update(pre);
-                            return await check ? Ok(new
-                            {
-                                Message = "Update Success"
-                            }) : Ok(new
-                            {
-                                Message = "Update Fail"
-                            });
-                        }
+                            Message = "Update Fail"
+                        });
                     }
                     else
                     {
@@ -225,7 +163,7 @@ namespace WebAPI.Controllers
                 {
                     return Unauthorized();
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -241,13 +179,13 @@ namespace WebAPI.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
-                    if (role == "Admin")
+                    if (role == CommonValues.ADMIN)
                     {
                         var pre = packageService.Get(id);
                         if (pre != null)
                         {
-                            var check = packageService.Delete(id);
-                            return await check ? Ok(new
+                            var check = await packageService.Delete(id);
+                            return check ? Ok(new
                             {
                                 Message = "Delete Success"
                             }) : Ok(new
@@ -272,7 +210,7 @@ namespace WebAPI.Controllers
                 else
                 {
                     return Unauthorized();
-                }             
+                }
             }
             catch (Exception ex)
             {
