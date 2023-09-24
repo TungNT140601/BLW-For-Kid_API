@@ -102,7 +102,7 @@ namespace Services
                 }
                 else
                 {
-                    if (customerRepository.GetAll(x => x.PhoneNum == cus.PhoneNum && x.CustomerId != cus.CustomerId) != null)
+                    if (customerRepository.GetAll(x => x.PhoneNum == cus.PhoneNum && x.CustomerId != cus.CustomerId && x.IsDelete == false).Any())
                     {
                         throw new Exception("Số điện thoại đã được sử dụng");
                     }
@@ -351,7 +351,7 @@ namespace Services
                 var customer = await customerRepository.Get(cusId);
                 if (customer != null)
                 {
-                    if (customer.LastEndPremiumDate != null && customer.IsPremium.Value && customer.LastEndPremiumDate > DateTime.Now)
+                    if (customer.LastEndPremiumDate != null && customer.IsPremium.Value && customer.LastEndPremiumDate < DateTime.Now)
                     {
                         customer.IsPremium = false;
                         await customerRepository.Update(customer.CustomerId, customer);
