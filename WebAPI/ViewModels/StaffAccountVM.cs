@@ -24,7 +24,7 @@ namespace WebAPI.ViewModels
 
     public class StaffAccountUpdateVM
     {
-        public string Id { get; set; }
+        public string StaffId { get; set; }
         public string? Fullname { get; set; }
     }
 

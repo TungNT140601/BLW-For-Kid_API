@@ -13,7 +13,7 @@ namespace Services
     {
         IEnumerable<Favorite> GetAllRecipeFavoriteOfOneCus(string cusId);
         Task<bool> Add(Favorite favorite);
-        Task<bool> Delete(string cusId, string recipeId);       
+        Task<bool> Delete(string cusId, string recipeId);
     }
 
     public class FavoriteService : IFavoriteService
@@ -30,7 +30,7 @@ namespace Services
             {
                 return repository.GetAll(x => x.CustomerId == cusId);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
@@ -51,16 +51,16 @@ namespace Services
         {
             try
             {
-                var fav = repository.GetAll(x => x.CustomerId == cusId);
+                var fav = repository.GetAll(x => x.CustomerId == cusId && x.RecipeId == recipeId).FirstOrDefault();
                 var check = false;
-                foreach(var item in fav)
+                if (fav != null)
                 {
-                    if(item.RecipeId == recipeId)
-                    {
-                        check =  await repository.Delete(fav);
-                    }
+                    return await repository.DeleteFav(fav);
                 }
-                return check;
+                else
+                {
+                    throw new Exception("Not Found!!!");
+                }
             }
             catch (Exception e)
             {

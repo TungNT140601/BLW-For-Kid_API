@@ -5,6 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 using Repositories.EntityModels;
 using Services;
 using System.Configuration;
+using System.Data;
+using System.Diagnostics.Eventing.Reader;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -49,11 +51,30 @@ namespace WebAPI.Controllers
         {
             try
             {
-                return Ok(new
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    Status = "Get ID Success",
-                    Data = expertService.Get(id)
-                });
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                    {   
+                        return Ok(new
+                        {
+                        Status = "Get ID Success",
+                        Data = expertService.Get(id)
+                    });
+                }
+                else
+                {
+                    return StatusCode(400, new
+                    {
+                        Status = -1,
+                        Message = "Role Denied"
+                    });
+                }
+            }
+                else
+                {
+                    return Unauthorized();
+                }
             }
             catch (Exception ex)
             {
@@ -66,12 +87,12 @@ namespace WebAPI.Controllers
         {
             try
             {
-                //var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                //if (!string.IsNullOrEmpty(role))
-                //{
-                //if (role == "ADMIN" && role == "STAFF")
-                //{
-                var expert = Validate(expertVM);
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
+                {
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                    {
+                        var expert = Validate(expertVM);
                 var check = expertService.Add(expert);
                 return await check ? Ok(new
                 {
@@ -82,20 +103,20 @@ namespace WebAPI.Controllers
                     Status = 0,
                     Message = "Add Expert Fail"
                 });
-                //}
-                //else
-                // return   //Ok(new
-                //{
-                //    Status = 0,
-                //    Message = "Role Denied",
-                //    Data = new { }
-                //});
-
-                //else
-                //{
-                //    return Unauthorized();
-                //}
             }
+                else
+                return Ok(new
+                {
+                    Status = 0,
+                    Message = "Role Denied",
+                    Data = new { }
+                });
+        }
+                else
+                {
+                    return Unauthorized();
+                 }
+                }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -112,12 +133,12 @@ namespace WebAPI.Controllers
 
             try
             {
-                //var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                //if (!string.IsNullOrEmpty(role))
-                //{
-                //    if (role == "ADMIN" && role == "STAFF")
-                //    {
-                var expert = Validate(expertVM);
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
+                {
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                    {
+                        var expert = Validate(expertVM);
                 var check = expertService.Update(expert);
                 return await check ? Ok(new
                 {
@@ -128,21 +149,21 @@ namespace WebAPI.Controllers
                     Status = 0,
                     Message = "Update Expert Fail"
                 });
-                //}
-                //    else
-                //    {
-                //        return Ok(new
-                //        {
-                //            Status = 0,
-                //            Message = "Role Denied",
-                //            Data = new { }
-                //        });
-                //    }
-                //}
-                //else
-                //{
-                //    return Unauthorized();
-                //}
+                    }
+                    else
+                    {
+                        return Ok(new
+                        {
+                            Status = 0,
+                            Message = "Role Denied",
+                            Data = new { }
+                        });
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
             }
             catch (Exception ex)
             {
@@ -161,36 +182,37 @@ namespace WebAPI.Controllers
 
             try
             {
-                //var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                //if (!string.IsNullOrEmpty(role))
-                //{
-                //if (role == "ADMIN" || role == "STAFF")
-                //{
-                var check = expertService.Delete(id);
-                return await check ? Ok(new
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    Status = 1,
-                    Message = "Delete Expert Success"
-                }) : Ok(new
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                    {
+                        var check = expertService.Delete(id);
+                        return await check ? Ok(new
+                        {
+                            Status = 1,
+                            Message = "Delete Expert Success"
+                        }) : Ok(new
+                        {
+                            Status = 0,
+                            Message = "Delete Expert Fail"
+                        });
+                    }
+                    else
+                    {
+                        return Ok(new
+                        {
+                            Status = 0,
+                            Message = "Role Denied",
+                            Data = new { }
+                        });
+                    }
+                }
+                else
                 {
-                    Status = 0,
-                    Message = "Delete Expert Fail"
-                });
-                //}
-                //else
-                //{
-                //    return Ok(new
-                //    {
-                //        Status = 0,
-                //        Message = "Role Denied",
-                //        Data = new { }
-                //    });
-                //}
-                //else
-                //{
-                //    return BadRequest();
-                //}
-            }
+                    return BadRequest();
+                }
+                }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -289,6 +311,8 @@ namespace WebAPI.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        
 
         [HttpPost]
         public async Task<IActionResult> LoginExpert(ExpLogin expLogin)
