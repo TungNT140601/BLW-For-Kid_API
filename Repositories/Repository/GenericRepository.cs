@@ -69,7 +69,7 @@ namespace Repositories.Repository
             }
         }
 
-        public IEnumerable<T> GetAll(Func<T, bool> where, params Expression<Func<T, bool>>[] includes)
+        public IEnumerable<T> GetAll(Func<T, bool> where, params Expression<Func<T, object>>[] includes)
         {
             try
             {
