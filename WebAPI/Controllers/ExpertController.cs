@@ -5,6 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 using Repositories.EntityModels;
 using Services;
 using System.Configuration;
+using System.Data;
+using System.Diagnostics.Eventing.Reader;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -49,11 +51,30 @@ namespace WebAPI.Controllers
         {
             try
             {
-                return Ok(new
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    Status = "Get ID Success",
-                    Data = expertService.Get(id)
-                });
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                    {   
+                        return Ok(new
+                        {
+                        Status = "Get ID Success",
+                        Data = expertService.Get(id)
+                    });
+                }
+                else
+                {
+                    return StatusCode(400, new
+                    {
+                        Status = -1,
+                        Message = "Role Denied"
+                    });
+                }
+            }
+                else
+                {
+                    return Unauthorized();
+                }
             }
             catch (Exception ex)
             {
