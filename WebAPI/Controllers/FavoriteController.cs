@@ -76,11 +76,14 @@ namespace WebAPI.Controllers
             try
             {
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var id = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
                 if (!string.IsNullOrEmpty(role))
                 {
                     if(role == CommonValues.CUSTOMER)
                     {
                         var favorite = _mapper.Map<Favorite>(model);
+                        favorite.CustomerId = id;
                         var check = await _favoriteService.Add(favorite);
                         return check ? Ok(new
                         {
@@ -111,16 +114,17 @@ namespace WebAPI.Controllers
             }
         }
         [HttpDelete]
-        public async Task<IActionResult> DeleteFavorite(string cusId, string recipeId)
+        public async Task<IActionResult> DeleteFavorite(string recipeId)
         {
             try
             {
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var id = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
                     if (role == CommonValues.CUSTOMER)
                     {
-                        return await _favoriteService.Delete(cusId, recipeId) ? Ok(new
+                        return await _favoriteService.Delete(id, recipeId) ? Ok(new
                         {
                             Message = "Delete Success!!!"
                         }) : Ok(new

@@ -131,7 +131,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdatePrePackage(PremiumPackageVM model)
+        public async Task<IActionResult> UpdatePrePackage(PremiumPackageUpdateVM model)
         {
             try
             {
@@ -181,7 +181,7 @@ namespace WebAPI.Controllers
                 {
                     if (role == CommonValues.ADMIN)
                     {
-                        var pre = packageService.Get(id);
+                        var pre = await packageService.Get(id);
                         if (pre != null)
                         {
                             var check = await packageService.Delete(id);

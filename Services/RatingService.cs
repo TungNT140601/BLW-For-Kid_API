@@ -71,33 +71,12 @@ namespace Services
             }
         }
 
-        public async Task<bool> Delete(string id)
-        {
-            try
-            {
-                var rating = await repository.Get(id);
-                if(rating != null) 
-                {
-                    rating.IsDelete = true;
-                    return await repository.Update(id, rating);
-                }
-                else
-                {
-                    throw new Exception("Not Found Rating Of Customer");
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
         public async Task<bool> Update(Rating rating)
         {
             try
             {
                 var ratingOfCus = await repository.Get(rating.RatingId);
-                if(ratingOfCus != null)
+                if (ratingOfCus != null)
                 {
                     ratingOfCus.Rate = rating.Rate;
                     ratingOfCus.Comment = rating.Comment;
@@ -114,5 +93,26 @@ namespace Services
                 throw new Exception(ex.Message);
             }
         }
+        public async Task<bool> Delete(string id)
+        {
+            try
+            {
+                var rating = await repository.Get(id);
+                if(rating != null) 
+                {
+                    return await repository.Delete(id);
+                }
+                else
+                {
+                    throw new Exception("Not Found Rating Of Customer");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        
     }
 }

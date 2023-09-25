@@ -176,7 +176,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateStaff(string id, StaffAccountUpdateVM model)
+        public async Task<IActionResult> UpdateStaff(StaffAccountUpdateVM model)
         {
             try
             {
@@ -185,7 +185,6 @@ namespace WebAPI.Controllers
                 {
                     if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                     {
-                        model.Id = id;
                         var staffAccount = _mapper.Map<StaffAccount>(model);
                         var check = await _staffAccountService.Update(staffAccount);
                         return check ? Ok(new
@@ -310,7 +309,7 @@ namespace WebAPI.Controllers
             try
             {
                 var role = "";
-                var account = await _staffAccountService.CheckLogin(username, password);
+                var account = _staffAccountService.CheckLogin(username, password);
                 if (account != null)
                 {
                     if (account.Role == 0 || account.Role == 1)
