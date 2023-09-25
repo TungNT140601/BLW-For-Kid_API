@@ -111,6 +111,7 @@ builder.Services.AddScoped<IPremiumPackageService, PremiumPackageService>();
 builder.Services.AddScoped<IMealService, MealService>();
 builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 builder.Services.AddScoped<IAgeService, AgeService>();
+builder.Services.AddScoped<IRecipeService, RecipeService>();
 
 
 var app = builder.Build();
