@@ -494,6 +494,20 @@ namespace WebAPI.Controllers
                 recipeVM.TotalFavorite = recipeService.CountFavorite(recipe.RecipeId);
                 #endregion
 
+                #region Meal
+                if (recipe.Meal != null)
+                {
+                    recipeVM.MealName = recipe.Meal.MealName;
+                }
+                #endregion
+
+                #region Age
+                if (recipe.Age != null)
+                {
+                    recipeVM.AgeName = recipe.Age.AgeName;
+                }
+                #endregion
+
                 return recipeVM;
             }
             catch (Exception ex)
@@ -519,6 +533,21 @@ namespace WebAPI.Controllers
                     #region TotalFavorite
                     recipeVM.TotalFavorite = recipeService.CountFavorite(recipe.RecipeId);
                     #endregion
+
+                    #region Meal
+                    if (recipe.Meal != null)
+                    {
+                        recipeVM.MealName = recipe.Meal.MealName;
+                    }
+                    #endregion
+
+                    #region Age
+                    if (recipe.Age != null)
+                    {
+                        recipeVM.AgeName = recipe.Age.AgeName;
+                    }
+                    #endregion
+
                     recipeVMs.Add(recipeVM);
                 }
 

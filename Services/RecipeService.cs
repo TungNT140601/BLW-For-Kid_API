@@ -79,41 +79,39 @@ namespace Services
                     throw new Exception("Not Found Age");
                 }
 
-
                 recipe.IsDelete = false;
                 recipe.IngredientOfRecipes = new List<IngredientOfRecipe>();
                 recipe.Directions = new List<Direction>();
 
+                //Add Ingredient In Recipe
+                foreach (var ingredientOfRecipe in ingredientOfRecipes)
+                {
+                    ingredientOfRecipe.RecipeId = recipe.RecipeId;
+                    //Check Ingredient Exist
+                    var ingredient = await ingredientRepository.Get(ingredientOfRecipe.IngredientId);
+                    if (ingredient == null)
+                    {
+                        throw new Exception("Not Found Ingredient");
+                    }
+                }
+
+                //checkAddIngredient = await ingredientOfRecipeRepository.AddRange(ingredientOfRecipes);
+                recipe.IngredientOfRecipes = ingredientOfRecipes;
+
+                //Add Direction Of Recipe
+                foreach (var direction in directions)
+                {
+                    direction.RecipeId = recipe.RecipeId;
+                    direction.DirectionId = AutoGenId.AutoGenerateId();
+                }
+
+                //checkAddDirection = await directionRepository.AddRange(directions);
+                recipe.Directions = directions;
+
                 //Flag
                 var checkAddRecipe = await recipeRepository.Add(recipe);
-                var checkAddIngredient = false;
-                var checkAddDirection = false;
 
-                if (checkAddRecipe)
-                {
-                    //Add Ingredient In Recipe
-                    foreach (var ingredientOfRecipe in ingredientOfRecipes)
-                    {
-                        ingredientOfRecipe.RecipeId = recipe.RecipeId;
-                        //Check Ingredient Exist
-                        var ingredient = await ingredientRepository.Get(ingredientOfRecipe.IngredientId);
-                        if (ingredient == null)
-                        {
-                            throw new Exception("Not Found Ingredient");
-                        }
-                        recipe.IngredientOfRecipes.Add(ingredientOfRecipe);
-                    }
-                    checkAddIngredient = await ingredientOfRecipeRepository.AddRange(ingredientOfRecipes);
-
-                    //Add Direction Of Recipe
-                    foreach (var direction in directions)
-                    {
-                        direction.RecipeId = recipe.RecipeId;
-                        direction.DirectionId = AutoGenId.AutoGenerateId();
-                    }
-                    checkAddDirection = await directionRepository.AddRange(directions);
-                }
-                if (!(checkAddRecipe && checkAddIngredient && checkAddDirection))
+                if (!checkAddRecipe)
                 {
                     throw new Exception("Add Fail");
                 }
@@ -154,10 +152,28 @@ namespace Services
             try
             {
                 var recipe = await recipeRepository.Get(id);
-                if(recipe != null)
+                if (recipe != null)
                 {
                     recipe.Directions = directionRepository.GetDirectionOfRecipe(recipe.RecipeId).ToList();
                     recipe.IngredientOfRecipes = ingredientOfRecipeRepository.GetAll(x => x.RecipeId == recipe.RecipeId).ToList();
+                    recipe.Age = await ageRepository.Get(recipe.AgeId);
+                    recipe.Meal = await mealRepository.Get(recipe.MealId);
+                    recipe.Calories = 0;
+                    recipe.Fat = 0;
+                    recipe.Carbohydrate = 0;
+                    recipe.Protein = 0;
+                    foreach (var ingredientOfRecipe in recipe.IngredientOfRecipes)
+                    {
+                        var ingredient = await ingredientRepository.Get(ingredientOfRecipe.IngredientId);
+                        recipe.Calories = ingredientOfRecipe.Quantity * ingredient.Calories;
+                        recipe.Fat = ingredientOfRecipe.Quantity * ingredient.Fat;
+                        recipe.Carbohydrate = ingredientOfRecipe.Quantity * ingredient.Carbohydrate;
+                        recipe.Protein = ingredientOfRecipe.Quantity * ingredient.Protein;
+                    }
+                    recipe.Calories = (double)Math.Ceiling((decimal)recipe.Calories.Value);
+                    recipe.Fat = (double)Math.Ceiling((decimal)recipe.Fat.Value);
+                    recipe.Carbohydrate = (double)Math.Ceiling((decimal)recipe.Carbohydrate.Value);
+                    recipe.Protein = (double)Math.Ceiling((decimal)recipe.Protein.Value);
                 }
                 return recipe;
             }
@@ -173,11 +189,23 @@ namespace Services
             {
                 if (isPremium)
                 {
-                    return recipeRepository.GetAll(x => x.IsDelete == false);
+                    var recipes = recipeRepository.GetAll(x => x.IsDelete == false);
+                    foreach (var recipe in recipes)
+                    {
+                        recipe.Age = ageRepository.Get(recipe.AgeId).Result;
+                        recipe.Meal = mealRepository.Get(recipe.MealId).Result;
+                    }
+                    return recipes;
                 }
                 else
                 {
-                    return recipeRepository.GetAll(x => x.ForPremium == false && x.IsDelete == false);
+                    var recipes = recipeRepository.GetAll(x => x.ForPremium == false && x.IsDelete == false);
+                    foreach (var recipe in recipes)
+                    {
+                        recipe.Age = ageRepository.Get(recipe.AgeId).Result;
+                        recipe.Meal = mealRepository.Get(recipe.MealId).Result;
+                    }
+                    return recipes;
                 }
             }
             catch (Exception ex)
