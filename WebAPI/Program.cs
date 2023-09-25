@@ -92,6 +92,9 @@ builder.Services.AddScoped<IPlanDetailRepository, PlanDetailRepository>();
 builder.Services.AddScoped<IAgeRepository, AgeRepository>();
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IMealRepository, MealRepository>();
+builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+builder.Services.AddScoped<IPremiumPackageRepository, PremiumPackageRepository>();
+builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
 
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
@@ -99,7 +102,11 @@ builder.Services.AddScoped<IStaffAccountService, StaffAccountService>();
 builder.Services.AddScoped<IIngredientService, IngredientService>();
 builder.Services.AddScoped<IExpertService, ExpertService>();
 builder.Services.AddScoped<IPlanService, PlanService>();
-builder.Services.AddScoped<IRecipeService, RecipeService>();
+builder.Services.AddScoped<IRatingService, RatingService>();
+builder.Services.AddScoped<IPremiumPackageService, PremiumPackageService>();
+builder.Services.AddScoped<IMealService, MealService>();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
+builder.Services.AddScoped<IAgeService, AgeService>();
 
 
 var app = builder.Build();

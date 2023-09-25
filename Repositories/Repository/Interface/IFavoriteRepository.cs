@@ -9,5 +9,6 @@ namespace Repositories.Repository.Interface
 {
     public  interface IFavoriteRepository : IGenericRepository<Favorite>
     {
+        public Task<bool> DeleteFav(Favorite favorite);
     }
 }

@@ -136,7 +136,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateAge(AgeVM model)
+        public async Task<IActionResult> UpdateAge(AgeUpdateVM model)
         {
             try
             {

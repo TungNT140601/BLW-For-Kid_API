@@ -10,4 +10,12 @@
         public DateTime? DeleteDate { get; set; }
         public string? StaffDelete { get; set; }
     }
+
+    public class MealUpdateVM
+    {
+        public string MealId { get; set; } = null!;
+        public string? MealName { get; set; }
+        public DateTime? UpdateTime { get; set; }
+        public string? StaffUpdate { get; set; }
+    }
 }

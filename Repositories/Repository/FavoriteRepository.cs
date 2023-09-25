@@ -14,5 +14,19 @@ namespace Repositories.Repository
         public FavoriteRepository(BLW_FOR_KIDContext dbContext) : base(dbContext)
         {
         }
+
+        public async Task<bool> DeleteFav(Favorite favorite)
+        {
+            try
+            {
+                dbSet.Remove(favorite);
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

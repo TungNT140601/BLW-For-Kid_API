@@ -17,7 +17,7 @@ namespace Services
         Task<bool> Update(StaffAccount account);
         Task<bool> Delete(string id);
         Task<bool> ChangePwdStaff(string staffId, string oldPwd, string newPwd);
-        Task<StaffAccount> CheckLogin(string username, string password);
+        StaffAccount CheckLogin(string username, string password);
     }
 
     public class StaffAccountService : IStaffAccountService
@@ -32,7 +32,7 @@ namespace Services
         {
             try
             {
-                var check = repository.GetAll(x => x.Username == account.Username && x.IsActive == true && x.IsDelete == false);
+                var check = repository.GetAll(x => x.Username == account.Username && x.IsActive == true && x.IsDelete == false).FirstOrDefault();
                 if (check != null)
                 {
                     throw new Exception("Username Exist!!!");
@@ -78,7 +78,7 @@ namespace Services
                 var account = await repository.Get(id);
                 if (account != null)
                 {
-                    account.IsDelete = false;
+                    account.IsDelete = true;
                     return await repository.Update(id, account);
                 }
                 else
@@ -177,23 +177,31 @@ namespace Services
             }
         }
 
-        public async Task<StaffAccount> CheckLogin(string username, string password)
+        public StaffAccount CheckLogin(string username, string password)
         {
             try
             {
-                var account = await repository.Get(username);
+                var account = repository.GetAll(x => x.Username == username);
+                var check = new StaffAccount();
                 if (account == null)
                 {
                     throw new Exception("Not Found Account");
                 }
                 else
                 {
-                    if(account.Password != password)
+                    foreach(var accountStaff in account)
                     {
-                        throw new Exception("Password Incorrect!!!");
+                        if (accountStaff.Password != password)
+                        {
+                            throw new Exception("Password Incorrect!!!");
+                        }
+                        else
+                        {
+                             check =  accountStaff;
+                        }
                     }
                 }
-                return account;
+                return check;
             }
             catch (Exception e)
             {

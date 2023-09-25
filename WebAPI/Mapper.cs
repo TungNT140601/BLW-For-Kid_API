@@ -25,13 +25,16 @@ namespace WebAPI
             CreateMap<Rating, RatingVM>().ReverseMap();
             CreateMap<Rating, RatingUpdateVM>().ReverseMap();
 
-            CreateMap<PremiumPackage, PremiumPackage >().ReverseMap();
+            CreateMap<PremiumPackage, PremiumPackageVM >().ReverseMap();
+            CreateMap<PremiumPackage, PremiumPackageUpdateVM >().ReverseMap();
 
             CreateMap<Meal, MealVM>().ReverseMap();
+            CreateMap<Meal, MealUpdateVM>().ReverseMap();
 
             CreateMap<Favorite, FavoriteVM>().ReverseMap();
 
             CreateMap<Age, AgeVM>().ReverseMap();
+            CreateMap<Age, AgeUpdateVM>().ReverseMap();
         }
     }
 }
