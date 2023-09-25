@@ -55,58 +55,13 @@ namespace WebAPI.Controllers
 
                 var recipe = await recipeService.Get(id);
 
-                var recipeVM = mapper.Map<RecipeVM>(recipe);
-
                 if (recipe == null)
                 {
                     throw new Exception("Not Found Recipe");
                 }
                 else
                 {
-                    //Direction
-                    var directionVMs = new List<DirectionVM>();
-                    if (recipe.Directions.Any())
-                    {
-                        foreach (var direction in recipe.Directions)
-                        {
-                            directionVMs.Add(mapper.Map<DirectionVM>(direction));
-                        }
-                        directionVMs = directionVMs.OrderBy(x => x.DirectionNum).ToList();
-                        recipeVM.DirectionVMs = directionVMs;
-                    }
-
-                    //IngredientOfRecipe
-                    var ingredientOfRecipeVMs = new List<IngredientOfRecipeVM>();
-                    if (recipe.IngredientOfRecipes.Any())
-                    {
-                        foreach (var ingredientOfRecipe in recipe.IngredientOfRecipes)
-                        {
-                            var ingredient = await ingredientService.Get(ingredientOfRecipe.IngredientId);
-                            ingredientOfRecipeVMs.Add(new IngredientOfRecipeVM
-                            {
-                                IngredientId = ingredientOfRecipe.IngredientId,
-                                IngredientImage = ingredient.IngredientImage,
-                                IngredientName = ingredient.IngredientName,
-                                Measure = ingredient.Measure,
-                                Quantity = ingredientOfRecipe.Quantity,
-                                RecipeId = ingredientOfRecipe.RecipeId
-                            });
-                        }
-                        ingredientOfRecipeVMs = ingredientOfRecipeVMs.OrderBy(x => x.IngredientName).ToList();
-                        recipeVM.IngredientOfRecipeVMs = ingredientOfRecipeVMs;
-                    }
-
-                    //Rating
-                    var ratingVMs = new List<RatingVM>();
-                    if (recipe.Ratings.Any())
-                    {
-
-                        recipeVM.RatingVMs = ratingVMs;
-                    }
-
-                    //TotalFavorite
-
-
+                    var recipeVM = await ChangeToVMDetail(recipe);
                     if (isPremium)
                     {
                         return StatusCode(200, new
@@ -164,18 +119,8 @@ namespace WebAPI.Controllers
                         }
                     }
                 }
-                var recipes = recipeService.GetAll().ToList();
-                var recipeVMs = new List<RecipeVM>();
-                foreach (var recipe in recipes)
-                {
-                    var recipeVM = mapper.Map<RecipeVM>(recipe);
-                    //AveRate
-                    recipeVM.AveRate = 0;
-                    //TotalFavorite
-                    recipeVM.TotalFavorite = 0;
-
-                    recipeVMs.Add(recipeVM);
-                }
+                var recipes = recipeService.GetAll(isPremium).ToList();
+                var recipeVMs = ChangeToVMList(recipes);
                 return StatusCode(200, new
                 {
                     Status = "Success",
@@ -286,7 +231,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateRecipe(string id,RecipeAddUpdateVM recipeVM)
+        public async Task<IActionResult> UpdateRecipe(string id, RecipeAddUpdateVM recipeVM)
         {
             try
             {
@@ -304,7 +249,7 @@ namespace WebAPI.Controllers
                 {
                     throw new Exception("Role Denied");
                 }
-                if(id == null || id != recipeVM.RecipeId)
+                if (id == null || id != recipeVM.RecipeId)
                 {
                     throw new Exception("Id Invalid");
                 }
@@ -339,19 +284,19 @@ namespace WebAPI.Controllers
         {
             var errMsg = "";
 
-            //Name
+            #region Name
             if (string.IsNullOrWhiteSpace(recipeVM.RecipeName))
             {
                 errMsg += ";Recipe Name Empty";
             }
-
-            //Meal
+            #endregion
+            #region Meal
             if (string.IsNullOrWhiteSpace(recipeVM.MealId))
             {
                 errMsg += ";Select Meal";
             }
-
-            //Image
+            #endregion
+            #region Image
             var image = "";
             if (recipeVM.RecipeImage != null)
             {
@@ -364,20 +309,20 @@ namespace WebAPI.Controllers
             {
                 errMsg += ";Select Recipe's Image";
             }
-
-            //AgeId
+            #endregion
+            #region AgeId
             if (string.IsNullOrWhiteSpace(recipeVM.AgeId))
             {
                 errMsg += ";Select Age";
             }
-
-            //ForPremium
+            #endregion
+            #region ForPremium
             if (recipeVM.ForPremium == null)
             {
                 recipeVM.ForPremium = false;
             }
-
-            //DirectionVMs
+            #endregion
+            #region DirectionVMs
             var directions = new List<Direction>();
             if (recipeVM.DirectionVMs.Any())
             {
@@ -429,8 +374,8 @@ namespace WebAPI.Controllers
             {
                 errMsg += ";Add at least 1 step for Recipe";
             }
-
-            //Ingredient
+            #endregion
+            #region Ingredient
             var ingredientOfRecipe = new List<IngredientOfRecipe>();
             if (recipeVM.IngredientOfRecipeVMs.Any())
             {
@@ -438,7 +383,7 @@ namespace WebAPI.Controllers
                 var duplicate = recipeVM.IngredientOfRecipeVMs.GroupBy(x => x.IngredientId).Any(x => x.Count() > 0);
                 foreach (var item in recipeVM.IngredientOfRecipeVMs)
                 {
-                    if(item.Quantity == null || item.Quantity <= 0)
+                    if (item.Quantity == null || item.Quantity <= 0)
                     {
                         checkValidQuantity = true;
                     }
@@ -455,7 +400,7 @@ namespace WebAPI.Controllers
                 {
                     errMsg += ";Invalid Quantiy Of Ingredient";
                 }
-                if(duplicate)
+                if (duplicate)
                 {
                     errMsg += ";Duplicate Ingredient";
                 }
@@ -464,6 +409,7 @@ namespace WebAPI.Controllers
             {
                 errMsg += ";Select at least 1 Ingredient for Recipe";
             }
+            #endregion
 
             return new Recipe
             {
@@ -471,10 +417,118 @@ namespace WebAPI.Controllers
                 RecipeName = recipeVM.RecipeName,
                 RecipeImage = image,
                 AgeId = recipeVM.AgeId,
+                MealId = recipeVM.MealId,
                 ForPremium = recipeVM.ForPremium,
                 Directions = directions,
                 IngredientOfRecipes = ingredientOfRecipe,
             };
         }
+
+        private async Task<RecipeVM> ChangeToVMDetail(Recipe recipe)
+        {
+            try
+            {
+                var recipeVM = mapper.Map<RecipeVM>(recipe);
+
+                #region Direction
+                var directionVMs = new List<DirectionVM>();
+                if (recipe.Directions.Any())
+                {
+                    foreach (var direction in recipe.Directions)
+                    {
+                        directionVMs.Add(mapper.Map<DirectionVM>(direction));
+                    }
+                    directionVMs = directionVMs.OrderBy(x => x.DirectionNum).ToList();
+                    recipeVM.DirectionVMs = directionVMs;
+                }
+                #endregion
+
+                #region IngredientOfRecipe
+                var ingredientOfRecipeVMs = new List<IngredientOfRecipeVM>();
+                if (recipe.IngredientOfRecipes.Any())
+                {
+                    foreach (var ingredientOfRecipe in recipe.IngredientOfRecipes)
+                    {
+                        var ingredient = await ingredientService.Get(ingredientOfRecipe.IngredientId);
+                        ingredientOfRecipeVMs.Add(new IngredientOfRecipeVM
+                        {
+                            IngredientId = ingredientOfRecipe.IngredientId,
+                            IngredientImage = ingredient.IngredientImage,
+                            IngredientName = ingredient.IngredientName,
+                            Measure = ingredient.Measure,
+                            Quantity = ingredientOfRecipe.Quantity,
+                            RecipeId = ingredientOfRecipe.RecipeId
+                        });
+                    }
+                    ingredientOfRecipeVMs = ingredientOfRecipeVMs.OrderBy(x => x.IngredientName).ToList();
+                    recipeVM.IngredientOfRecipeVMs = ingredientOfRecipeVMs;
+                }
+                #endregion
+
+                #region Rating
+                var ratingVMs = new List<RatingVM>();
+                recipe.Ratings = recipeService.GetRatings(recipe.RecipeId).ToList();
+                if (recipe.Ratings.Any())
+                {
+                    foreach (var rating in recipe.Ratings)
+                    {
+                        ratingVMs.Add(new RatingVM
+                        {
+                            Avatar = rating.Customer.Avatar,
+                            RecipeId = rating.RecipeId,
+                            Comment = rating.Comment,
+                            CustomerId = rating.CustomerId,
+                            Date = rating.Date,
+                            Fullname = rating.Customer.Fullname,
+                            Rate = rating.Rate,
+                            RatingImage = rating.RatingImage
+                        });
+                    }
+                    recipeVM.RatingVMs = ratingVMs;
+                }
+                recipeVM.TotalRate = recipe.Ratings.Count();
+                recipeVM.AveRate = recipeService.AveRate(recipe.RecipeId);
+                #endregion
+
+                #region TotalFavorite
+                recipeVM.TotalFavorite = recipeService.CountFavorite(recipe.RecipeId);
+                #endregion
+
+                return recipeVM;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        private IEnumerable<RecipeVM> ChangeToVMList(List<Recipe> recipes)
+        {
+            try
+            {
+                var recipeVMs = new List<RecipeVM>();
+                foreach (var recipe in recipes)
+                {
+                    var recipeVM = mapper.Map<RecipeVM>(recipe);
+
+                    #region Rating
+                    recipeVM.TotalRate = recipeService.CountRating(recipe.RecipeId);
+                    recipeVM.AveRate = recipeService.AveRate(recipe.RecipeId);
+                    #endregion
+
+                    #region TotalFavorite
+                    recipeVM.TotalFavorite = recipeService.CountFavorite(recipe.RecipeId);
+                    #endregion
+                    recipeVMs.Add(recipeVM);
+                }
+
+                return recipeVMs;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
     }
 }
