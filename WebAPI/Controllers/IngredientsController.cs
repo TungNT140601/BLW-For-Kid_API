@@ -1,8 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Repositories.EntityModels;
 using Services;
+using System.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using WebAPI.ViewModels;
 
 namespace WebAPI.Controllers
@@ -11,6 +16,7 @@ namespace WebAPI.Controllers
     [ApiController]
     public class IngredientsController : ControllerBase
     {
+        private readonly IConfiguration configuration;
         private readonly IIngredientService ingredientService;
         private readonly IMapper mapper;
 
@@ -18,6 +24,7 @@ namespace WebAPI.Controllers
         {
             this.ingredientService = ingredientService;
             this.mapper = mapper;
+            this.configuration = configuration;
         }
 
         [HttpGet]
@@ -42,11 +49,30 @@ namespace WebAPI.Controllers
         {
             try
             {
-                return Ok(new
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    Status = "Get ID Success",
-                    Data = ingredientService.Get(id)
-                });
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                    {
+                        return Ok(new
+                        {
+                            Status = "Get ID Success",
+                            Data = ingredientService.Get(id)
+                        });
+                    }
+                    else
+                    {
+                        return StatusCode(400, new
+                        {
+                            Status = -1,
+                            Message = "Role Denied"
+                        });
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
             }
             catch (Exception ex)
             {
@@ -59,36 +85,36 @@ namespace WebAPI.Controllers
         {
             try
             {
-                //var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                //if (!string.IsNullOrEmpty(role))
-                //{
-                //if (role == "ADMIN" && role == "STAFF")
-                //{
-                var ingredient = Validate(ingredientVM);
-                var check = ingredientService.Add(ingredient);
-                return await check ? Ok(new
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    Status = 1,
-                    Message = "Add Ingredient Success"
-                }) : Ok(new
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                    {
+                        var ingredient = Validate(ingredientVM);
+                        var check = ingredientService.Add(ingredient);
+                        return await check ? Ok(new
+                        {
+                            Status = 1,
+                            Message = "Add Ingredient Success"
+                        }) : Ok(new
+                        {
+                            Status = 0,
+                            Message = "Add Ingredient Fail"
+                        });
+                    }
+                    else
+                        return Ok(new
+                        {
+                            Status = 0,
+                            Message = "Role Denied",
+                            Data = new { }
+                        });
+                }
+                else
                 {
-                    Status = 0,
-                    Message = "Add Ingredient Fail"
-                });
-                //}
-                //else
-                // return   //Ok(new
-                //{
-                //    Status = 0,
-                //    Message = "Role Denied",
-                //    Data = new { }
-                //});
-
-                //else
-                //{
-                //    return Unauthorized();
-                //}
-            }
+                    return Unauthorized();
+                }
+                }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -105,12 +131,12 @@ namespace WebAPI.Controllers
 
             try
             {
-                //var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                //if (!string.IsNullOrEmpty(role))
-                //{
-                //    if (role == "ADMIN" && role == "STAFF")
-                //    {
-                var ingredient = Validate(ingredientVM);
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
+                {
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                    {
+                        var ingredient = Validate(ingredientVM);
                 var check = ingredientService.Update(ingredient);
                 return await check ? Ok(new
                 {
@@ -121,21 +147,21 @@ namespace WebAPI.Controllers
                     Status = 0,
                     Message = "Update Ingredient Fail"
                 });
-                //}
-                //    else
-                //    {
-                //        return Ok(new
-                //        {
-                //            Status = 0,
-                //            Message = "Role Denied",
-                //            Data = new { }
-                //        });
-                //    }
-                //}
-                //else
-                //{
-                //    return Unauthorized();
-                //}
+                    }
+                    else
+                    {
+                        return Ok(new
+                        {
+                            Status = 0,
+                            Message = "Role Denied",
+                            Data = new { }
+                        });
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
             }
             catch (Exception ex)
             {
@@ -154,36 +180,37 @@ namespace WebAPI.Controllers
 
             try
             {
-                //var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                //if (!string.IsNullOrEmpty(role))
-                //{
-                //if (role == "ADMIN" && role == "STAFF")
-                //{
-                var check = ingredientService.Delete(id);
-                return await check ? Ok(new
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (!string.IsNullOrEmpty(role))
                 {
-                    Status = 1,
-                    Message = "Delete Ingredient Success"
-                }) : Ok(new
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                    {
+                        var check = ingredientService.Delete(id);
+                        return await check ? Ok(new
+                        {
+                            Status = 1,
+                            Message = "Delete Ingredient Success"
+                        }) : Ok(new
+                        {
+                            Status = 0,
+                            Message = "Delete Ingredient Fail"
+                        });
+                    }
+                    else
+                    {
+                        return Ok(new
+                        {
+                            Status = 0,
+                            Message = "Role Denied",
+                            Data = new { }
+                        });
+                    }
+                }
+                else
                 {
-                    Status = 0,
-                    Message = "Delete Ingredient Fail"
-                });
-                //}
-                //else
-                //{
-                //    return Ok(new
-                //    {
-                //        Status = 0,
-                //        Message = "Role Denied",
-                //        Data = new { }
-                //    });
-                //}
-                //else
-                //{
-                //    return BadRequest();
-                //}
-            }
+                    return BadRequest();
+                }
+                }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -243,5 +270,28 @@ namespace WebAPI.Controllers
             }
             return mapper.Map<Ingredient>(ingredientVM);
         }
+
+        private string GenerateJwtToken(string id, string role)
+        {
+            var jwtSettings = configuration.GetSection("JwtSettings");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var claims = new List<Claim>
+            {
+            new Claim(ClaimTypes.NameIdentifier, id),
+            new Claim(ClaimTypes.Role, role)
+        };
+            var token = new JwtSecurityToken(
+                issuer: jwtSettings["Issuer"],
+                audience: jwtSettings["Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(30),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
     }
+
+
 }
