@@ -30,9 +30,9 @@ namespace WebAPI.Controllers
         }
         private CustomerAccount Validate(CustomerVM customerVM)
         {
-            var err = "";
             try
             {
+                var err = "";
                 if (string.IsNullOrEmpty(customerVM.Fullname) && customerVM.Fullname.Trim() == "")
                 {
                     err += ";Tên không được để trống";
@@ -41,16 +41,16 @@ namespace WebAPI.Controllers
                 {
                     err += ";Vui lòng chọn giới tính";
                 }
+                if (!string.IsNullOrWhiteSpace(err))
+                {
+                    throw new Exception(err);
+                }
                 return mapper.Map<CustomerAccount>(customerVM);
             }
             catch (Exception ex)
             {
-                if (!string.IsNullOrEmpty(err))
-                {
-                    throw new Exception(err);
-                }
+                throw new Exception(ex.Message);
             }
-            return null;
         }
         private string GenerateJwtToken(string id)
         {
@@ -307,6 +307,7 @@ namespace WebAPI.Controllers
                     if (role == "Customer")
                     {
                         var cusId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                        customerVM.CustomerId = cusId;
                         return await customerService.Update(Validate(customerVM)) ? Ok(new
                         {
                             Status = "Update Success"
@@ -333,12 +334,12 @@ namespace WebAPI.Controllers
                     });
                 }
             }
-            catch (AggregateException ae)
+            catch (Exception ae)
             {
                 return StatusCode(400, new
                 {
                     Status = "Error",
-                    ErrorMessage = ae.InnerExceptions[0].Message
+                    ErrorMessage = ae.Message
                 });
             }
         }
