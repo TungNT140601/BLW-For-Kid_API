@@ -81,9 +81,13 @@ namespace WebAPI.Controllers
                 }
 
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
 
@@ -126,9 +130,13 @@ namespace WebAPI.Controllers
 
             }
             catch
-            (Exception e)
+            (Exception ex)
             {
-                return BadRequest(e.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
 
@@ -169,9 +177,13 @@ namespace WebAPI.Controllers
                 }
 
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
 
@@ -211,9 +223,13 @@ namespace WebAPI.Controllers
                     return Unauthorized();
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
 
@@ -261,9 +277,13 @@ namespace WebAPI.Controllers
                 }
 
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
 
@@ -293,12 +313,12 @@ namespace WebAPI.Controllers
                     });
                 }
             }
-            catch (AggregateException ae)
+            catch (Exception ae)
             {
                 return StatusCode(400, new
                 {
                     Status = "Error",
-                    ErrorMessage = ae.InnerExceptions[0].Message
+                    ErrorMessage = ae.Message
                 });
             }
         }
@@ -349,13 +369,21 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    return NotFound();
+                    return StatusCode(400, new
+                    {
+                        Status = "Error",
+                        ErrorMessage = "Login Fail"
+                    });
                 }
 
             }
-            catch (AggregateException ae)
+            catch (Exception ae)
             {
-                return BadRequest();
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ae.Message
+                });
             }
         }
     }

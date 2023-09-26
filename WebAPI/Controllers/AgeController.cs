@@ -67,7 +67,11 @@ namespace WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
 
@@ -85,7 +89,11 @@ namespace WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
 
@@ -114,7 +122,11 @@ namespace WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
 
@@ -143,7 +155,11 @@ namespace WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
 
@@ -171,7 +187,11 @@ namespace WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
     }
