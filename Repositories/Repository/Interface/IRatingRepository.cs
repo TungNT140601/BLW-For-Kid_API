@@ -9,5 +9,6 @@ namespace Repositories.Repository.Interface
 {
     public interface IRatingRepository : IGenericRepository<Rating>
     {
+        public Task<bool> DeleteWithCondition(Rating rating);
     }
 }

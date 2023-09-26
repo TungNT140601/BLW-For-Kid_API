@@ -181,27 +181,22 @@ namespace Services
         {
             try
             {
-                var account = repository.GetAll(x => x.Username == username);
-                var check = new StaffAccount();
+                var account = repository.GetAll(x => x.Username == username).FirstOrDefault();
                 if (account == null)
                 {
                     throw new Exception("Not Found Account");
                 }
                 else
                 {
-                    foreach(var accountStaff in account)
+                    if (account.Password != password)
                     {
-                        if (accountStaff.Password != password)
-                        {
-                            throw new Exception("Password Incorrect!!!");
-                        }
-                        else
-                        {
-                             check =  accountStaff;
-                        }
+                        throw new Exception("Password Incorrect!!!");
+                    }
+                    else
+                    {
+                        return account;
                     }
                 }
-                return check;
             }
             catch (Exception e)
             {

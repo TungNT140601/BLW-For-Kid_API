@@ -48,10 +48,11 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllRecipeFavorite(string cusId)
+        public async Task<IActionResult> GetAllRecipeFavorite()
         {
             try
             {
+                var cusId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 var list = _favoriteService.GetAllRecipeFavoriteOfOneCus(cusId);
                 var favorite = new List<Favorite>();
                 foreach (var item in list)

@@ -23,13 +23,13 @@ namespace WebAPI
             CreateMap<StaffAccount, ChangePwdStaffAccountVM>().ReverseMap();
 
             CreateMap<Rating, RatingVM>().ReverseMap();
-            CreateMap<Rating, RatingUpdateVM>().ReverseMap();
 
             CreateMap<PremiumPackage, PremiumPackageVM >().ReverseMap();
             CreateMap<PremiumPackage, PremiumPackageUpdateVM >().ReverseMap();
 
-            CreateMap<Meal, MealVM>().ReverseMap();
+            CreateMap<Meal, MealAddVM>().ReverseMap();
             CreateMap<Meal, MealUpdateVM>().ReverseMap();
+            CreateMap<Meal, MealDeleteVM>().ReverseMap();
 
             CreateMap<Favorite, FavoriteVM>().ReverseMap();
 

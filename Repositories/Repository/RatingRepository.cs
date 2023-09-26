@@ -14,5 +14,19 @@ namespace Repositories.Repository
         public RatingRepository(BLW_FOR_KIDContext dbContext) : base(dbContext)
         {
         }
+
+        public async Task<bool> DeleteWithCondition(Rating rating)
+        {
+            try
+            {
+                dbSet.Remove(rating);
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
