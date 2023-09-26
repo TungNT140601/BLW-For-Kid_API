@@ -52,12 +52,16 @@ namespace WebAPI.Controllers
         {
             try
             {
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 var cusId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-                var list = _favoriteService.GetAllRecipeFavoriteOfOneCus(cusId);
                 var favorite = new List<Favorite>();
-                foreach (var item in list)
+                if (role == CommonValues.CUSTOMER)
                 {
-                    favorite.Add(_mapper.Map<Favorite>(item));
+                    var list = _favoriteService.GetAllRecipeFavoriteOfOneCus(cusId);                    
+                    foreach (var item in list)
+                    {
+                        favorite.Add(_mapper.Map<Favorite>(item));
+                    }                   
                 }
                 return Ok(new
                 {
@@ -65,9 +69,13 @@ namespace WebAPI.Controllers
                     Data = favorite
                 });
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
 
@@ -109,9 +117,13 @@ namespace WebAPI.Controllers
                 }
 
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
         [HttpDelete]
@@ -148,9 +160,13 @@ namespace WebAPI.Controllers
                 }
 
             }
-            catch(Exception e)
+            catch(Exception ex)
             {
-                return BadRequest(e.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
     }

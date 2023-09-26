@@ -32,14 +32,13 @@ namespace WebAPI
             CreateMap<PremiumPackage, PremiumPackageVM >().ReverseMap();
             CreateMap<PremiumPackage, PremiumPackageUpdateVM >().ReverseMap();
 
-<<<<<<< HEAD
+
             CreateMap<Meal, MealAddVM>().ReverseMap();
-=======
+
             CreateMap<PremiumPackage, PremiumPackage>().ReverseMap();
 
 
-            CreateMap<Meal, MealVM>().ReverseMap();
->>>>>>> d6dac1dfcf847358057d714b4c32cef98bcb2f36
+            CreateMap<Meal, MealAddVM>().ReverseMap();
             CreateMap<Meal, MealUpdateVM>().ReverseMap();
             CreateMap<Meal, MealDeleteVM>().ReverseMap();
 

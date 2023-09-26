@@ -38,7 +38,9 @@ namespace Services
                 foreach (var rating in ratings)
                 {
                     rating.Customer = cusRepository.Get(rating.CustomerId).Result;
+                    rating.Customer.Ratings = null;
                     rating.Recipe = recipeRepository.Get(rating.RecipeId).Result;
+                    rating.Recipe.Ratings = null;
                 }
                 return ratings;
             }
@@ -48,13 +50,13 @@ namespace Services
             }
         }
 
-        public async Task<Rating> GetRating(string cusId,string recipeId)
+        public async Task<Rating> GetRating(string cusId, string recipeId)
         {
             try
             {
                 var rating = repository.GetAll(x => x.CustomerId == cusId && x.RecipeId == recipeId).FirstOrDefault();
-                if(rating != null)
-                {                   
+                if (rating != null)
+                {
                     rating.Customer = await cusRepository.Get(cusId);
                     rating.Recipe = await recipeRepository.Get(recipeId);
                     return rating;

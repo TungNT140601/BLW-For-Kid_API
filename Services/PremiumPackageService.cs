@@ -31,6 +31,7 @@ namespace Services
             try
             {
                 return repository.GetAll(x => x.IsDelete == false);
+
             }
             catch (Exception ex)
             {
