@@ -14,6 +14,7 @@ namespace Services
         IEnumerable<Favorite> GetAllRecipeFavoriteOfOneCus(string cusId);
         Task<bool> Add(Favorite favorite);
         Task<bool> Delete(string cusId, string recipeId);
+        int TotalFavOnRecipe(string recipeId);
     }
 
     public class FavoriteService : IFavoriteService
@@ -65,6 +66,24 @@ namespace Services
             catch (Exception e)
             {
                 throw new Exception(e.Message);
+            }
+        }
+
+        public int TotalFavOnRecipe(string recipeId)
+        {
+            try
+            {
+                var fav = repository.GetAll(x => x.RecipeId == recipeId);
+                int count = 0;
+                foreach (var item in fav)
+                {
+                    count++;
+                }
+                return count;
+            }
+            catch(Exception ex) 
+            {
+                throw new Exception(ex.Message);
             }
         }
     }

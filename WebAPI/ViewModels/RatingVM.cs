@@ -11,12 +11,4 @@
         public DateTime? Date { get; set; }
         public string? RatingImage { get; set; }
     }
-
-    public class RatingUpdateVM
-    {
-        public string RatingId { get; set; } = null!;
-        public int? Rate { get; set; }
-        public string? Comment { get; set; }
-        public string? RatingImage { get; set; }
-    }
 }

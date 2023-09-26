@@ -52,26 +52,17 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                var list = _mealService.GetAllMeal();
+                var meal = new List<Meal>();
+                foreach (var item in list)
                 {
-                    var list = _mealService.GetAllMeal();
-                    var meal = new List<Meal>();
-                    foreach (var item in list)
-                    {
-                        meal.Add(_mapper.Map<Meal>(item));
-                    }
-                    return Ok(new
-                    {
-                        Status = 1,
-                        Data = meal
-                    });
+                    meal.Add(_mapper.Map<Meal>(item));
                 }
-                else
+                return Ok(new
                 {
-                    return Unauthorized();
-                }
-
+                    Status = 1,
+                    Data = meal
+                });
             }
             catch (Exception ex)
             {
@@ -84,20 +75,12 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                var meal = await _mealService.GetMeal(id);
+                return Ok(new
                 {
-                    var meal = await _mealService.GetMeal(id);
-                    return Ok(new
-                    {
-                        Status = 1,
-                        Data = meal
-                    });
-                }
-                else
-                {
-                    return Unauthorized();
-                }
+                    Status = 1,
+                    Data = meal
+                });
             }
             catch (Exception ex)
             {
@@ -106,14 +89,16 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddNewMeal(MealVM model)
+        public async Task<IActionResult> AddNewMeal(MealAddVM model)
         {
             try
             {
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var id = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                 {
                     var meal = _mapper.Map<Meal>(model);
+                    meal.StaffCreate = id;
                     var check = await _mealService.AddMeal(meal);
                     return check ? Ok(new
                     {
@@ -135,14 +120,16 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateAge(MealUpdateVM model)
+        public async Task<IActionResult> UpdateMeal(MealUpdateVM model)
         {
             try
             {
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var id = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                 {
                     var meal = _mapper.Map<Meal>(model);
+                    meal.StaffUpdate = id;
                     var check = await _mealService.UpdateMeal(meal);
                     return check ? Ok(new
                     {
@@ -164,14 +151,17 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteAge(string id)
+        public async Task<IActionResult> DeleteMeal(MealDeleteVM model)
         {
             try
             {
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var id = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                 {
-                    var check = await _mealService.DeleteMeal(id);
+                    var meal = _mapper.Map<Meal>(model);
+                    meal.StaffDelete = id;
+                    var check = await _mealService.DeleteMeal(meal);
                     return check ? Ok(new
                     {
                         Message = "Delete Success!!!"

@@ -53,26 +53,17 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                var list = _ageService.GetAllAge();
+                var age = new List<Age>();
+                foreach (var item in list)
                 {
-                    var list = _ageService.GetAllAge();
-                    var age = new List<Age>();
-                    foreach (var item in list)
-                    {
-                        age.Add(_mapper.Map<Age>(item));
-                    }
-                    return Ok(new
-                    {
-                        Status = 1,
-                        Data = age
-                    });
+                    age.Add(_mapper.Map<Age>(item));
                 }
-                else
+                return Ok(new
                 {
-                    return Unauthorized();
-                }
-
+                    Status = 1,
+                    Data = age
+                });
             }
             catch (Exception ex)
             {
@@ -85,20 +76,12 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                var age = await _ageService.GetAge(id);
+                return Ok(new
                 {
-                    var age = await _ageService.GetAge(id);
-                    return Ok(new
-                    {
-                        Status = 1,
-                        Data = age
-                    });
-                }
-                else
-                {
-                    return Unauthorized();
-                }
+                    Status = 1,
+                    Data = age
+                });
             }
             catch (Exception ex)
             {
