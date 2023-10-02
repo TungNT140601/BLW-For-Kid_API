@@ -46,6 +46,9 @@ namespace WebAPI
 
             CreateMap<Age, AgeVM>().ReverseMap();
             CreateMap<Age, AgeUpdateVM>().ReverseMap();
+
+            CreateMap<PaymentHistory, PaymentHistoryVM>().ReverseMap();
+            CreateMap<PaymentHistory, PaymentHistoryAllVM>().ReverseMap();
         }
     }
 }

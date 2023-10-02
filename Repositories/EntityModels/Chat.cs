@@ -16,8 +16,8 @@ namespace Repositories.EntityModels
         public DateTime? StartChat { get; set; }
         public bool? IsDelete { get; set; }
 
-        public virtual CustomerAccount Customer { get; set; } = null!;
-        public virtual Expert Expert { get; set; } = null!;
+        public virtual Expert? Customer { get; set; } = null!;
+        public virtual CustomerAccount? Expert { get; set; } = null!;
         public virtual ICollection<ChatHistory> ChatHistories { get; set; }
     }
 }
