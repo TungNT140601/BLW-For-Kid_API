@@ -30,6 +30,7 @@ namespace WebAPI
 
 
             CreateMap<PremiumPackage, PremiumPackageVM >().ReverseMap();
+            CreateMap<PremiumPackage, PremiumPackageAddVM >().ReverseMap();
             CreateMap<PremiumPackage, PremiumPackageUpdateVM >().ReverseMap();
 
 

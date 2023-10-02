@@ -53,10 +53,10 @@ namespace WebAPI.Controllers
             try
             {
                 var list = packageService.GetAll();
-                var pre = new List<PremiumPackage>();
+                var pre = new List<PremiumPackageVM>();
                 foreach (var item in list)
                 {
-                    pre.Add(mapper.Map<PremiumPackage>(item));
+                    pre.Add(mapper.Map<PremiumPackageVM>(item));
                 }
                 return Ok(new
                 {
@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddPrePackage(PremiumPackageVM model)
+        public async Task<IActionResult> AddPrePackage(PremiumPackageAddVM model)
         {
             try
             {
