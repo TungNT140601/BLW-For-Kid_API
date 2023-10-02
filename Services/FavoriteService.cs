@@ -14,21 +14,34 @@ namespace Services
         IEnumerable<Favorite> GetAllRecipeFavoriteOfOneCus(string cusId);
         Task<bool> Add(Favorite favorite);
         Task<bool> Delete(string cusId, string recipeId);
+        int TotalFavOnRecipe(string recipeId);
     }
 
     public class FavoriteService : IFavoriteService
     {
         private readonly IFavoriteRepository repository;
-        public FavoriteService(IFavoriteRepository repository)
+        private readonly ICustomerRepository cusRepository;
+        private readonly IRecipeRepository recipeRepository;
+        public FavoriteService(IFavoriteRepository repository, ICustomerRepository cusRepository, IRecipeRepository recipeRepository)
         {
             this.repository = repository;
+            this.cusRepository = cusRepository;
+            this.recipeRepository = recipeRepository;
         }
 
-        public IEnumerable<Favorite> GetAllRecipeFavoriteOfOneCus(string cusId)
+        public  IEnumerable<Favorite> GetAllRecipeFavoriteOfOneCus(string cusId)
         {
             try
             {
-                return repository.GetAll(x => x.CustomerId == cusId);
+                var check =  repository.GetAll(x => x.CustomerId == cusId);
+                foreach (var item in check)
+                {
+                    item.Customer = cusRepository.Get(item.CustomerId).Result;
+                    item.Customer.Favorites = null;
+                    item.Recipe = recipeRepository.Get(item.RecipeId).Result;
+                    item.Recipe.Favorites = null;
+                }
+                return check;
             }
             catch (Exception e)
             {
@@ -65,6 +78,24 @@ namespace Services
             catch (Exception e)
             {
                 throw new Exception(e.Message);
+            }
+        }
+
+        public int TotalFavOnRecipe(string recipeId)
+        {
+            try
+            {
+                var fav = repository.GetAll(x => x.RecipeId == recipeId);
+                int count = 0;
+                foreach (var item in fav)
+                {
+                    count++;
+                }
+                return count;
+            }
+            catch(Exception ex) 
+            {
+                throw new Exception(ex.Message);
             }
         }
     }

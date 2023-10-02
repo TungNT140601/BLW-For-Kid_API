@@ -15,7 +15,7 @@ namespace Services
         Task<Meal> GetMeal(string id);
         Task<bool> AddMeal(Meal meal);
         Task<bool> UpdateMeal(Meal meal);
-        Task<bool> DeleteMeal(string id);
+        Task<bool> DeleteMeal(Meal meal);
     }
 
     public class MealService : IMealService
@@ -37,6 +37,7 @@ namespace Services
                 else
                 {
                     meal.MealId = AutoGenId.AutoGenerateId();
+                    meal.CreateTime = DateTime.Now;
                     meal.IsDelete = false;
                     return await repository.Add(meal);
                 }
@@ -47,15 +48,16 @@ namespace Services
             }
         }
 
-        public async Task<bool> DeleteMeal(string id)
+        public async Task<bool> DeleteMeal(Meal meal)
         {
             try
             {
-                var check = await repository.Get(id);
+                var check = await repository.Get(meal.MealId);
                 if (check != null)
                 {
+                    check.DeleteDate = DateTime.Now;
                     check.IsDelete = true;
-                    return await repository.Update(id, check);
+                    return await repository.Update(meal.MealId, check);
                 }
                 else
                 {
@@ -115,7 +117,7 @@ namespace Services
                     {
                         check.MealName = meal.MealName;
                         check.StaffUpdate = meal.StaffUpdate;
-                        check.UpdateTime = meal.UpdateTime;
+                        check.UpdateTime = DateTime.Now;
                         return await repository.Update(meal.MealId, check);
                     }
                 }

@@ -12,24 +12,37 @@ namespace Services
     public interface IRatingService
     {
         IEnumerable<Rating> GetAllRatingOfOneCus();
-        Task<Rating> GetRating(string id);
-        Task<bool> Add(Rating rating);
-        Task<bool> Delete(string id);
-        Task<bool> Update(Rating rating);
+        Task<Rating> GetRating(string cusId, string recipeId);
+        Task<bool> AddOrUpdate(Rating rating);
+        Task<bool> Delete(string cusId, string recipeId);
+        int GetAllRatingOfRecipe(string recipeId);
+        int AvgRatingOfRecipe(string recipeId);
     }
 
     public class RatingService : IRatingService
     {
         private readonly IRatingRepository repository;
-        public RatingService(IRatingRepository repository)
+        private readonly ICustomerRepository cusRepository;
+        private readonly IRecipeRepository recipeRepository;
+        public RatingService(IRatingRepository repository, ICustomerRepository cusRepository, IRecipeRepository recipeRepository)
         {
             this.repository = repository;
+            this.cusRepository = cusRepository;
+            this.recipeRepository = recipeRepository;
         }
         public IEnumerable<Rating> GetAllRatingOfOneCus()
         {
             try
             {
-                return repository.GetAll(x => x.IsDelete == false);
+                var ratings = repository.GetAll(x => x.IsDelete == false);
+                foreach (var rating in ratings)
+                {
+                    rating.Customer = cusRepository.Get(rating.CustomerId).Result;
+                    rating.Customer.Ratings = null;
+                    rating.Recipe = recipeRepository.Get(rating.RecipeId).Result;
+                    rating.Recipe.Ratings = null;
+                }
+                return ratings;
             }
             catch (Exception ex)
             {
@@ -37,13 +50,15 @@ namespace Services
             }
         }
 
-        public async Task<Rating> GetRating(string id)
+        public async Task<Rating> GetRating(string cusId, string recipeId)
         {
             try
             {
-                var rating = await repository.Get(id); 
-                if(rating != null)
+                var rating = repository.GetAll(x => x.CustomerId == cusId && x.RecipeId == recipeId).FirstOrDefault();
+                if (rating != null)
                 {
+                    rating.Customer = await cusRepository.Get(cusId);
+                    rating.Recipe = await recipeRepository.Get(recipeId);
                     return rating;
                 }
                 else
@@ -56,26 +71,11 @@ namespace Services
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<bool> Add(Rating rating)
+        public async Task<bool> AddOrUpdate(Rating rating)
         {
             try
             {
-                rating.RatingId = AutoGenId.AutoGenerateId();
-                rating.Date = DateTime.Now;
-                rating.IsDelete = false;
-                return await repository.Add(rating);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public async Task<bool> Update(Rating rating)
-        {
-            try
-            {
-                var ratingOfCus = await repository.Get(rating.RatingId);
+                var ratingOfCus = repository.GetAll(x => x.CustomerId == rating.CustomerId && x.RecipeId == rating.RecipeId).FirstOrDefault();
                 if (ratingOfCus != null)
                 {
                     ratingOfCus.Rate = rating.Rate;
@@ -85,22 +85,26 @@ namespace Services
                 }
                 else
                 {
-                    throw new Exception("Not Found Rating Of Customer");
-                }
+                    rating.RatingId = AutoGenId.AutoGenerateId();
+                    rating.Date = DateTime.Now;
+                    rating.IsDelete = false;
+                    return await repository.Add(rating);
+                }              
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<bool> Delete(string id)
+
+        public async Task<bool> Delete(string cusId, string recipeId)
         {
             try
             {
-                var rating = await repository.Get(id);
+                var rating = repository.GetAll(x => x.CustomerId == cusId && x.RatingId == recipeId).FirstOrDefault();
                 if(rating != null) 
                 {
-                    return await repository.Delete(id);
+                    return await repository.DeleteWithCondition(rating);
                 }
                 else
                 {
@@ -113,6 +117,59 @@ namespace Services
             }
         }
 
-        
+        public int GetAllRatingOfRecipe(string recipeId)
+        {
+            try
+            {
+                var totalRating = repository.GetAll(x => x.RecipeId == recipeId);
+                int count = 0;
+                foreach (var rating in totalRating)
+                {
+                    count++;
+                }               
+                return count;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public int AvgRatingOfRecipe(string recipeId)
+        {
+            try
+            {
+                var totalRatingOfRecipe = GetAllRatingOfRecipe(recipeId);
+                var totalRating = repository.GetAll(x => x.IsDelete == false);
+                var listRtingofRecipeId = new List<Rating>();
+                double count = 0;
+                foreach (var rating in totalRating)
+                {
+                    if (rating.RecipeId == recipeId)
+                    {
+                        listRtingofRecipeId.Add(rating);
+                    }
+                }
+                foreach (var rating in listRtingofRecipeId)
+                {
+                    count +=(double) rating.Rate;
+                }
+                var avgRating = count / totalRatingOfRecipe;
+                var remainder = avgRating - Math.Floor(avgRating);
+                if (remainder < 0.5)
+                {
+                    avgRating = avgRating - remainder;
+                }
+                else if (remainder >= 0.5)
+                {
+                    avgRating = (avgRating - remainder) + 1;
+                }
+                return (int)avgRating;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace Repositories.Repository.Interface
 {
-    public interface IRatingRepository : IGenericRepository<Rating>
+    public interface IPaymentHistoryRepository : IGenericRepository<PaymentHistory>
     {
-        public Task<bool> DeleteWithCondition(Rating rating);
     }
 }

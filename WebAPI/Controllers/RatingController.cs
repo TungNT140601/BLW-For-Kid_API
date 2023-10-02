@@ -66,16 +66,21 @@ namespace WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetRatingOfCus(string id)
+        public async Task<IActionResult> GetRatingOfCus(string recipeId)
         {
             try
             {
-                var rating = await ratingService.GetRating(id);
+                var cusId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                var rating = await ratingService.GetRating(cusId, recipeId);
                 return Ok(new
                 {
                     Status = 1,
@@ -84,7 +89,11 @@ namespace WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
 
@@ -99,13 +108,13 @@ namespace WebAPI.Controllers
                     if (role == CommonValues.CUSTOMER)
                     {
                         var rating = mapper.Map<Rating>(model);
-                        var check = await ratingService.Add(rating);
+                        var check = await ratingService.AddOrUpdate(rating);
                         return check ? Ok(new
                         {
-                            Message = "Add Success!!!"
+                            Message = "Success!!!"
                         }) : Ok(new
                         {
-                            Message = "Add Fail"
+                            Message = "Fail"
                         });
                     }
                     else
@@ -125,62 +134,26 @@ namespace WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> UpdateRating(RatingUpdateVM model)
-        {
-            try
-            {
-                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (!string.IsNullOrEmpty(role))
+                return StatusCode(400, new
                 {
-                    if (role == CommonValues.CUSTOMER)
-                    {
-                        var rating = mapper.Map<Rating>(model);
-                        var check = await ratingService.Update(rating);
-                        return check ? Ok(new
-                        {
-                            Message = "Update Success!!!"
-                        }) : Ok(new
-                        {
-                            Message = "Update Fail"
-                        });
-                    }
-                    else
-                    {
-                        return StatusCode(400, new
-                        {
-                            Status = -1,
-                            Message = "Role Denied"
-                        });
-                    }
-                }
-                else
-                {
-                    return Unauthorized();
-                }
-
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteRating(string id)
+        public async Task<IActionResult> DeleteRating(string recipeId)
         {
             try
             {
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var cusId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
                     if (role == CommonValues.CUSTOMER)
                     {
-                        var check = await ratingService.Delete(id);
+                        var check = await ratingService.Delete(cusId, recipeId);
                         return check ? Ok(new
                         {
                             Message = "Delete Success!!!"
@@ -206,7 +179,41 @@ namespace WebAPI.Controllers
             }
             catch (Exception ex)
             {
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetAllRatingOnRecipe(string recipeId)
+        {
+            try
+            {
+                return Ok(ratingService.GetAllRatingOfRecipe(recipeId));
+            }
+            catch(Exception ex)
+            {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AvgRatingOnRecipe(string recipeId)
+        {
+            try
+            {
+                return Ok(ratingService.AvgRatingOfRecipe(recipeId));
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    ErrorMessage = ex.Message
+                });
             }
         }
     }
