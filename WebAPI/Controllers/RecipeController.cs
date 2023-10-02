@@ -54,7 +54,6 @@ namespace WebAPI.Controllers
                 }
 
                 var recipe = await recipeService.Get(id);
-
                 if (recipe == null)
                 {
                     throw new Exception("Not Found Recipe");
@@ -68,7 +67,7 @@ namespace WebAPI.Controllers
                         {
                             Status = "Success",
                             IsPremium = true,
-                            Data = recipeVM
+                            Data = recipeVM,
                         });
                     }
                     else if (!isPremium && !recipe.ForPremium.Value)

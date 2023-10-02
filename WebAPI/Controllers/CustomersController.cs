@@ -343,110 +343,110 @@ namespace WebAPI.Controllers
                 });
             }
         }
-        [HttpGet]
-        public async Task<IActionResult> GetPaymentMomoUrl(string channel, string packageId, string ipAddress, long amount)
-        {
-            string url = "";
-            if (channel == "momo")
-            {
-                url = GetUrlMomo(amount);
-            }
-            return Ok(new
-            {
-                Url = url
-            });
-        }
-        [HttpGet]
-        public async Task<IActionResult> GetResultMomoPayment(string partnerCode
-            , string orderId, string requestId, long amount, string orderInfo, string orderType
-            , string transId, string resultCode, string message, string payType, long responseTime, string extraData, string signature)
-        {
-            return Ok(new
-            {
-                PartnerCode = partnerCode,
-                orderId = orderId,
-                requestId = requestId,
-                amount = amount,
-                orderInfo = orderInfo,
-                orderType = orderType,
-                transId = transId,
-                resultCode = resultCode,
-                message = message,
-                payType = payType,
-                responseTime = responseTime,
-                extraData = extraData,
-                signature = signature,
-            });
-        }
-        private string GetUrlMomo(long amount)
-        {
-            var momo = configuration.GetSection("PaymentMomo");
-            //request params need to request to MoMo system
-            string endpoint = momo["endpoint"];
-            string partnerCode = momo["partnerCode"];
-            string accessKey = momo["accessKey"];
-            string serectkey = momo["serectkey"];
-            string orderInfo = "Demo Premium";
-            string redirectUrl = momo["redirectUrl"];
-            string ipnUrl = momo["ipnUrl"];
-            string requestType = momo["requestType"];
-            string lang = momo["lang"];
+        //[HttpGet]
+        //public async Task<IActionResult> GetPaymentMomoUrl(string channel, string packageId, string ipAddress, long amount)
+        //{
+        //    string url = "";
+        //    if (channel == "momo")
+        //    {
+        //        url = GetUrlMomo(amount);
+        //    }
+        //    return Ok(new
+        //    {
+        //        Url = url
+        //    });
+        //}
+        //[HttpGet]
+        //public async Task<IActionResult> GetResultMomoPayment(string partnerCode
+        //    , string orderId, string requestId, long amount, string orderInfo, string orderType
+        //    , string transId, string resultCode, string message, string payType, long responseTime, string extraData, string signature)
+        //{
+        //    return Ok(new
+        //    {
+        //        PartnerCode = partnerCode,
+        //        orderId = orderId,
+        //        requestId = requestId,
+        //        amount = amount,
+        //        orderInfo = orderInfo,
+        //        orderType = orderType,
+        //        transId = transId,
+        //        resultCode = resultCode,
+        //        message = message,
+        //        payType = payType,
+        //        responseTime = responseTime,
+        //        extraData = extraData,
+        //        signature = signature,
+        //    });
+        //}
+        //private string GetUrlMomo(long amount)
+        //{
+        //    var momo = configuration.GetSection("PaymentMomo");
+        //    //request params need to request to MoMo system
+        //    string endpoint = momo["endpoint"];
+        //    string partnerCode = momo["partnerCode"];
+        //    string accessKey = momo["accessKey"];
+        //    string serectkey = momo["serectkey"];
+        //    string orderInfo = "Demo Premium";
+        //    string redirectUrl = momo["redirectUrl"];
+        //    string ipnUrl = momo["ipnUrl"];
+        //    string requestType = momo["requestType"];
+        //    string lang = momo["lang"];
 
-            //string amountS = amount + "";
-            string orderId = Guid.NewGuid().ToString();
-            string requestId = Guid.NewGuid().ToString();
-            string extraData = "";
+        //    //string amountS = amount + "";
+        //    string orderId = Guid.NewGuid().ToString();
+        //    string requestId = Guid.NewGuid().ToString();
+        //    string extraData = "";
 
-            //Before sign HMAC SHA256 signature
-            string rawHash = "accessKey=" + accessKey +
-                "&amount=" + amount +
-                "&extraData=" + extraData +
-                "&ipnUrl=" + ipnUrl +
-                "&orderId=" + orderId +
-                "&orderInfo=" + orderInfo +
-                "&partnerCode=" + partnerCode +
-                "&redirectUrl=" + redirectUrl +
-                "&requestId=" + requestId +
-                "&requestType=" + requestType
-                ;
+        //    //Before sign HMAC SHA256 signature
+        //    string rawHash = "accessKey=" + accessKey +
+        //        "&amount=" + amount +
+        //        "&extraData=" + extraData +
+        //        "&ipnUrl=" + ipnUrl +
+        //        "&orderId=" + orderId +
+        //        "&orderInfo=" + orderInfo +
+        //        "&partnerCode=" + partnerCode +
+        //        "&redirectUrl=" + redirectUrl +
+        //        "&requestId=" + requestId +
+        //        "&requestType=" + requestType
+        //        ;
 
-            MoMoSecurity crypto = new MoMoSecurity();
-            //sign signature SHA256
-            string signature = crypto.signSHA256(rawHash, serectkey);
+        //    MoMoSecurity crypto = new MoMoSecurity();
+        //    //sign signature SHA256
+        //    string signature = crypto.signSHA256(rawHash, serectkey);
 
-            //build body json request
-            JObject message = new JObject
-            {
-                { "partnerCode", partnerCode },
-                { "partnerName", "Test" },
-                { "storeId", "MomoTestStore" },
-                { "requestId", requestId },
-                { "amount", amount },
-                { "orderId", orderId },
-                { "orderInfo", orderInfo },
-                { "redirectUrl", redirectUrl },
-                { "ipnUrl", ipnUrl },
-                { "lang", lang },
-                { "extraData", extraData },
-                { "requestType", requestType },
-                { "signature", signature }
+        //    //build body json request
+        //    JObject message = new JObject
+        //    {
+        //        { "partnerCode", partnerCode },
+        //        { "partnerName", "Test" },
+        //        { "storeId", "MomoTestStore" },
+        //        { "requestId", requestId },
+        //        { "amount", amount },
+        //        { "orderId", orderId },
+        //        { "orderInfo", orderInfo },
+        //        { "redirectUrl", redirectUrl },
+        //        { "ipnUrl", ipnUrl },
+        //        { "lang", lang },
+        //        { "extraData", extraData },
+        //        { "requestType", requestType },
+        //        { "signature", signature }
 
-            };
-            string jsonToMomo = "Json request to MoMo: " + message.ToString();
+        //    };
+        //    string jsonToMomo = "Json request to MoMo: " + message.ToString();
 
-            string responseFromMomo = PaymentRequest.sendPaymentRequest(endpoint, message.ToString());
+        //    string responseFromMomo = PaymentRequest.sendPaymentRequest(endpoint, message.ToString());
 
-            JObject jmessage = JObject.Parse(responseFromMomo);
+        //    JObject jmessage = JObject.Parse(responseFromMomo);
 
-            string returnFromMomo = "Return from MoMo: " + jmessage.ToString();
+        //    string returnFromMomo = "Return from MoMo: " + jmessage.ToString();
 
-            int.TryParse(jmessage.GetValue("resultCode").ToString(), out int resultCode);
-            if (resultCode == 0)
-            {
-                return jmessage.GetValue("payUrl").ToString();
-            }
+        //    int.TryParse(jmessage.GetValue("resultCode").ToString(), out int resultCode);
+        //    if (resultCode == 0)
+        //    {
+        //        return jmessage.GetValue("payUrl").ToString();
+        //    }
 
-            return "";
-        }
+        //    return "";
+        //}
     }
 }

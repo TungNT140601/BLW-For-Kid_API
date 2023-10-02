@@ -98,6 +98,7 @@ builder.Services.AddScoped<IPremiumPackageRepository, PremiumPackageRepository>(
 builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
 
 builder.Services.AddScoped<IDirectionRepository, DirectionRepository>();
+builder.Services.AddScoped<IPaymentHistoryRepository, PaymentHistoryRepository>();
 
 
 
@@ -112,6 +113,7 @@ builder.Services.AddScoped<IMealService, MealService>();
 builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 builder.Services.AddScoped<IAgeService, AgeService>();
 builder.Services.AddScoped<IRecipeService, RecipeService>();
+builder.Services.AddScoped<IPaymentHistoryService, PaymentHistoryService>();
 
 
 var app = builder.Build();
