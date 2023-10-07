@@ -315,6 +315,52 @@ namespace WebAPI.Controllers
                 errMsg += ";Select Age";
             }
             #endregion
+            #region Description
+            if (string.IsNullOrWhiteSpace(recipeVM.RecipeDesc))
+            {
+                errMsg += ";Recipe Description Empty";
+            }
+            #endregion
+            #region PrepareTime
+            if (recipeVM.PrepareTime == null)
+            {
+                errMsg += ";Prepare Time Empty";
+            }
+            else if (recipeVM.PrepareTime <= 0)
+            {
+                errMsg += ";Prepare Time Invalid";
+            }
+            #endregion
+            #region CookTime
+            if (recipeVM.CookTime == null)
+            {
+                errMsg += ";CookTime Time Empty";
+            }
+            else if (recipeVM.CookTime <= 0)
+            {
+                errMsg += ";CookTime Time Invalid";
+            }
+            #endregion
+            #region StandTime
+            if (recipeVM.StandTime == null)
+            {
+                errMsg += ";StandTime Time Empty";
+            }
+            else if (recipeVM.StandTime <= 0)
+            {
+                errMsg += ";StandTime Time Invalid";
+            }
+            #endregion
+            #region Servings
+            if (recipeVM.Servings == null)
+            {
+                errMsg += ";Servings Time Empty";
+            }
+            else if (recipeVM.Servings <= 0)
+            {
+                errMsg += ";Servings Time Invalid";
+            }
+            #endregion
             #region ForPremium
             if (recipeVM.ForPremium == null)
             {
@@ -410,11 +456,22 @@ namespace WebAPI.Controllers
             }
             #endregion
 
+            if (!string.IsNullOrEmpty(errMsg))
+            {
+                throw new Exception(errMsg);
+            }
+
             return new Recipe
             {
                 RecipeId = recipeVM.RecipeId,
                 RecipeName = recipeVM.RecipeName,
                 RecipeImage = image,
+                RecipeDesc = recipeVM.RecipeDesc,
+                StandTime = recipeVM.StandTime,
+                CookTime = recipeVM.CookTime,
+                PrepareTime = recipeVM.PrepareTime,
+                TotalTime = recipeVM.StandTime + recipeVM.CookTime + recipeVM.PrepareTime,
+                Servings = recipeVM.Servings,
                 AgeId = recipeVM.AgeId,
                 MealId = recipeVM.MealId,
                 ForPremium = recipeVM.ForPremium,

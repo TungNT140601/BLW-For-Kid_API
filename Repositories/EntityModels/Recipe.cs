@@ -24,6 +24,12 @@ namespace Repositories.EntityModels
         public string? RecipeName { get; set; }
         public string? MealId { get; set; }
         public string? RecipeImage { get; set; }
+        public string? RecipeDesc { get; set; }
+        public int? PrepareTime { get; set; }
+        public int? StandTime { get; set; }
+        public int? CookTime { get; set; }
+        public int? TotalTime { get; set; }
+        public int? Servings { get; set; }
         public double? Protein { get; set; }
         public double? Carbohydrate { get; set; }
         public double? Fat { get; set; }
