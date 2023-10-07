@@ -44,4 +44,11 @@ namespace WebAPI.ViewModels
         public List<DirectionAddVM>? DirectionVMs { get; set; }
         public List<IngredientOfRecipeAddVM>? IngredientOfRecipeVMs { get; set; }
     }
+    public class RecipeSearch
+    {
+        public string? Search { get; set; }
+        public List<string>? AgeIds { get; set; }
+        public List<string>? MealIds { get; set; }
+        public int? Rating { get; set; }
+    }
 }
