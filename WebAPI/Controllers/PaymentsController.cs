@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Ultilities;
 using Services;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using WebAPI.ViewModels;
 
@@ -24,7 +25,7 @@ namespace WebAPI.Controllers
             this.mapper = mapper;
         }
         [HttpGet]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get([Required] string id)
         {
             try
             {
@@ -83,7 +84,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> CreatePayment(string packageId, string privateCode)
+        public async Task<IActionResult> CreatePayment([Required] string packageId,[Required] string privateCode)
         {
             try
             {
@@ -176,7 +177,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPut]
-        public async Task<IActionResult> UpdatePaymentStatus(string paymentId)
+        public async Task<IActionResult> UpdatePaymentStatus([Required] string paymentId)
         {
             try
             {
