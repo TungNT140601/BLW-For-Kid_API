@@ -284,6 +284,17 @@ namespace Services
 
                 check.IsDelete = false;
 
+                check.CookTime = recipe.CookTime;
+
+                check.StandTime = recipe.StandTime;
+
+                check.PrepareTime = recipe.PrepareTime;
+
+                check.TotalTime = recipe.TotalTime;
+
+                check.Servings = recipe.Servings;
+
+                check.RecipeDesc = recipe.RecipeDesc;
 
                 //Flag
                 var checkUpdateRecipe = false;

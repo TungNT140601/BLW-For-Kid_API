@@ -642,6 +642,7 @@ namespace WebAPI.Controllers
                 #region Meal
                 if (recipe.Meal != null)
                 {
+                    recipeVM.MealId = recipe.Meal.MealId;
                     recipeVM.MealName = recipe.Meal.MealName;
                 }
                 #endregion
@@ -649,6 +650,7 @@ namespace WebAPI.Controllers
                 #region Age
                 if (recipe.Age != null)
                 {
+                    recipeVM.AgeId = recipe.Age.AgeId;
                     recipeVM.AgeName = recipe.Age.AgeName;
                 }
                 #endregion
@@ -682,6 +684,7 @@ namespace WebAPI.Controllers
                     #region Meal
                     if (recipe.Meal != null)
                     {
+                        recipeVM.MealId = recipe.Meal.MealId;
                         recipeVM.MealName = recipe.Meal.MealName;
                     }
                     #endregion
@@ -689,6 +692,7 @@ namespace WebAPI.Controllers
                     #region Age
                     if (recipe.Age != null)
                     {
+                        recipeVM.AgeId = recipe.Age.AgeId;
                         recipeVM.AgeName = recipe.Age.AgeName;
                     }
                     #endregion
