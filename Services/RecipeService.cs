@@ -12,7 +12,7 @@ namespace Services
     public interface IRecipeService
     {
         Task<Recipe> Get(string id);
-        IEnumerable<Recipe> GetAll(bool isPremium);
+        IEnumerable<Recipe> GetAll(bool isPremium, string? search, List<string>? ageIds, List<string>? mealIds);
         Task<bool> Add(Recipe recipe, List<IngredientOfRecipe> ingredientOfRecipes, List<Direction> directions, string staffCreateId);
         Task<bool> Update(Recipe recipe, List<IngredientOfRecipe> ingredientOfRecipes, List<Direction> directions, string staffUpdateId);
         Task<bool> Delete(string id);
@@ -183,30 +183,62 @@ namespace Services
             }
         }
 
-        public IEnumerable<Recipe> GetAll(bool isPremium)
+        public IEnumerable<Recipe> GetAll(bool isPremium, string? search, List<string>? ageIds, List<string>? mealIds)
         {
             try
             {
+                if (ageIds != null)
+                {
+                    if (ageIds.Count() == 0)
+                    {
+                        ageIds = null;
+                    }
+                    else if (ageIds.Count() == 1 && string.IsNullOrEmpty(ageIds[0]))
+                    {
+                        ageIds = null;
+                    }
+                }
+
+                if (mealIds != null)
+                {
+                    if (mealIds.Count() == 0)
+                    {
+                        mealIds = null;
+                    }
+                    else if (mealIds.Count() == 1 && string.IsNullOrEmpty(mealIds[0]))
+                    {
+                        mealIds = null;
+                    }
+                }
+
+                var recipes = new List<Recipe>();
                 if (isPremium)
                 {
-                    var recipes = recipeRepository.GetAll(x => x.IsDelete == false);
+                    recipes = recipeRepository.GetAll(x => x.IsDelete == false
+                    && (search == null || (search != null && x.RecipeName.Trim().ToLower().Contains(search.Trim().ToLower())))
+                    && (ageIds == null || (ageIds != null && ageIds.Count() > 0 && ageIds.Contains(x.AgeId)))
+                    && (mealIds == null || (mealIds != null && mealIds.Count() > 0 && mealIds.Contains(x.MealId)))
+                    ).ToList();
                     foreach (var recipe in recipes)
                     {
                         recipe.Age = ageRepository.Get(recipe.AgeId).Result;
                         recipe.Meal = mealRepository.Get(recipe.MealId).Result;
                     }
-                    return recipes;
                 }
                 else
                 {
-                    var recipes = recipeRepository.GetAll(x => x.ForPremium == false && x.IsDelete == false);
+                    recipes = recipeRepository.GetAll(x => x.ForPremium == false && x.IsDelete == false
+                    && (search == null || (search != null && x.RecipeName.Trim().ToLower().Contains(search.Trim().ToLower())))
+                    && (ageIds == null || (ageIds != null && ageIds.Count() > 0 && ageIds.Contains(x.AgeId)))
+                    && (mealIds == null || (mealIds != null && mealIds.Count() > 0 && mealIds.Contains(x.MealId)))
+                    ).ToList();
                     foreach (var recipe in recipes)
                     {
                         recipe.Age = ageRepository.Get(recipe.AgeId).Result;
                         recipe.Meal = mealRepository.Get(recipe.MealId).Result;
                     }
-                    return recipes;
                 }
+                return recipes;
             }
             catch (Exception ex)
             {
@@ -277,6 +309,17 @@ namespace Services
 
                 check.IsDelete = false;
 
+                check.CookTime = recipe.CookTime;
+
+                check.StandTime = recipe.StandTime;
+
+                check.PrepareTime = recipe.PrepareTime;
+
+                check.TotalTime = recipe.TotalTime;
+
+                check.Servings = recipe.Servings;
+
+                check.RecipeDesc = recipe.RecipeDesc;
 
                 //Flag
                 var checkUpdateRecipe = false;

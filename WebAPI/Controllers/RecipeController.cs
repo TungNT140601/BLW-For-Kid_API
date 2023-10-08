@@ -95,8 +95,8 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllRecipe()
+        [HttpPost]
+        public async Task<IActionResult> SearchRecipe(RecipeSearch? recipeSearch)
         {
             try
             {
@@ -118,8 +118,97 @@ namespace WebAPI.Controllers
                         }
                     }
                 }
-                var recipes = recipeService.GetAll(isPremium).ToList();
-                var recipeVMs = ChangeToVMList(recipes);
+                var recipes = recipeService.GetAll(isPremium, recipeSearch.Search, recipeSearch.AgeIds, recipeSearch.MealIds).ToList();
+                var recipeVMs = ChangeToVMList(recipes, recipeSearch.Rating);
+                return StatusCode(200, new
+                {
+                    Status = "Success",
+                    Data = recipeVMs
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MostFavoriteRecipe()
+        {
+            try
+            {
+                var role = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+                var isPremium = false;
+                if (role != null)
+                {
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                    {
+                        isPremium = true;
+                    }
+                    else
+                    {
+                        if (role == CommonValues.CUSTOMER)
+                        {
+                            var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                            var cus = await customerService.CheckPremium(cusId);
+                            isPremium = cus.IsPremium.Value;
+                        }
+                    }
+                }
+                var recipes = recipeService.GetAll(isPremium, null, null, null).ToList();
+
+                var recipeVMs = ChangeToVMList(recipes, null);
+                return StatusCode(200, new
+                {
+                    Status = "Success",
+                    Data = recipeVMs.OrderByDescending(x => x.TotalFavorite)
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LastUpdateRecipe()
+        {
+            try
+            {
+                var role = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+                var isPremium = false;
+                if (role != null)
+                {
+                    if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
+                    {
+                        isPremium = true;
+                    }
+                    else
+                    {
+                        if (role == CommonValues.CUSTOMER)
+                        {
+                            var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                            var cus = await customerService.CheckPremium(cusId);
+                            isPremium = cus.IsPremium.Value;
+                        }
+                    }
+                }
+                var recipes = recipeService.GetAll(isPremium, null, null, null).ToList();
+
+                if (recipes.Any())
+                {
+                    recipes = recipes.OrderBy(x => x.CreateTime).ToList();
+                }
+
+                var recipeVMs = ChangeToVMList(recipes, null);
                 return StatusCode(200, new
                 {
                     Status = "Success",
@@ -553,6 +642,7 @@ namespace WebAPI.Controllers
                 #region Meal
                 if (recipe.Meal != null)
                 {
+                    recipeVM.MealId = recipe.Meal.MealId;
                     recipeVM.MealName = recipe.Meal.MealName;
                 }
                 #endregion
@@ -560,6 +650,7 @@ namespace WebAPI.Controllers
                 #region Age
                 if (recipe.Age != null)
                 {
+                    recipeVM.AgeId = recipe.Age.AgeId;
                     recipeVM.AgeName = recipe.Age.AgeName;
                 }
                 #endregion
@@ -572,7 +663,7 @@ namespace WebAPI.Controllers
             }
         }
 
-        private IEnumerable<RecipeVM> ChangeToVMList(List<Recipe> recipes)
+        private IEnumerable<RecipeVM> ChangeToVMList(List<Recipe> recipes, int? rating)
         {
             try
             {
@@ -593,6 +684,7 @@ namespace WebAPI.Controllers
                     #region Meal
                     if (recipe.Meal != null)
                     {
+                        recipeVM.MealId = recipe.Meal.MealId;
                         recipeVM.MealName = recipe.Meal.MealName;
                     }
                     #endregion
@@ -600,11 +692,21 @@ namespace WebAPI.Controllers
                     #region Age
                     if (recipe.Age != null)
                     {
+                        recipeVM.AgeId = recipe.Age.AgeId;
                         recipeVM.AgeName = recipe.Age.AgeName;
                     }
                     #endregion
-
-                    recipeVMs.Add(recipeVM);
+                    if (rating != null)
+                    {
+                        if (recipeVM.AveRate >= rating)
+                        {
+                            recipeVMs.Add(recipeVM);
+                        }
+                    }
+                    else
+                    {
+                        recipeVMs.Add(recipeVM);
+                    }
                 }
 
                 return recipeVMs;
