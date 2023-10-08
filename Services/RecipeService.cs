@@ -187,33 +187,58 @@ namespace Services
         {
             try
             {
+                if (ageIds != null)
+                {
+                    if (ageIds.Count() == 0)
+                    {
+                        ageIds = null;
+                    }
+                    else if (ageIds.Count() == 1 && string.IsNullOrEmpty(ageIds[0]))
+                    {
+                        ageIds = null;
+                    }
+                }
+
+                if (mealIds != null)
+                {
+                    if (mealIds.Count() == 0)
+                    {
+                        mealIds = null;
+                    }
+                    else if (mealIds.Count() == 1 && string.IsNullOrEmpty(mealIds[0]))
+                    {
+                        mealIds = null;
+                    }
+                }
+
+                var recipes = new List<Recipe>();
                 if (isPremium)
                 {
-                    var recipes = recipeRepository.GetAll(x => x.IsDelete == false
-                    || (search != null && x.RecipeName.Trim().ToLower().Contains(search.Trim().ToLower()))
-                    || (ageIds != null && ageIds.Count() > 0 && ageIds.Contains(x.AgeId))
-                    || (mealIds != null && mealIds.Count() > 0 && mealIds.Contains(x.MealId))
-                    );
+                    recipes = recipeRepository.GetAll(x => x.IsDelete == false
+                    && (search == null || (search != null && x.RecipeName.Trim().ToLower().Contains(search.Trim().ToLower())))
+                    && (ageIds == null || (ageIds != null && ageIds.Count() > 0 && ageIds.Contains(x.AgeId)))
+                    && (mealIds == null || (mealIds != null && mealIds.Count() > 0 && mealIds.Contains(x.MealId)))
+                    ).ToList();
                     foreach (var recipe in recipes)
                     {
                         recipe.Age = ageRepository.Get(recipe.AgeId).Result;
                         recipe.Meal = mealRepository.Get(recipe.MealId).Result;
                     }
-                    return recipes;
                 }
                 else
                 {
-                    var recipes = recipeRepository.GetAll(x => x.ForPremium == false && x.IsDelete == false
-                    || (search != null && x.RecipeName.Trim().ToLower().Contains(search.Trim().ToLower()))
-                    || (ageIds != null && ageIds.Count() > 0 && ageIds.Contains(x.AgeId))
-                    || (mealIds != null && mealIds.Count() > 0 && mealIds.Contains(x.MealId)));
+                    recipes = recipeRepository.GetAll(x => x.ForPremium == false && x.IsDelete == false
+                    && (search == null || (search != null && x.RecipeName.Trim().ToLower().Contains(search.Trim().ToLower())))
+                    && (ageIds == null || (ageIds != null && ageIds.Count() > 0 && ageIds.Contains(x.AgeId)))
+                    && (mealIds == null || (mealIds != null && mealIds.Count() > 0 && mealIds.Contains(x.MealId)))
+                    ).ToList();
                     foreach (var recipe in recipes)
                     {
                         recipe.Age = ageRepository.Get(recipe.AgeId).Result;
                         recipe.Meal = mealRepository.Get(recipe.MealId).Result;
                     }
-                    return recipes;
                 }
+                return recipes;
             }
             catch (Exception ex)
             {

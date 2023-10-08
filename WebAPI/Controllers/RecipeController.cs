@@ -95,8 +95,8 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> SearchRecipe([FromBody] RecipeSearch? recipeSearch)
+        [HttpPost]
+        public async Task<IActionResult> SearchRecipe(RecipeSearch? recipeSearch)
         {
             try
             {
@@ -205,7 +205,7 @@ namespace WebAPI.Controllers
 
                 if (recipes.Any())
                 {
-                    recipes = recipes.OrderByDescending(x => x.CreateTime).ToList();
+                    recipes = recipes.OrderBy(x => x.CreateTime).ToList();
                 }
 
                 var recipeVMs = ChangeToVMList(recipes, null);
