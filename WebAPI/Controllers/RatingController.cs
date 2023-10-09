@@ -80,12 +80,35 @@ namespace WebAPI.Controllers
             try
             {
                 var cusId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-                var rating = await ratingService.GetRating(cusId, recipeId);
-                return Ok(new
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (cusId != null)
                 {
-                    Status = 1,
-                    Data = rating
-                });
+                    if (role == CommonValues.CUSTOMER)
+                    {
+                        var rating = await ratingService.GetRating(cusId, recipeId);
+                        return Ok(new
+                        {
+                            Status = 1,
+                            Data = rating
+                        });
+                    }
+                    else
+                    {
+                        return StatusCode(400, new
+                        {
+                            Status = "Error",
+                            Message = "Role Denied"
+                        });
+                    }
+                }
+                else
+                {
+                    return StatusCode(401, new
+                    {
+                        Status = "Error",
+                        Message = "Unauthorized"
+                    });
+                }
             }
             catch (Exception ex)
             {
