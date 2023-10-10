@@ -38,9 +38,9 @@ namespace Services
                 foreach (var rating in ratings)
                 {
                     rating.Customer = cusRepository.Get(rating.CustomerId).Result;
-                    rating.Customer.Ratings = null;
+                    rating.Customer.Ratings.Clear();
                     rating.Recipe = recipeRepository.Get(rating.RecipeId).Result;
-                    rating.Recipe.Ratings = null;
+                    rating.Recipe.Ratings.Clear();
                 }
                 return ratings;
             }
@@ -58,7 +58,9 @@ namespace Services
                 if (rating != null)
                 {
                     rating.Customer = await cusRepository.Get(cusId);
+                    rating.Customer.Ratings.Clear();
                     rating.Recipe = await recipeRepository.Get(recipeId);
+                    rating.Recipe.Ratings.Clear();
                     return rating;
                 }
                 else
