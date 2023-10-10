@@ -28,6 +28,7 @@ namespace WebAPI
             CreateMap<StaffAccount, ChangePwdStaffAccountVM>().ReverseMap();
 
             CreateMap<Rating, RatingVM>().ReverseMap();
+            CreateMap<Rating, RatingAllVM>().ReverseMap();
 
 
             CreateMap<PremiumPackage, PremiumPackageVM >().ReverseMap();

@@ -614,7 +614,7 @@ namespace WebAPI.Controllers
                 #endregion
 
                 #region Rating
-                var ratingVMs = new List<RatingVM>();
+                var ratingVMs = new List<RatingAllVM>();
                 recipe.Ratings = recipeService.GetRatings(recipe.RecipeId).ToList();
                 if (recipe.Ratings.Any())
                 {
@@ -622,12 +622,11 @@ namespace WebAPI.Controllers
                     {
                         if (cusId != null && rating.CustomerId == cusId)
                         {
-                            recipeVM.CusRating = new RatingVM
+                            recipeVM.CusRating = new RatingAllVM
                             {
                                 Avatar = rating.Customer.Avatar,
                                 RecipeId = rating.RecipeId,
                                 Comment = rating.Comment,
-                                CustomerId = rating.CustomerId,
                                 Date = rating.Date,
                                 Fullname = rating.Customer.Fullname,
                                 Rate = rating.Rate,
@@ -636,12 +635,11 @@ namespace WebAPI.Controllers
                         }
                         else
                         {
-                            ratingVMs.Add(new RatingVM
+                            ratingVMs.Add(new RatingAllVM
                             {
                                 Avatar = rating.Customer.Avatar,
                                 RecipeId = rating.RecipeId,
                                 Comment = rating.Comment,
-                                CustomerId = rating.CustomerId,
                                 Date = rating.Date,
                                 Fullname = rating.Customer.Fullname,
                                 Rate = rating.Rate,

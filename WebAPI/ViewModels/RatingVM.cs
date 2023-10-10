@@ -17,4 +17,14 @@ namespace WebAPI.ViewModels
         public DateTime? Date { get; set; }
         public string? RatingImage { get; set; }
     }
+    public class RatingAllVM
+    {
+        public string? Fullname { get; set; }
+        public string? Avatar { get; set; }
+        public string? RecipeId { get; set; }
+        public int? Rate { get; set; }
+        public string? Comment { get; set; }
+        public DateTime? Date { get; set; }
+        public string? RatingImage { get; set; }
+    }
 }
