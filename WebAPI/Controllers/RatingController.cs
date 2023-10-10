@@ -18,12 +18,14 @@ namespace WebAPI.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly IRatingService ratingService;
+        private readonly ICustomerService customerService;
         private readonly IMapper mapper;
 
-        public RatingController(IRatingService ratingService, IMapper mapper)
+        public RatingController(IRatingService ratingService, IMapper mapper, ICustomerService customerService)
         {
             this.ratingService = ratingService;
             this.mapper = mapper;
+            this.customerService = customerService;
         }
 
         private string GenerateJwtToken(string id)
@@ -125,11 +127,18 @@ namespace WebAPI.Controllers
         {
             try
             {
+                var cusId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
                     if (role == CommonValues.CUSTOMER)
                     {
+                        var cus = await customerService.Get(cusId);
+
+                        model.CustomerId = cusId;
+                        model.Fullname = cus.Fullname;
+                        model.Avatar = cus.Avatar;
+
                         var rating = mapper.Map<Rating>(model);
                         var check = await ratingService.AddOrUpdate(rating);
                         return check ? Ok(new
