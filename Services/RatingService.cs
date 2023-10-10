@@ -103,7 +103,7 @@ namespace Services
         {
             try
             {
-                var rating = repository.GetAll(x => x.CustomerId == cusId && x.RatingId == recipeId).FirstOrDefault();
+                var rating = repository.GetAll(x => x.CustomerId == cusId && x.RecipeId == recipeId).FirstOrDefault();
                 if(rating != null) 
                 {
                     return await repository.DeleteWithCondition(rating);
