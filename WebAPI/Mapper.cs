@@ -15,6 +15,7 @@ namespace WebAPI
             CreateMap<Direction, DirectionVM>().ReverseMap();
 
             CreateMap<Recipe, RecipeVM>().ReverseMap();
+            CreateMap<Recipe, RecipeAllVM>().ReverseMap();
 
             CreateMap<IngredientOfRecipe, IngredientOfRecipeVM>().ReverseMap();
 

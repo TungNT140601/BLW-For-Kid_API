@@ -10,9 +10,10 @@ namespace Repositories.Repository.Interface
     public interface IGenericRepository<T> where T : class
     {
         Task<T> Get(object id);
+        Task<T> Get(object id1, object id2);
         IEnumerable<T> GetAll(Func<T, bool> where, params Expression<Func<T, object>>[] includes);
         Task<bool> Add(T item);
-        Task<bool> Update(object id,T item);
+        Task<bool> Update(object id, T item);
         Task<bool> Delete(object id);
     }
 }

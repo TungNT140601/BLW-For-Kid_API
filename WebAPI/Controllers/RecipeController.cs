@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.EntityModels;
 using Services;
+using System;
 using System.Security.Claims;
 using WebAPI.ViewModels;
 
@@ -60,7 +61,9 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    var recipeVM = await ChangeToVMDetail(recipe);
+                    var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+                    var recipeVM = await ChangeToVMDetail(recipe, cusId);
                     if (isPremium)
                     {
                         return StatusCode(200, new
@@ -101,6 +104,7 @@ namespace WebAPI.Controllers
             try
             {
                 var role = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+                var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                 var isPremium = false;
                 if (role != null)
                 {
@@ -112,14 +116,13 @@ namespace WebAPI.Controllers
                     {
                         if (role == CommonValues.CUSTOMER)
                         {
-                            var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                             var cus = await customerService.CheckPremium(cusId);
                             isPremium = cus.IsPremium.Value;
                         }
                     }
                 }
                 var recipes = recipeService.GetAll(isPremium, recipeSearch.Search, recipeSearch.AgeIds, recipeSearch.MealIds).ToList();
-                var recipeVMs = ChangeToVMList(recipes, recipeSearch.Rating);
+                var recipeVMs = ChangeToVMList(recipes, recipeSearch.Rating, cusId);
                 return StatusCode(200, new
                 {
                     Status = "Success",
@@ -142,6 +145,7 @@ namespace WebAPI.Controllers
             try
             {
                 var role = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+                var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                 var isPremium = false;
                 if (role != null)
                 {
@@ -153,7 +157,6 @@ namespace WebAPI.Controllers
                     {
                         if (role == CommonValues.CUSTOMER)
                         {
-                            var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                             var cus = await customerService.CheckPremium(cusId);
                             isPremium = cus.IsPremium.Value;
                         }
@@ -161,7 +164,7 @@ namespace WebAPI.Controllers
                 }
                 var recipes = recipeService.GetAll(isPremium, null, null, null).ToList();
 
-                var recipeVMs = ChangeToVMList(recipes, null);
+                var recipeVMs = await ChangeToVMList(recipes, null, cusId);
                 return StatusCode(200, new
                 {
                     Status = "Success",
@@ -184,6 +187,7 @@ namespace WebAPI.Controllers
             try
             {
                 var role = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+                var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                 var isPremium = false;
                 if (role != null)
                 {
@@ -195,7 +199,6 @@ namespace WebAPI.Controllers
                     {
                         if (role == CommonValues.CUSTOMER)
                         {
-                            var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                             var cus = await customerService.CheckPremium(cusId);
                             isPremium = cus.IsPremium.Value;
                         }
@@ -208,7 +211,7 @@ namespace WebAPI.Controllers
                     recipes = recipes.OrderBy(x => x.CreateTime).ToList();
                 }
 
-                var recipeVMs = ChangeToVMList(recipes, null);
+                var recipeVMs = ChangeToVMList(recipes, null, cusId);
                 return StatusCode(200, new
                 {
                     Status = "Success",
@@ -569,7 +572,7 @@ namespace WebAPI.Controllers
             };
         }
 
-        private async Task<RecipeVM> ChangeToVMDetail(Recipe recipe)
+        private async Task<RecipeVM> ChangeToVMDetail(Recipe recipe, string? cusId)
         {
             try
             {
@@ -617,17 +620,34 @@ namespace WebAPI.Controllers
                 {
                     foreach (var rating in recipe.Ratings)
                     {
-                        ratingVMs.Add(new RatingVM
+                        if (cusId != null && rating.CustomerId == cusId)
                         {
-                            Avatar = rating.Customer.Avatar,
-                            RecipeId = rating.RecipeId,
-                            Comment = rating.Comment,
-                            CustomerId = rating.CustomerId,
-                            Date = rating.Date,
-                            Fullname = rating.Customer.Fullname,
-                            Rate = rating.Rate,
-                            RatingImage = rating.RatingImage
-                        });
+                            recipeVM.CusRating = new RatingVM
+                            {
+                                Avatar = rating.Customer.Avatar,
+                                RecipeId = rating.RecipeId,
+                                Comment = rating.Comment,
+                                CustomerId = rating.CustomerId,
+                                Date = rating.Date,
+                                Fullname = rating.Customer.Fullname,
+                                Rate = rating.Rate,
+                                RatingImage = rating.RatingImage
+                            };
+                        }
+                        else
+                        {
+                            ratingVMs.Add(new RatingVM
+                            {
+                                Avatar = rating.Customer.Avatar,
+                                RecipeId = rating.RecipeId,
+                                Comment = rating.Comment,
+                                CustomerId = rating.CustomerId,
+                                Date = rating.Date,
+                                Fullname = rating.Customer.Fullname,
+                                Rate = rating.Rate,
+                                RatingImage = rating.RatingImage
+                            });
+                        }
                     }
                     recipeVM.RatingVMs = ratingVMs;
                 }
@@ -637,6 +657,25 @@ namespace WebAPI.Controllers
 
                 #region TotalFavorite
                 recipeVM.TotalFavorite = recipeService.CountFavorite(recipe.RecipeId);
+                #endregion
+
+                #region Favorite
+                if (cusId != null)
+                {
+                    var favor = await recipeService.GetFavorite(recipe.RecipeId, cusId);
+                    if (favor != null)
+                    {
+                        recipeVM.IsFavorite = true;
+                    }
+                    else
+                    {
+                        recipeVM.IsFavorite = false;
+                    }
+                }
+                else
+                {
+                    recipeVM.IsFavorite = false;
+                }
                 #endregion
 
                 #region Meal
@@ -655,6 +694,18 @@ namespace WebAPI.Controllers
                 }
                 #endregion
 
+                #region Image
+                if (recipe.RecipeImage != null && recipe.RecipeImage.EndsWith(";"))
+                {
+                    recipe.RecipeImage = recipe.RecipeImage.Substring(0, recipe.RecipeImage.Length - 1);
+                    if (recipe.RecipeImage.Contains(";"))
+                    {
+                        var images = recipe.RecipeImage.Split(';');
+                        recipeVM.RecipeImage = images[0];
+                    }
+                }
+                #endregion
+
                 return recipeVM;
             }
             catch (Exception ex)
@@ -663,14 +714,14 @@ namespace WebAPI.Controllers
             }
         }
 
-        private IEnumerable<RecipeVM> ChangeToVMList(List<Recipe> recipes, int? rating)
+        private async Task<IEnumerable<RecipeAllVM>> ChangeToVMList(List<Recipe> recipes, int? rating, string? cusId)
         {
             try
             {
-                var recipeVMs = new List<RecipeVM>();
+                var recipeVMs = new List<RecipeAllVM>();
                 foreach (var recipe in recipes)
                 {
-                    var recipeVM = mapper.Map<RecipeVM>(recipe);
+                    var recipeVM = mapper.Map<RecipeAllVM>(recipe);
 
                     #region Rating
                     recipeVM.TotalRate = recipeService.CountRating(recipe.RecipeId);
@@ -679,6 +730,25 @@ namespace WebAPI.Controllers
 
                     #region TotalFavorite
                     recipeVM.TotalFavorite = recipeService.CountFavorite(recipe.RecipeId);
+                    #endregion
+
+                    #region Favorite
+                    if (cusId != null)
+                    {
+                        var favor = await recipeService.GetFavorite(recipe.RecipeId, cusId);
+                        if (favor != null)
+                        {
+                            recipeVM.IsFavorite = true;
+                        }
+                        else
+                        {
+                            recipeVM.IsFavorite = false;
+                        }
+                    }
+                    else
+                    {
+                        recipeVM.IsFavorite = false;
+                    }
                     #endregion
 
                     #region Meal
@@ -696,6 +766,19 @@ namespace WebAPI.Controllers
                         recipeVM.AgeName = recipe.Age.AgeName;
                     }
                     #endregion
+
+                    #region Image
+                    if (recipe.RecipeImage != null && recipe.RecipeImage.EndsWith(";"))
+                    {
+                        recipe.RecipeImage = recipe.RecipeImage.Substring(0, recipe.RecipeImage.Length - 1);
+                        if (recipe.RecipeImage.Contains(";"))
+                        {
+                            var images = recipe.RecipeImage.Split(';');
+                            recipeVM.RecipeImage = images[0];
+                        }
+                    }
+                    #endregion
+
                     if (rating != null)
                     {
                         if (recipeVM.AveRate >= rating)

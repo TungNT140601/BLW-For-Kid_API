@@ -68,6 +68,17 @@ namespace Repositories.Repository
                 throw new Exception(ex.Message);
             }
         }
+        public async Task<T> Get(object id1, object id2)
+        {
+            try
+            {
+                return await dbSet.FindAsync(id1, id2);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
         public IEnumerable<T> GetAll(Func<T, bool> where, params Expression<Func<T, object>>[] includes)
         {
