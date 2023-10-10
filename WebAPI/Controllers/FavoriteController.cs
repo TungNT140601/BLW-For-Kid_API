@@ -93,6 +93,7 @@ namespace WebAPI.Controllers
                     {
                         var favorite = _mapper.Map<Favorite>(model);
                         favorite.CustomerId = id;
+                        favorite.FavoriteTime = DateTime.Now;
                         var check = await _favoriteService.Add(favorite);
                         return check ? Ok(new
                         {
