@@ -21,6 +21,7 @@ namespace WebAPI.ViewModels
         public double? Calories { get; set; }
         public string? AgeId { get; set; }
         public string? AgeName { get; set; }
+        public bool? IsFavorite { get; set; }
         public int? TotalFavorite { get; set; }
         public int? TotalRate { get; set; }
         public double? AveRate { get; set; }
@@ -39,6 +40,7 @@ namespace WebAPI.ViewModels
         public string? RecipeImage { get; set; }
         public string? AgeId { get; set; }
         public string? AgeName { get; set; }
+        public bool? IsFavorite { get; set; }
         public int? TotalFavorite { get; set; }
         public int? TotalRate { get; set; }
         public double? AveRate { get; set; }

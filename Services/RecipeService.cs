@@ -20,6 +20,7 @@ namespace Services
         int CountRating(string recipeId);
         double AveRate(string recipeId);
         IEnumerable<Rating> GetRatings(string recipeId);
+        Task<Favorite> GetFavorite(string recipeId, string cusId);
     }
     public class RecipeService : IRecipeService
     {
@@ -437,6 +438,17 @@ namespace Services
                     item.Customer = customerRepository.Get(item.CustomerId).Result;
                 }
                 return ratings;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public Task<Favorite> GetFavorite(string recipeId, string cusId)
+        {
+            try
+            {
+                return favoriteRepository.Get(cusId, recipeId);
             }
             catch (Exception ex)
             {

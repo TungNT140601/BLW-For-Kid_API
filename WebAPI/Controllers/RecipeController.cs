@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.EntityModels;
 using Services;
+using System;
 using System.Security.Claims;
 using WebAPI.ViewModels;
 
@@ -103,6 +104,7 @@ namespace WebAPI.Controllers
             try
             {
                 var role = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+                var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                 var isPremium = false;
                 if (role != null)
                 {
@@ -114,14 +116,13 @@ namespace WebAPI.Controllers
                     {
                         if (role == CommonValues.CUSTOMER)
                         {
-                            var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                             var cus = await customerService.CheckPremium(cusId);
                             isPremium = cus.IsPremium.Value;
                         }
                     }
                 }
                 var recipes = recipeService.GetAll(isPremium, recipeSearch.Search, recipeSearch.AgeIds, recipeSearch.MealIds).ToList();
-                var recipeVMs = ChangeToVMList(recipes, recipeSearch.Rating);
+                var recipeVMs = ChangeToVMList(recipes, recipeSearch.Rating, cusId);
                 return StatusCode(200, new
                 {
                     Status = "Success",
@@ -144,6 +145,7 @@ namespace WebAPI.Controllers
             try
             {
                 var role = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+                var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                 var isPremium = false;
                 if (role != null)
                 {
@@ -155,7 +157,6 @@ namespace WebAPI.Controllers
                     {
                         if (role == CommonValues.CUSTOMER)
                         {
-                            var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                             var cus = await customerService.CheckPremium(cusId);
                             isPremium = cus.IsPremium.Value;
                         }
@@ -163,7 +164,7 @@ namespace WebAPI.Controllers
                 }
                 var recipes = recipeService.GetAll(isPremium, null, null, null).ToList();
 
-                var recipeVMs = ChangeToVMList(recipes, null);
+                var recipeVMs = await ChangeToVMList(recipes, null, cusId);
                 return StatusCode(200, new
                 {
                     Status = "Success",
@@ -186,6 +187,7 @@ namespace WebAPI.Controllers
             try
             {
                 var role = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+                var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                 var isPremium = false;
                 if (role != null)
                 {
@@ -197,7 +199,6 @@ namespace WebAPI.Controllers
                     {
                         if (role == CommonValues.CUSTOMER)
                         {
-                            var cusId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                             var cus = await customerService.CheckPremium(cusId);
                             isPremium = cus.IsPremium.Value;
                         }
@@ -210,7 +211,7 @@ namespace WebAPI.Controllers
                     recipes = recipes.OrderBy(x => x.CreateTime).ToList();
                 }
 
-                var recipeVMs = ChangeToVMList(recipes, null);
+                var recipeVMs = ChangeToVMList(recipes, null, cusId);
                 return StatusCode(200, new
                 {
                     Status = "Success",
@@ -571,7 +572,7 @@ namespace WebAPI.Controllers
             };
         }
 
-        private async Task<RecipeVM> ChangeToVMDetail(Recipe recipe, string cusId)
+        private async Task<RecipeVM> ChangeToVMDetail(Recipe recipe, string? cusId)
         {
             try
             {
@@ -658,6 +659,25 @@ namespace WebAPI.Controllers
                 recipeVM.TotalFavorite = recipeService.CountFavorite(recipe.RecipeId);
                 #endregion
 
+                #region Favorite
+                if (cusId != null)
+                {
+                    var favor = await recipeService.GetFavorite(recipe.RecipeId, cusId);
+                    if (favor != null)
+                    {
+                        recipeVM.IsFavorite = true;
+                    }
+                    else
+                    {
+                        recipeVM.IsFavorite = false;
+                    }
+                }
+                else
+                {
+                    recipeVM.IsFavorite = false;
+                }
+                #endregion
+
                 #region Meal
                 if (recipe.Meal != null)
                 {
@@ -694,7 +714,7 @@ namespace WebAPI.Controllers
             }
         }
 
-        private IEnumerable<RecipeAllVM> ChangeToVMList(List<Recipe> recipes, int? rating)
+        private async Task<IEnumerable<RecipeAllVM>> ChangeToVMList(List<Recipe> recipes, int? rating, string? cusId)
         {
             try
             {
@@ -710,6 +730,25 @@ namespace WebAPI.Controllers
 
                     #region TotalFavorite
                     recipeVM.TotalFavorite = recipeService.CountFavorite(recipe.RecipeId);
+                    #endregion
+
+                    #region Favorite
+                    if (cusId != null)
+                    {
+                        var favor = await recipeService.GetFavorite(recipe.RecipeId, cusId);
+                        if (favor != null)
+                        {
+                            recipeVM.IsFavorite = true;
+                        }
+                        else
+                        {
+                            recipeVM.IsFavorite = false;
+                        }
+                    }
+                    else
+                    {
+                        recipeVM.IsFavorite = false;
+                    }
                     #endregion
 
                     #region Meal
