@@ -67,6 +67,12 @@ namespace WebAPI.Controllers
                             b1 = System.IO.File.ReadAllBytes(imagePath);
                             break;
                         }
+                    case 299000:
+                        {
+                            imagePath = Path.Combine(wwwPath, "Momo_QR_Payment", "premium_299000.jpg");
+                            b1 = System.IO.File.ReadAllBytes(imagePath);
+                            break;
+                        }
                     default: throw new Exception($"Not Found QR code with {amount} price");
                 }
                 return Ok(new
