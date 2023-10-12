@@ -22,7 +22,10 @@ namespace WebAPI.ViewModels
     {
         public string? PaymentId { get; set; }
         public string? CustomerId { get; set; }
+        public string? CustomerName { get; set; }
         public string? PackageId { get; set; }
+        public string? PackageName { get; set; }
+        public decimal? PackagePrice { get; set; }
         public DateTime? CreateDate { get; set; }
         public decimal? Amount { get; set; }
         public DateTime? StartDate { get; set; }

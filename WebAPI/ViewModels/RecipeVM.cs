@@ -26,10 +26,10 @@ namespace WebAPI.ViewModels
         public int? TotalRate { get; set; }
         public double? AveRate { get; set; }
         public bool? ForPremium { get; set; }
-        public RatingVM? CusRating { get; set; }
+        public RatingAllVM? CusRating { get; set; }
         public IEnumerable<DirectionVM> DirectionVMs { get; set; }
         public IEnumerable<IngredientOfRecipeVM> IngredientOfRecipeVMs { get; set; }
-        public IEnumerable<RatingVM> RatingVMs { get; set; }
+        public IEnumerable<RatingAllVM> RatingVMs { get; set; }
     }
     public class RecipeAllVM
     {
