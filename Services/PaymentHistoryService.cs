@@ -11,7 +11,7 @@ namespace Services
 {
     public interface IPaymentHistoryService
     {
-        IEnumerable<PaymentHistory> GetAllPaymentHistory(string? privateCode, DateTime? startDate, DateTime? endDate);
+        Task<IEnumerable<PaymentHistory>> GetAllPaymentHistory(string? privateCode, DateTime? startDate, DateTime? endDate);
         Task<PaymentHistory> GetPaymentHistory(string id);
         Task<PaymentHistory> AddPaymentHistory(string cusId, string premiumId, string privateCode);
         Task<bool> UpdatePaymentHistory(string paymentId);
@@ -84,7 +84,7 @@ namespace Services
             }
         }
 
-        public IEnumerable<PaymentHistory> GetAllPaymentHistory(string? privateCode, DateTime? startDate, DateTime? endDate)
+        public async Task<IEnumerable<PaymentHistory>> GetAllPaymentHistory(string? privateCode, DateTime? startDate, DateTime? endDate)
         {
             try
             {
@@ -97,16 +97,16 @@ namespace Services
                     }
                     else
                     {
-                        if(privateCode != null)
+                        if (privateCode != null)
                         {
-                            payments = historyRepository.GetAll(x 
-                                => x.PrivateCode == privateCode && x.PayTime >= startDate && x.PayTime <= endDate)
+                            payments = historyRepository.GetAll(x
+                                => x.PrivateCode == privateCode && (startDate == null || (startDate != null && x.PayTime.Value.Date >= startDate.Value.Date)) && (endDate == null || (endDate != null && x.PayTime.Value.Date <= endDate.Value.Date)))
                                 .OrderByDescending(x => x.PayTime).ToList();
                         }
                         else
                         {
                             payments = historyRepository.GetAll(x
-                                => x.PayTime >= startDate && x.PayTime <= endDate)
+                                => (startDate == null || (startDate != null && x.PayTime.Value.Date >= startDate.Value.Date)) && (endDate == null || (endDate != null && x.PayTime.Value.Date <= endDate.Value.Date)))
                                 .OrderByDescending(x => x.PayTime).ToList();
                         }
                     }
@@ -124,6 +124,14 @@ namespace Services
                         payments = historyRepository.GetAll(x
                             => 1 == 1)
                             .OrderByDescending(x => x.PayTime).ToList();
+                    }
+                }
+                if (payments != null)
+                {
+                    foreach (var pay in payments)
+                    {
+                        pay.Customer = await customerRepository.Get(pay.CustomerId);
+                        pay.Package = await premiumPackageRepository.Get(pay.PackageId);
                     }
                 }
                 return payments;

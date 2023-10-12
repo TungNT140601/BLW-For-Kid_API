@@ -17,12 +17,14 @@ namespace WebAPI.Controllers
         private readonly IMapper mapper;
         private readonly IPaymentHistoryService paymentHistoryService;
         private readonly IPremiumPackageService premiumPackageService;
-        public PaymentsController(IWebHostEnvironment env, IPremiumPackageService premiumPackageService, IPaymentHistoryService paymentHistoryService, IMapper mapper)
+        private readonly ICustomerService customerService;
+        public PaymentsController(IWebHostEnvironment env, IPremiumPackageService premiumPackageService, IPaymentHistoryService paymentHistoryService, IMapper mapper, ICustomerService customerService)
         {
             Environment = env;
             this.premiumPackageService = premiumPackageService;
             this.paymentHistoryService = paymentHistoryService;
             this.mapper = mapper;
+            this.customerService = customerService;
         }
         [HttpGet]
         public async Task<IActionResult> Get([Required] string id)
@@ -90,7 +92,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> CreatePayment([Required] string packageId,[Required] string privateCode)
+        public async Task<IActionResult> CreatePayment([Required] string packageId, [Required] string privateCode)
         {
             try
             {
@@ -157,21 +159,26 @@ namespace WebAPI.Controllers
                     });
                 }
 
-                if (role != CommonValues.ADMIN || role != CommonValues.STAFF)
+                if (role == CommonValues.CUSTOMER || role == CommonValues.EXPERT)
                 {
                     throw new Exception("Role Denied");
                 }
 
-                var payments = paymentHistoryService.GetAllPaymentHistory(privateCode, startDate, endDate);
+                var payments = await paymentHistoryService.GetAllPaymentHistory(privateCode, startDate, endDate);
                 var paymentVMs = new List<PaymentHistoryAllVM>();
                 foreach (var payment in payments)
                 {
-                    paymentVMs.Add(mapper.Map<PaymentHistoryAllVM>(payment));
+                    var pay = mapper.Map<PaymentHistoryAllVM>(payment);
+                    pay.CustomerName = payment.Customer.Fullname;
+                    pay.PackageName = payment.Package.PackageName;
+                    pay.PackagePrice = payment.Package.PackageAmount;
+
+                    paymentVMs.Add(pay);
                 }
                 return Ok(new
                 {
                     Status = "Success",
-                    Data = payments,
+                    Data = paymentVMs,
                 });
             }
             catch (Exception ex)
