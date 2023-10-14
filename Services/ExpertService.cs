@@ -16,7 +16,7 @@ namespace Services
         IEnumerable<Expert> GetAll();
         Task<bool> Add(Expert expert);
         Task<bool> Update(Expert expert);
-        Task<bool> Delete(string id);
+        Task<bool> Delete(Expert exp);
         Task<bool> ResetPassword(string expertID, string oldPassword, string newPassword);
         Task<Expert> LoginExpert(string username, string password);
     }
@@ -71,15 +71,15 @@ namespace Services
             }
         }
 
-        public Task<bool> Delete(string id)
+        public Task<bool> Delete(Expert exp)
         {
             try
             {
-                var expert = expertRepository.Get(id);
+                var expert = expertRepository.Get(exp.ExpertId);
                 if (expert != null)
                 {
-                    expert.Result.IsDelete = false;
-                    return expertRepository.Update(id, expert.Result);
+                    expert.Result.IsDelete = true;
+                    return expertRepository.Update(exp.ExpertId, expert.Result);
                 }
                 else
                 {
@@ -97,25 +97,7 @@ namespace Services
             try
             {
                 var expert = expertRepository.Get(item.ExpertId).Result;
-                if (expertRepository.GetAll(x => x.ExpertId != item.ExpertId && x.Email == item.Email && x.IsDelete == false).Any())
-                {
-                    throw new Exception("Email exist");
-                }
-                if (expertRepository.GetAll(x => x.ExpertId != item.ExpertId && x.GoogleId == item.GoogleId && x.IsDelete == false).Any())
-                {
-                    throw new Exception("GoogleId exist");
-                }
-                if (expertRepository.GetAll(x => x.ExpertId != item.ExpertId && x.FacebookId == item.FacebookId && x.IsDelete == false).Any())
-                {
-                    throw new Exception("FacebookId exist");
-                }
-                if (expertRepository.GetAll(x => x.ExpertId != item.ExpertId && x.PhoneNum == item.PhoneNum && x.IsDelete == false).Any())
-                {
-                    throw new Exception("PhoneNum exist");
-                }
                 expert.Email = item.Email;
-                expert.GoogleId = item.GoogleId;
-                expert.FacebookId = item.FacebookId;
                 expert.PhoneNum = item.PhoneNum;
                 expert.Avatar = item.Avatar;
                 expert.DateOfBirth = item.DateOfBirth;
@@ -128,9 +110,7 @@ namespace Services
                 expert.ProfessionalQualification = item.Position;
                 expert.WorkProgress = item.WorkProgress;
                 expert.Achievements = item.Achievements;
-                expert.IsActive = true;
-                expert.IsDelete = false;
-                return expertRepository.Update(expert.ExpertId, item);
+                return expertRepository.Update(expert.ExpertId, expert);
             }
             catch (Exception ex)
             {

@@ -29,6 +29,8 @@ namespace WebAPI.Controllers
             this.configuration = configuration;
         }
 
+       
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -92,8 +94,8 @@ namespace WebAPI.Controllers
                 {
                     if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                     {
-                        var expert = Validate(expertVM);
-                var check = expertService.Add(expert);
+                        var experts = mapper.Map<Expert>(expertVM);
+                        var check = expertService.Add(experts);
                 return await check ? Ok(new
                 {
                     Status = 1,
@@ -124,12 +126,9 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateExpert(string id, ExpertVM expertVM)
+        public async Task<IActionResult> UpdateExpert(ExpertUpdateVM expertVM)
         {
-            if (id != expertVM.ExpertId)
-            {
-                return BadRequest();
-            }
+            
 
             try
             {
@@ -138,8 +137,8 @@ namespace WebAPI.Controllers
                 {
                     if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                     {
-                        var expert = Validate(expertVM);
-                var check = expertService.Update(expert);
+                        var expert = mapper.Map<Expert>(expertVM);
+                        var check = expertService.Update(expert);
                 return await check ? Ok(new
                 {
                     Status = 1,
@@ -173,12 +172,9 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteExpert(string id)
+        public async Task<IActionResult> DeleteExpert(ExpertDeleteVM model)
         {
-            //if (ingredientService.Get(id) == null)
-            //{
-            //    return BadRequest();
-            //}
+            
 
             try
             {
@@ -187,7 +183,8 @@ namespace WebAPI.Controllers
                 {
                     if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                     {
-                        var check = expertService.Delete(id);
+                        var expertdel = mapper.Map<Expert>(model);
+                        var check = expertService.Delete(expertdel);
                         return await check ? Ok(new
                         {
                             Status = 1,
@@ -264,32 +261,32 @@ namespace WebAPI.Controllers
             }
         }
 
-        private Expert Validate(ExpertVM expertVM)
-        {
-            if (string.IsNullOrEmpty(expertVM.Email.Trim()))
-            {
-                throw new Exception("Expert Email cannot be empty!!!");
-            }
-            if (expertVM.Gender < 0)
-            {
-                throw new Exception("Expert Gender cannot be a date now!!!");
-            }
-            if (string.IsNullOrEmpty(expertVM.Username.Trim()))
-            {
-                throw new Exception("Expert Username cannot be a negative number!!!");
-            }
-            if (string.IsNullOrEmpty(expertVM.Password.Trim()))
-            {
-                throw new Exception("Expert Password cannot be empty!!!");
-            }
+        //private Expert Validate(ExpertVM expertVM)
+        //{
+        //    if (string.IsNullOrEmpty(expertVM.Email.Trim()))
+        //    {
+        //        throw new Exception("Expert Email cannot be empty!!!");
+        //    }
+        //    if (expertVM.Gender < 0)
+        //    {
+        //        throw new Exception("Expert Gender cannot be a date now!!!");
+        //    }
+        //    if (string.IsNullOrEmpty(expertVM.Username.Trim()))
+        //    {
+        //        throw new Exception("Expert Username cannot be a negative number!!!");
+        //    }
+        //    if (string.IsNullOrEmpty(expertVM.Password.Trim()))
+        //    {
+        //        throw new Exception("Expert Password cannot be empty!!!");
+        //    }
 
-            if (string.IsNullOrEmpty(expertVM.Name.Trim()))
-            {
-                throw new Exception("Expert Name cannot be empty!!!");
-            }
+        //    if (string.IsNullOrEmpty(expertVM.Name.Trim()))
+        //    {
+        //        throw new Exception("Expert Name cannot be empty!!!");
+        //    }
             
-            return mapper.Map<Expert>(expertVM);
-        }
+        //    return mapper.Map<Expert>(expertVM);
+        //}
 
         private string GenerateJwtToken(string id)
         {

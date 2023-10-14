@@ -23,6 +23,10 @@ namespace WebAPI
 
             CreateMap<Expert, ExpertVM>();
             CreateMap<ExpertVM, Expert>();
+            CreateMap<Expert, ExpertUpdateVM>().ReverseMap();
+            CreateMap<Expert,ExpertDeleteVM>().ReverseMap();
+
+
 
             CreateMap<StaffAccount, StaffAccountVM>().ReverseMap();
             CreateMap<StaffAccount, StaffAccountAddVM>().ReverseMap();
