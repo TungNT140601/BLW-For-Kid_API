@@ -11,6 +11,8 @@ namespace WebAPI
             CreateMap<CustomerAccount, CustomerVM>().ReverseMap();
 
             CreateMap<Ingredient, IngredientVM>().ReverseMap();
+            CreateMap<Ingredient, IngredientUpdateVM>().ReverseMap();
+            CreateMap<Ingredient, IngredientDeleteVM>().ReverseMap();
 
             CreateMap<Direction, DirectionVM>().ReverseMap();
 
