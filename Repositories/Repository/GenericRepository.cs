@@ -1,12 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Repositories.DataAccess;
 using Repositories.Repository.Interface;
+using Repositories.Ultilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Repositories.Repository
 {
@@ -111,6 +114,28 @@ namespace Repositories.Repository
                     return true;
                 }
                 return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public SqlDataReader GetDataReader(string procName, SqlParameter[] parameters)
+        {
+            try
+            {
+                SqlConnection connection = new SqlConnection(GetConnectionString.ConnectionString());
+
+                var command = new SqlCommand(procName, connection);
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                if (parameters != null)
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.AddRange(parameters);
+                }
+                connection.Open();
+                return command.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
             }
             catch (Exception ex)
             {

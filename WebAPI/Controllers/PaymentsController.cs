@@ -203,7 +203,7 @@ namespace WebAPI.Controllers
                     });
                 }
 
-                if (role != CommonValues.ADMIN || role != CommonValues.STAFF)
+                if (role == CommonValues.CUSTOMER || role == CommonValues.EXPERT)
                 {
                     throw new Exception("Role Denied");
                 }
@@ -241,7 +241,7 @@ namespace WebAPI.Controllers
                     });
                 }
 
-                if (role != CommonValues.ADMIN || role != CommonValues.STAFF)
+                if (role == CommonValues.CUSTOMER || role == CommonValues.EXPERT)
                 {
                     throw new Exception("Role Denied");
                 }

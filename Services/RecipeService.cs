@@ -1,4 +1,6 @@
-﻿using Repositories.EntityModels;
+﻿using Microsoft.Data.SqlClient;
+using Repositories.EntityModels;
+using Repositories.FuncModels;
 using Repositories.Repository.Interface;
 using Repositories.Ultilities;
 using System;
@@ -13,6 +15,7 @@ namespace Services
     {
         Task<Recipe> Get(string id);
         IEnumerable<Recipe> GetAll(bool isPremium, string? search, List<string>? ageIds, List<string>? mealIds);
+        IEnumerable<GetAllRecipeModel> GetAllRecipeModels(bool isPremium, string? cusId, string? search, List<string>? mealIds, List<string>? ageIds);
         Task<bool> Add(Recipe recipe, List<IngredientOfRecipe> ingredientOfRecipes, List<Direction> directions, string staffCreateId);
         Task<bool> Update(Recipe recipe, List<IngredientOfRecipe> ingredientOfRecipes, List<Direction> directions, string staffUpdateId);
         Task<bool> Delete(string id);
@@ -449,6 +452,84 @@ namespace Services
             try
             {
                 return favoriteRepository.Get(cusId, recipeId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public IEnumerable<GetAllRecipeModel> GetAllRecipeModels(bool isPremium, string? cusId, string? search, List<string>? mealIds, List<string>? ageIds)
+        {
+            try
+            {
+                string mealId = null;
+                if(mealIds != null)
+                {
+                    if (mealIds.Any())
+                    {
+                        mealId = string.Join(",", mealIds);
+                    }
+                    else
+                    {
+                        mealId = null;
+                    }
+                }
+                else
+                {
+                    mealId = null;
+                }
+
+                string ageId = null;
+                if(ageIds != null)
+                {
+                    if (ageIds.Any())
+                    {
+                        ageId = string.Join(",", ageIds);
+                    }
+                    else
+                    {
+                        ageId = null;
+                    }
+                }
+                else
+                {
+                    ageId = null;
+                }
+
+                SqlParameter[] parameters = new SqlParameter[]
+                    {
+                        new SqlParameter("@isPremium", isPremium),
+                        new SqlParameter("@cusId", (object)cusId ?? DBNull.Value),
+                        new SqlParameter("@search", (object)search ?? DBNull.Value),
+                        new SqlParameter("@mealIds", (object)mealId ?? DBNull.Value),
+                        new SqlParameter("@ageIds", (object)ageId ?? DBNull.Value),
+                    };
+
+                SqlDataReader dataReader = recipeRepository.GetDataReader("GetAllRecipe", parameters);
+                List<GetAllRecipeModel> models = new List<GetAllRecipeModel>();
+
+                while (dataReader.Read())
+                {
+                    GetAllRecipeModel model = new GetAllRecipeModel
+                    {
+                        RecipeId = dataReader["RecipeId"].ToString(),
+                        RecipeName = dataReader["RecipeName"].ToString(),
+                        MealId = dataReader["MealId"].ToString(),
+                        MealName = dataReader["MealName"].ToString(),
+                        RecipeImage = dataReader["RecipeImage"].ToString(),
+                        AgeId = dataReader["AgeId"].ToString(),
+                        AgeName = dataReader["AgeName"].ToString(),
+                        IsFavorite = dataReader.GetBoolean(dataReader.GetOrdinal("IsFavorite")),
+                        ForPremium = dataReader.GetBoolean(dataReader.GetOrdinal("ForPremium")),
+                        TotalFavorite = dataReader.GetInt32(dataReader.GetOrdinal("TotalFavorite")),
+                        TotalRate = dataReader.GetInt32(dataReader.GetOrdinal("TotalRate")),
+                        AveRate = double.Parse(dataReader["AveRate"].ToString()),
+                };
+
+                    models.Add(model);
+                }
+
+                return models;
             }
             catch (Exception ex)
             {
