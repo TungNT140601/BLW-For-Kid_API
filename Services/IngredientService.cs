@@ -3,6 +3,7 @@ using Repositories.Repository.Interface;
 using Repositories.Ultilities;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace Services
         IEnumerable<Ingredient> GetAll();
         Task<bool> Add(Ingredient ingredient);
         Task<bool> Update(Ingredient ingredient);
-        Task<bool> Delete(string id);
+        Task<bool> Delete(Ingredient ing);
     }
     public class IngredientService : IIngredientService
     {
@@ -34,6 +35,10 @@ namespace Services
                     throw new Exception("Name exist");
                 }
                 ingredient.IngredientId = AutoGenId.AutoGenerateId();
+                ingredient.CreateTime = DateTime.Now;
+                ingredient.UpdateTime = DateTime.Now;
+                ingredient.DeleteDate = DateTime.Now;
+                ingredient.IngredientImage = null;
                 ingredient.IsDelete = true;
                 return ingredientRepository.Add(ingredient);
             }
@@ -67,15 +72,15 @@ namespace Services
             }
         }
 
-        public Task<bool> Delete(string id)
+        public async Task<bool> Delete(Ingredient ing)
         {
             try
             {
-                var ingredient = ingredientRepository.Get(id).Result;
+                var ingredient = await  ingredientRepository.Get(ing.IngredientId);
                 if (ingredient != null)
                 {
-                    ingredient.IsDelete = false;
-                    return ingredientRepository.Update(id, ingredient);
+                    
+                    return await ingredientRepository.Update(ing.IngredientId, ingredient);
                 }
                 else
                 {
@@ -99,20 +104,13 @@ namespace Services
                     throw new Exception("Name exist");
                 }
                 ingredient.IngredientName = item.IngredientName;
-                ingredient.IngredientImage = item.IngredientImage;
                 ingredient.Measure = item.Measure;
                 ingredient.Protein = item.Protein;
                 ingredient.Carbohydrate = item.Carbohydrate;
                 ingredient.Fat = item.Fat;
                 ingredient.Calories = item.Calories;
-                ingredient.CreateTime = item.CreateTime;
-                ingredient.StaffCreate = item.StaffCreate;
-                ingredient.UpdateTime = item.UpdateTime;
-                ingredient.StaffUpdate = item.StaffUpdate;
-                ingredient.DeleteDate = item.DeleteDate;
-                ingredient.StaffDelete = item.StaffDelete;
-                ingredient.IsDelete = false;
-                return ingredientRepository.Update(ingredient.IngredientId, item);
+                
+                return ingredientRepository.Update(ingredient.IngredientId, ingredient);
             }
             catch (Exception ex)
             {
