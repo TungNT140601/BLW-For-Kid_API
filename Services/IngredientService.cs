@@ -36,10 +36,8 @@ namespace Services
                 }
                 ingredient.IngredientId = AutoGenId.AutoGenerateId();
                 ingredient.CreateTime = DateTime.Now;
-                ingredient.UpdateTime = DateTime.Now;
-                ingredient.DeleteDate = DateTime.Now;
                 ingredient.IngredientImage = null;
-                ingredient.IsDelete = true;
+                ingredient.IsDelete = false;
                 return ingredientRepository.Add(ingredient);
             }
             catch (Exception ex)
@@ -79,7 +77,8 @@ namespace Services
                 var ingredient = await  ingredientRepository.Get(ing.IngredientId);
                 if (ingredient != null)
                 {
-                    
+                    ingredient.DeleteDate = DateTime.Now;
+                    ingredient.IsDelete = true;
                     return await ingredientRepository.Update(ing.IngredientId, ingredient);
                 }
                 else
@@ -109,7 +108,7 @@ namespace Services
                 ingredient.Carbohydrate = item.Carbohydrate;
                 ingredient.Fat = item.Fat;
                 ingredient.Calories = item.Calories;
-                
+                ingredient.UpdateTime = DateTime.Now;
                 return ingredientRepository.Update(ingredient.IngredientId, ingredient);
             }
             catch (Exception ex)
