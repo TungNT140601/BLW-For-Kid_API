@@ -45,6 +45,7 @@ namespace Services
                     PackageId = premiumId,
                     Amount = premium.PackageAmount,
                     CreateDate = DateTime.Now,
+                    PayTime = DateTime.Now,
                     PaymentStatus = false,
                     PrivateCode = privateCode,
                 };

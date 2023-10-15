@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var cus = customerService.LoginEmail(cusLoginEmail.Email, cusLoginEmail.GoogleSub, cusLoginEmail.Fullname, cusLoginEmail.Avatar).Result;
+                var cus = await customerService.LoginEmail(cusLoginEmail.Email, cusLoginEmail.GoogleSub, cusLoginEmail.Fullname, cusLoginEmail.Avatar);
                 return Ok(new
                 {
                     Status = "Login Success",
@@ -106,7 +106,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var cus = customerService.LoginPhone(cusLoginPhone.Phone, cusLoginPhone.Password).Result;
+                var cus = await customerService.LoginPhone(cusLoginPhone.Phone, cusLoginPhone.Password);
                 return Ok(new
                 {
                     Status = "Login Success",
@@ -135,7 +135,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var cus = customerService.LoginFacebook(cusLoginFacebook.FacebookId, cusLoginFacebook.Fullname, cusLoginFacebook.Avatar).Result;
+                var cus = await customerService.LoginFacebook(cusLoginFacebook.FacebookId, cusLoginFacebook.Fullname, cusLoginFacebook.Avatar);
                 return Ok(new
                 {
                     Status = "Login Success",
@@ -164,7 +164,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var cus = customerService.RegisPhone(cusRegisPhone.Phone, cusRegisPhone.Password, cusRegisPhone.Fullname).Result;
+                var cus = await customerService.RegisPhone(cusRegisPhone.Phone, cusRegisPhone.Password, cusRegisPhone.Fullname);
                 return Ok(new
                 {
                     Status = "Login Success",
@@ -202,7 +202,7 @@ namespace WebAPI.Controllers
                 if (User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value == "Customer")
                 {
                     var cusId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-                    var check = customerService.ChangePassword(cusId, changePassword.OldPassword, changePassword.NewPassword).Result;
+                    var check = await customerService.ChangePassword(cusId, changePassword.OldPassword, changePassword.NewPassword);
                     return check ? Ok(new
                     {
                         Status = "Change Success"
@@ -234,7 +234,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var check = customerService.ResetPassword(resetPassword.Phone, resetPassword.NewPassword).Result;
+                var check = await customerService.ResetPassword(resetPassword.Phone, resetPassword.NewPassword);
                 return check ? Ok(new
                 {
                     Status = "Reset Success"

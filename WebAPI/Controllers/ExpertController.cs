@@ -227,7 +227,7 @@ namespace WebAPI.Controllers
                     if (role == "Expert")
                     {
                         var id = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-                        var check = expertService.ResetPassword(id,resetPassword.OldPassword, resetPassword.NewPassword).Result;
+                        var check = await expertService.ResetPassword(id,resetPassword.OldPassword, resetPassword.NewPassword);
                         return check ? Ok(new
                         {
                             Status = "Reset Success"
@@ -316,7 +316,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var exp = expertService.LoginExpert(expLogin.Username, expLogin.Password).Result;
+                var exp = await expertService.LoginExpert(expLogin.Username, expLogin.Password);
                 return Ok(new
                 {
                     Status = "Login Success",

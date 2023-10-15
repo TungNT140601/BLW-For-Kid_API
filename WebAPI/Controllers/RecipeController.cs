@@ -121,12 +121,18 @@ namespace WebAPI.Controllers
                         }
                     }
                 }
-                var recipes = recipeService.GetAll(isPremium, recipeSearch.Search, recipeSearch.AgeIds, recipeSearch.MealIds).ToList();
-                var recipeVMs = ChangeToVMList(recipes, recipeSearch.Rating, cusId);
+
+                var recipes = recipeService.GetAllRecipeModels(isPremium, cusId, recipeSearch.Search, recipeSearch.MealIds, recipeSearch.AgeIds);
+
+                if (recipeSearch.Rating != null)
+                {
+                    recipes = recipes.Where(x => x.AveRate >= recipeSearch.Rating);
+                }
+
                 return StatusCode(200, new
                 {
                     Status = "Success",
-                    Data = recipeVMs
+                    Data = recipes
                 });
             }
             catch (Exception ex)
@@ -162,13 +168,13 @@ namespace WebAPI.Controllers
                         }
                     }
                 }
-                var recipes = recipeService.GetAll(isPremium, null, null, null).ToList();
 
-                var recipeVMs = await ChangeToVMList(recipes, null, cusId);
+                var recipes = recipeService.GetAllRecipeModels(isPremium, cusId, null, null, null);
+
                 return StatusCode(200, new
                 {
                     Status = "Success",
-                    Data = recipeVMs.OrderByDescending(x => x.TotalFavorite)
+                    Data = recipes.OrderByDescending(x => x.TotalFavorite)
                 });
             }
             catch (Exception ex)
@@ -204,18 +210,13 @@ namespace WebAPI.Controllers
                         }
                     }
                 }
-                var recipes = recipeService.GetAll(isPremium, null, null, null).ToList();
 
-                if (recipes.Any())
-                {
-                    recipes = recipes.OrderBy(x => x.CreateTime).ToList();
-                }
+                var recipes = recipeService.GetAllRecipeModels(isPremium, cusId, null, null, null);
 
-                var recipeVMs = ChangeToVMList(recipes, null, cusId);
                 return StatusCode(200, new
                 {
                     Status = "Success",
-                    Data = recipeVMs
+                    Data = recipes
                 });
             }
             catch (Exception ex)

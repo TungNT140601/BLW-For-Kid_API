@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Data.SqlClient;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -15,5 +16,6 @@ namespace Repositories.Repository.Interface
         Task<bool> Add(T item);
         Task<bool> Update(object id, T item);
         Task<bool> Delete(object id);
+        public SqlDataReader GetDataReader(string procName, SqlParameter[] parameters);
     }
 }

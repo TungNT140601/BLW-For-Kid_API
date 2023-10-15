@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Repositories.EntityModels;
+using Repositories.FuncModels;
 using Repositories.Ultilities;
 
 namespace Repositories.DataAccess
@@ -38,6 +39,7 @@ namespace Repositories.DataAccess
         public virtual DbSet<Rating> Ratings { get; set; } = null!;
         public virtual DbSet<Recipe> Recipes { get; set; } = null!;
         public virtual DbSet<StaffAccount> StaffAccounts { get; set; } = null!;
+        public virtual DbSet<GetAllRecipeModel> GetAllRecipeModel { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -655,6 +657,11 @@ namespace Repositories.DataAccess
                 entity.Property(e => e.Password).HasMaxLength(50);
 
                 entity.Property(e => e.Username).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<GetAllRecipeModel>(entity =>
+            {
+                entity.HasNoKey();
             });
 
             OnModelCreatingPartial(modelBuilder);

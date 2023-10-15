@@ -91,11 +91,11 @@ namespace Services
             }
         }
 
-        public Task<bool> Update(CustomerAccount account)
+        public async Task<bool> Update(CustomerAccount account)
         {
             try
             {
-                var cus = customerRepository.Get(account.CustomerId).Result;
+                var cus = await customerRepository.Get(account.CustomerId);
                 if (cus == null)
                 {
                     throw new Exception("Không tìm thấy tài khoản");
@@ -111,7 +111,7 @@ namespace Services
                     cus.DateOfBirth = account.DateOfBirth;
                     cus.Gender = account.Gender;
                     cus.PhoneNum = account.PhoneNum;
-                    return customerRepository.Update(cus.CustomerId, cus);
+                    return await customerRepository.Update(cus.CustomerId, cus);
                 }
             }
             catch (Exception ex)
@@ -300,7 +300,7 @@ namespace Services
         {
             try
             {
-                var cus = customerRepository.Get(cusId).Result;
+                var cus = await customerRepository.Get(cusId);
                 if (cus != null)
                 {
                     if (cus.Password == oldPassword)

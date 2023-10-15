@@ -71,15 +71,15 @@ namespace Services
             }
         }
 
-        public Task<bool> Delete(Expert exp)
+        public async Task<bool> Delete(string id)
         {
             try
             {
-                var expert = expertRepository.Get(exp.ExpertId);
+                var expert = await expertRepository.Get(id);
                 if (expert != null)
                 {
-                    expert.Result.IsDelete = true;
-                    return expertRepository.Update(exp.ExpertId, expert.Result);
+                    expert.IsDelete = true;
+                    return await expertRepository.Update(id, expert);
                 }
                 else
                 {
@@ -92,11 +92,27 @@ namespace Services
             }
         }
 
-        public Task<bool> Update(Expert item)
+        public async Task<bool> Update(Expert item)
         {
             try
             {
-                var expert = expertRepository.Get(item.ExpertId).Result;
+                var expert = await expertRepository.Get(item.ExpertId);
+                if (expertRepository.GetAll(x => x.ExpertId != item.ExpertId && x.Email == item.Email && x.IsDelete == false).Any())
+                {
+                    throw new Exception("Email exist");
+                }
+                if (expertRepository.GetAll(x => x.ExpertId != item.ExpertId && x.GoogleId == item.GoogleId && x.IsDelete == false).Any())
+                {
+                    throw new Exception("GoogleId exist");
+                }
+                if (expertRepository.GetAll(x => x.ExpertId != item.ExpertId && x.FacebookId == item.FacebookId && x.IsDelete == false).Any())
+                {
+                    throw new Exception("FacebookId exist");
+                }
+                if (expertRepository.GetAll(x => x.ExpertId != item.ExpertId && x.PhoneNum == item.PhoneNum && x.IsDelete == false).Any())
+                {
+                    throw new Exception("PhoneNum exist");
+                }
                 expert.Email = item.Email;
                 expert.PhoneNum = item.PhoneNum;
                 expert.Avatar = item.Avatar;
@@ -110,7 +126,9 @@ namespace Services
                 expert.ProfessionalQualification = item.Position;
                 expert.WorkProgress = item.WorkProgress;
                 expert.Achievements = item.Achievements;
-                return expertRepository.Update(expert.ExpertId, expert);
+                expert.IsActive = true;
+                expert.IsDelete = false;
+                return await expertRepository.Update(expert.ExpertId, expert);
             }
             catch (Exception ex)
             {

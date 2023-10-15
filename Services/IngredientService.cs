@@ -74,7 +74,7 @@ namespace Services
         {
             try
             {
-                var ingredient = await  ingredientRepository.Get(ing.IngredientId);
+                var ingredient = await ingredientRepository.Get(ing.IngredientId);
                 if (ingredient != null)
                 {
                     ingredient.DeleteDate = DateTime.Now;
@@ -93,11 +93,11 @@ namespace Services
         }
 
 
-        public Task<bool> Update(Ingredient item)
+        public async Task<bool> Update(Ingredient item)
         {
             try
             {
-                var ingredient = ingredientRepository.Get(item.IngredientId).Result;
+                var ingredient = await ingredientRepository.Get(item.IngredientId);
                 if (ingredientRepository.GetAll(x => x.IngredientId != item.IngredientId && x.IngredientName == item.IngredientName && x.IsDelete == false).Any())
                 {
                     throw new Exception("Name exist");
@@ -109,7 +109,7 @@ namespace Services
                 ingredient.Fat = item.Fat;
                 ingredient.Calories = item.Calories;
                 ingredient.UpdateTime = DateTime.Now;
-                return ingredientRepository.Update(ingredient.IngredientId, ingredient);
+                return await ingredientRepository.Update(ingredient.IngredientId, ingredient);
             }
             catch (Exception ex)
             {
