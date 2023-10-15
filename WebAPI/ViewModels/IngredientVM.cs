@@ -11,8 +11,6 @@ namespace WebAPI.ViewModels
         public double? Carbohydrate { get; set; }
         public double? Fat { get; set; }
         public double? Calories { get; set; }
-        [JsonIgnore]
-        public string? StaffCreate { get; set; } 
 
     }
 

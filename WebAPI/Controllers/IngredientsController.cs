@@ -54,10 +54,16 @@ namespace WebAPI.Controllers
         {
             try
             {
+                var ingredients = ingredientService.GetAll();
+                var ingredientVMs = new List<IngredientVM>();
+                foreach (var ingredient in ingredients)
+                {
+                    ingredientVMs.Add(mapper.Map<IngredientVM>(ingredient));
+                }
                 return Ok(new
                 {
-                    Status = "Get List Success",
-                    Data = ingredientService.GetAll()
+                    Status = "Success",
+                    Data = ingredientVMs
                 });
             }
             catch (Exception ex)
@@ -79,7 +85,7 @@ namespace WebAPI.Controllers
                         return Ok(new
                         {
                             Status = "Get ID Success",
-                            Data = ingredientService.Get(id)
+                            Data = mapper.Map<IngredientVM>(await ingredientService.Get(id))
                         });
                     }
                     else
@@ -113,10 +119,10 @@ namespace WebAPI.Controllers
                 {
                     if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                     {
-                        var ingredient = mapper.Map<Ingredient>(ingredientVM);
+                        var ingredient = Validate(ingredientVM);
                         ingredient.StaffCreate = id;
-                        var check = ingredientService.Add(ingredient);
-                        return await check ? Ok(new
+                        var check = await ingredientService.Add(ingredient);
+                        return check ? Ok(new
                         {
                             Status = 1,
                             Message = "Add Ingredient Success"
@@ -127,18 +133,20 @@ namespace WebAPI.Controllers
                         });
                     }
                     else
+                    {
                         return Ok(new
                         {
                             Status = 0,
                             Message = "Role Denied",
                             Data = new { }
                         });
+                    }
                 }
                 else
                 {
                     return Unauthorized();
                 }
-                }
+            }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -146,10 +154,8 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateIngredient(IngredientUpdateVM ings)
+        public async Task<IActionResult> UpdateIngredient(IngredientVM ings)
         {
-            
-
             try
             {
                 var id = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -158,18 +164,18 @@ namespace WebAPI.Controllers
                 {
                     if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                     {
-                        var ingredient = mapper.Map<Ingredient>(ings);
+                        var ingredient = Validate(ings);
                         ingredient.StaffUpdate = id;
                         var check = ingredientService.Update(ingredient);
-                return await check ? Ok(new
-                {
-                    Status = 1,
-                    Message = "Update Ingredient Success"
-                }) : Ok(new
-                {
-                    Status = 0,
-                    Message = "Update Ingredient Fail"
-                });
+                        return await check ? Ok(new
+                        {
+                            Status = 1,
+                            Message = "Update Ingredient Success"
+                        }) : Ok(new
+                        {
+                            Status = 0,
+                            Message = "Update Ingredient Fail"
+                        });
                     }
                     else
                     {
@@ -194,20 +200,24 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteIngredient(IngredientDeleteVM model)
+        public async Task<IActionResult> DeleteIngredient(string id)
         {
-            
+
 
             try
             {
-                var id = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (!string.IsNullOrEmpty(role))
                 {
                     if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                     {
-                        var ingredient = mapper.Map<Ingredient>(model);
-                        ingredient.StaffDelete = id;
+                        var ingredient = await ingredientService.Get(id);
+                        if (ingredient == null)
+                        {
+                            throw new Exception("Not Found Ingredient");
+                        }
+
+                        ingredient.StaffDelete = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                         var check = ingredientService.Delete(ingredient);
 
                         return await check ? Ok(new
@@ -232,70 +242,68 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    return BadRequest();
+                    return Unauthorized();
                 }
-                }
+            }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
 
-        //private Ingredient Validate(IngredientVM ingredientVM)
-        //{
-        //    if (string.IsNullOrEmpty(ingredientVM.IngredientName.Trim()))
-        //    {
-        //        throw new Exception("Ingredient Name cannot be empty!!!");
-        //    }
-        //    if (string.IsNullOrEmpty(ingredientVM.IngredientImage.Trim()))
-        //    {
-        //        throw new Exception("Ingredient Image cannot be empty!!!");
-        //    }
-        //    if (string.IsNullOrEmpty(ingredientVM.Measure.Trim()))
-        //    {
-        //        throw new Exception("Measure cannot be empty!!!");
-        //    }
-        //    if (ingredientVM.Protein < 0)
-        //    {
-        //        throw new Exception("Ingredient Protein cannot be a negative number!!!");
-        //    }
-        //    if (ingredientVM.Carbohydrate < 0)
-        //    {
-        //        throw new Exception("Ingredient Protein cannot be a negative number!!!");
-        //    }
-        //    if (ingredientVM.Fat < 0)
-        //    {
-        //        throw new Exception("Ingredient Protein cannot be a negative number!!!");
-        //    }
-        //    ingredientVM.Calories = ingredientVM.Fat * 9 + ingredientVM.Carbohydrate * 4 + ingredientVM.Protein * 4;
-        //    if (ingredientVM.CreateTime == DateTime.Now)
-        //    {
-        //        throw new Exception("Ingredient CreateTime cannot be a date now!!!");
-        //    }
-        //    if (string.IsNullOrEmpty(ingredientVM.StaffCreate.Trim()))
-        //    {
-        //        throw new Exception("StaffCreate cannot be empty!!!");
-        //    }
-        //    if (ingredientVM.UpdateTime == DateTime.Now)
-        //    {
-        //        throw new Exception("Ingredient UpdateTime cannot be a date now!!!");
-        //    }
-        //    if (string.IsNullOrEmpty(ingredientVM.StaffUpdate.Trim()))
-        //    {
-        //        throw new Exception("StaffUpdate cannot be empty!!!");
-        //    }
-        //    if (ingredientVM.DeleteDate == DateTime.Now)
-        //    {
-        //        throw new Exception("Ingredient DeleteDate cannot be a date now!!!");
-        //    }
-        //    if (string.IsNullOrEmpty(ingredientVM.StaffDelete.Trim()))
-        //    {
-        //        throw new Exception("StaffDelete cannot be empty!!!");
-        //    }
-        //    return mapper.Map<Ingredient>(ingredientVM);
-        //}
-
-        
+        private Ingredient Validate(IngredientVM ingredientVM)
+        {
+            if (string.IsNullOrEmpty(ingredientVM.IngredientName.Trim()))
+            {
+                throw new Exception("Ingredient Name cannot be empty!!!");
+            }
+            //if (string.IsNullOrEmpty(ingredientVM.IngredientImage.Trim()))
+            //{
+            //    throw new Exception("Ingredient Image cannot be empty!!!");
+            //}
+            if (string.IsNullOrEmpty(ingredientVM.Measure.Trim()))
+            {
+                throw new Exception("Measure cannot be empty!!!");
+            }
+            if (ingredientVM.Protein < 0)
+            {
+                throw new Exception("Ingredient Protein cannot be a negative number!!!");
+            }
+            if (ingredientVM.Carbohydrate < 0)
+            {
+                throw new Exception("Ingredient Protein cannot be a negative number!!!");
+            }
+            if (ingredientVM.Fat < 0)
+            {
+                throw new Exception("Ingredient Protein cannot be a negative number!!!");
+            }
+            ingredientVM.Calories = ingredientVM.Fat * 9 + ingredientVM.Carbohydrate * 4 + ingredientVM.Protein * 4;
+            //if (ingredientVM.CreateTime == DateTime.Now)
+            //{
+            //    throw new Exception("Ingredient CreateTime cannot be a date now!!!");
+            //}
+            //if (string.IsNullOrEmpty(ingredientVM.StaffCreate.Trim()))
+            //{
+            //    throw new Exception("StaffCreate cannot be empty!!!");
+            //}
+            //if (ingredientVM.UpdateTime == DateTime.Now)
+            //{
+            //    throw new Exception("Ingredient UpdateTime cannot be a date now!!!");
+            //}
+            //if (string.IsNullOrEmpty(ingredientVM.StaffUpdate.Trim()))
+            //{
+            //    throw new Exception("StaffUpdate cannot be empty!!!");
+            //}
+            //if (ingredientVM.DeleteDate == DateTime.Now)
+            //{
+            //    throw new Exception("Ingredient DeleteDate cannot be a date now!!!");
+            //}
+            //if (string.IsNullOrEmpty(ingredientVM.StaffDelete.Trim()))
+            //{
+            //    throw new Exception("StaffDelete cannot be empty!!!");
+            //}
+            return mapper.Map<Ingredient>(ingredientVM);
+        }
     }
 
 

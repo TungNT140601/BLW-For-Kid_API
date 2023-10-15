@@ -32,7 +32,7 @@ namespace Services
             {
                 if (ingredientRepository.GetAll(x => x.IngredientName == ingredient.IngredientName && x.IsDelete == false).Any())
                 {
-                    throw new Exception("Name exist");
+                    throw new Exception("Tên nguyên liệu trùng nhau");
                 }
                 ingredient.IngredientId = AutoGenId.AutoGenerateId();
                 ingredient.CreateTime = DateTime.Now;
@@ -62,7 +62,7 @@ namespace Services
         {
             try
             {
-                return ingredientRepository.GetAll(x => x.IsDelete == true);
+                return ingredientRepository.GetAll(x => x.IsDelete == false);
             }
             catch (Exception ex)
             {
@@ -83,7 +83,7 @@ namespace Services
                 }
                 else
                 {
-                    throw new Exception("Not Found Ingredient");
+                    throw new Exception("Không tìm thấy nguyên liệu");
                 }
             }
             catch (Exception ex)
@@ -100,7 +100,7 @@ namespace Services
                 var ingredient = await ingredientRepository.Get(item.IngredientId);
                 if (ingredientRepository.GetAll(x => x.IngredientId != item.IngredientId && x.IngredientName == item.IngredientName && x.IsDelete == false).Any())
                 {
-                    throw new Exception("Name exist");
+                    throw new Exception("Tên nguyên liệu trùng nhau");
                 }
                 ingredient.IngredientName = item.IngredientName;
                 ingredient.Measure = item.Measure;
