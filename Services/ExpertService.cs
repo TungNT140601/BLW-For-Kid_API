@@ -16,7 +16,7 @@ namespace Services
         IEnumerable<Expert> GetAll();
         Task<bool> Add(Expert expert);
         Task<bool> Update(Expert expert);
-        Task<bool> Delete(string id);
+        Task<bool> Delete(Expert exp);
         Task<bool> ResetPassword(string expertID, string oldPassword, string newPassword);
         Task<Expert> LoginExpert(string username, string password);
     }
@@ -78,7 +78,7 @@ namespace Services
                 var expert = await expertRepository.Get(id);
                 if (expert != null)
                 {
-                    expert.IsDelete = false;
+                    expert.IsDelete = true;
                     return await expertRepository.Update(id, expert);
                 }
                 else
@@ -114,8 +114,6 @@ namespace Services
                     throw new Exception("PhoneNum exist");
                 }
                 expert.Email = item.Email;
-                expert.GoogleId = item.GoogleId;
-                expert.FacebookId = item.FacebookId;
                 expert.PhoneNum = item.PhoneNum;
                 expert.Avatar = item.Avatar;
                 expert.DateOfBirth = item.DateOfBirth;
@@ -130,7 +128,7 @@ namespace Services
                 expert.Achievements = item.Achievements;
                 expert.IsActive = true;
                 expert.IsDelete = false;
-                return await expertRepository.Update(expert.ExpertId, item);
+                return await expertRepository.Update(expert.ExpertId, expert);
             }
             catch (Exception ex)
             {
