@@ -18,6 +18,7 @@ namespace Services
         Task<bool> Add(CustomerAccount account);
         Task<bool> Update(CustomerAccount account);
         Task<bool> Delete(string id);
+        Task<bool> BanUnban(string id);
         Task<CustomerAccount> LoginEmail(string email, string ggId, string fullname, string avatar);
         Task<CustomerAccount> LoginFacebook(string fbId, string fullname, string avatar);
         Task<CustomerAccount> LoginPhone(string phone, string password);
@@ -47,18 +48,46 @@ namespace Services
             }
         }
 
-        public Task<bool> Delete(string id)
+        public async Task<bool> Delete(string id)
         {
             try
             {
-                var cus = customerRepository.Get(id);
+                var cus = await customerRepository.Get(id);
                 if (cus == null)
                 {
                     throw new Exception("Không tìm thấy tài khoản");
                 }
                 else
                 {
-                    return customerRepository.Delete(cus);
+                    cus.IsDelete = true;
+                    return await customerRepository.Update(cus.CustomerId, cus);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task<bool> BanUnban(string id)
+        {
+            try
+            {
+                var cus = await customerRepository.Get(id);
+                if (cus == null)
+                {
+                    throw new Exception("Không tìm thấy tài khoản");
+                }
+                else
+                {
+                    if(cus.IsActive.Value)
+                    {
+                        cus.IsActive = false;
+                    }
+                    else
+                    {
+                        cus.IsActive = true;
+                    }
+                    return await customerRepository.Update(cus.CustomerId, cus);
                 }
             }
             catch (Exception ex)

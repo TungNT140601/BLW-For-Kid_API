@@ -343,110 +343,136 @@ namespace WebAPI.Controllers
                 });
             }
         }
-        //[HttpGet]
-        //public async Task<IActionResult> GetPaymentMomoUrl(string channel, string packageId, string ipAddress, long amount)
-        //{
-        //    string url = "";
-        //    if (channel == "momo")
-        //    {
-        //        url = GetUrlMomo(amount);
-        //    }
-        //    return Ok(new
-        //    {
-        //        Url = url
-        //    });
-        //}
-        //[HttpGet]
-        //public async Task<IActionResult> GetResultMomoPayment(string partnerCode
-        //    , string orderId, string requestId, long amount, string orderInfo, string orderType
-        //    , string transId, string resultCode, string message, string payType, long responseTime, string extraData, string signature)
-        //{
-        //    return Ok(new
-        //    {
-        //        PartnerCode = partnerCode,
-        //        orderId = orderId,
-        //        requestId = requestId,
-        //        amount = amount,
-        //        orderInfo = orderInfo,
-        //        orderType = orderType,
-        //        transId = transId,
-        //        resultCode = resultCode,
-        //        message = message,
-        //        payType = payType,
-        //        responseTime = responseTime,
-        //        extraData = extraData,
-        //        signature = signature,
-        //    });
-        //}
-        //private string GetUrlMomo(long amount)
-        //{
-        //    var momo = configuration.GetSection("PaymentMomo");
-        //    //request params need to request to MoMo system
-        //    string endpoint = momo["endpoint"];
-        //    string partnerCode = momo["partnerCode"];
-        //    string accessKey = momo["accessKey"];
-        //    string serectkey = momo["serectkey"];
-        //    string orderInfo = "Demo Premium";
-        //    string redirectUrl = momo["redirectUrl"];
-        //    string ipnUrl = momo["ipnUrl"];
-        //    string requestType = momo["requestType"];
-        //    string lang = momo["lang"];
+        [HttpGet]
+        public async Task<IActionResult> GetAllCus()
+        {
+            try
+            {
+                var role = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+                if (role == null)
+                {
+                    return StatusCode(401, new
+                    {
+                        Status = "Unauthorize",
+                        Message = "Not Login"
+                    });
+                }
 
-        //    //string amountS = amount + "";
-        //    string orderId = Guid.NewGuid().ToString();
-        //    string requestId = Guid.NewGuid().ToString();
-        //    string extraData = "";
+                if (!(role == CommonValues.ADMIN || role == CommonValues.STAFF))
+                {
+                    throw new Exception("Role Denied");
+                }
 
-        //    //Before sign HMAC SHA256 signature
-        //    string rawHash = "accessKey=" + accessKey +
-        //        "&amount=" + amount +
-        //        "&extraData=" + extraData +
-        //        "&ipnUrl=" + ipnUrl +
-        //        "&orderId=" + orderId +
-        //        "&orderInfo=" + orderInfo +
-        //        "&partnerCode=" + partnerCode +
-        //        "&redirectUrl=" + redirectUrl +
-        //        "&requestId=" + requestId +
-        //        "&requestType=" + requestType
-        //        ;
+                var cuss = customerService.GetAll();
+                var cusVMs = new List<CustomerVM>();
+                foreach (var cus in cuss)
+                {
+                    cusVMs.Add(mapper.Map<CustomerVM>(cus));
+                }
+                return StatusCode(200, new
+                {
+                    Status = "Success",
+                    Data = cusVMs
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    Message = ex.Message,
+                });
+            }
+        }
+        [HttpDelete]
+        public async Task<IActionResult> BanUnbanCus(string id)
+        {
+            try
+            {
+                var role = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+                if (role == null)
+                {
+                    return StatusCode(401, new
+                    {
+                        Status = "Unauthorize",
+                        Message = "Not Login"
+                    });
+                }
 
-        //    MoMoSecurity crypto = new MoMoSecurity();
-        //    //sign signature SHA256
-        //    string signature = crypto.signSHA256(rawHash, serectkey);
+                if (!(role == CommonValues.ADMIN || role == CommonValues.STAFF))
+                {
+                    throw new Exception("Role Denied");
+                }
 
-        //    //build body json request
-        //    JObject message = new JObject
-        //    {
-        //        { "partnerCode", partnerCode },
-        //        { "partnerName", "Test" },
-        //        { "storeId", "MomoTestStore" },
-        //        { "requestId", requestId },
-        //        { "amount", amount },
-        //        { "orderId", orderId },
-        //        { "orderInfo", orderInfo },
-        //        { "redirectUrl", redirectUrl },
-        //        { "ipnUrl", ipnUrl },
-        //        { "lang", lang },
-        //        { "extraData", extraData },
-        //        { "requestType", requestType },
-        //        { "signature", signature }
+                if (string.IsNullOrEmpty(id))
+                {
+                    throw new Exception("Id empty");
+                }
+                var check = await customerService.BanUnban(id);
 
-        //    };
-        //    string jsonToMomo = "Json request to MoMo: " + message.ToString();
+                return check ? StatusCode(200, new
+                {
+                    Status = "Success",
+                    Message = "Ban/Unban Success"
+                }) : StatusCode(200, new
+                {
+                    Status = "Fail",
+                    Message = "Ban/Unban Fail"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    Message = ex.Message,
+                });
+            }
+        }
+        [HttpDelete]
+        public async Task<IActionResult> DeleteCus(string id)
+        {
+            try
+            {
+                var role = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+                if (role == null)
+                {
+                    return StatusCode(401, new
+                    {
+                        Status = "Unauthorize",
+                        Message = "Not Login"
+                    });
+                }
 
-        //    string responseFromMomo = PaymentRequest.sendPaymentRequest(endpoint, message.ToString());
+                if (!(role == CommonValues.ADMIN || role == CommonValues.STAFF))
+                {
+                    throw new Exception("Role Denied");
+                }
 
-        //    JObject jmessage = JObject.Parse(responseFromMomo);
+                if (string.IsNullOrEmpty(id))
+                {
+                    throw new Exception("Id empty");
+                }
+                var check = await customerService.Delete(id);
 
-        //    string returnFromMomo = "Return from MoMo: " + jmessage.ToString();
-
-        //    int.TryParse(jmessage.GetValue("resultCode").ToString(), out int resultCode);
-        //    if (resultCode == 0)
-        //    {
-        //        return jmessage.GetValue("payUrl").ToString();
-        //    }
-
-        //    return "";
-        //}
+                return check ? StatusCode(200, new
+                {
+                    Status = "Success",
+                    Message = "Delete Success"
+                }) : StatusCode(200, new
+                {
+                    Status = "Fail",
+                    Message = "Delete Fail"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new
+                {
+                    Status = "Error",
+                    Message = ex.Message,
+                });
+            }
+        }
     }
 }
