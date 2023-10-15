@@ -257,10 +257,6 @@ namespace WebAPI.Controllers
             {
                 throw new Exception("Ingredient Name cannot be empty!!!");
             }
-            //if (string.IsNullOrEmpty(ingredientVM.IngredientImage.Trim()))
-            //{
-            //    throw new Exception("Ingredient Image cannot be empty!!!");
-            //}
             if (string.IsNullOrEmpty(ingredientVM.Measure.Trim()))
             {
                 throw new Exception("Measure cannot be empty!!!");
@@ -278,30 +274,7 @@ namespace WebAPI.Controllers
                 throw new Exception("Ingredient Protein cannot be a negative number!!!");
             }
             ingredientVM.Calories = ingredientVM.Fat * 9 + ingredientVM.Carbohydrate * 4 + ingredientVM.Protein * 4;
-            //if (ingredientVM.CreateTime == DateTime.Now)
-            //{
-            //    throw new Exception("Ingredient CreateTime cannot be a date now!!!");
-            //}
-            //if (string.IsNullOrEmpty(ingredientVM.StaffCreate.Trim()))
-            //{
-            //    throw new Exception("StaffCreate cannot be empty!!!");
-            //}
-            //if (ingredientVM.UpdateTime == DateTime.Now)
-            //{
-            //    throw new Exception("Ingredient UpdateTime cannot be a date now!!!");
-            //}
-            //if (string.IsNullOrEmpty(ingredientVM.StaffUpdate.Trim()))
-            //{
-            //    throw new Exception("StaffUpdate cannot be empty!!!");
-            //}
-            //if (ingredientVM.DeleteDate == DateTime.Now)
-            //{
-            //    throw new Exception("Ingredient DeleteDate cannot be a date now!!!");
-            //}
-            //if (string.IsNullOrEmpty(ingredientVM.StaffDelete.Trim()))
-            //{
-            //    throw new Exception("StaffDelete cannot be empty!!!");
-            //}
+
             return mapper.Map<Ingredient>(ingredientVM);
         }
     }
