@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
                 var favorite = new List<Favorite>();
                 if (role == CommonValues.CUSTOMER)
                 {
-                    var list = _favoriteService.GetAllRecipeFavoriteOfOneCus(cusId);                    
+                    var list = await _favoriteService.GetAllRecipeFavoriteOfOneCus(cusId);                    
                     foreach (var item in list)
                     {
                         favorite.Add(_mapper.Map<Favorite>(item));

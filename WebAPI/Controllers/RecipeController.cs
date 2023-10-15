@@ -616,7 +616,8 @@ namespace WebAPI.Controllers
 
                 #region Rating
                 var ratingVMs = new List<RatingAllVM>();
-                recipe.Ratings = recipeService.GetRatings(recipe.RecipeId).ToList();
+                var ratings = await recipeService.GetRatings(recipe.RecipeId);
+                recipe.Ratings = ratings.ToList();
                 if (recipe.Ratings.Any())
                 {
                     foreach (var rating in recipe.Ratings)
