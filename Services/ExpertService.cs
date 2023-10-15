@@ -16,7 +16,7 @@ namespace Services
         IEnumerable<Expert> GetAll();
         Task<bool> Add(Expert expert);
         Task<bool> Update(Expert expert);
-        Task<bool> Delete(Expert exp);
+        Task<bool> Delete(string id);
         Task<bool> ResetPassword(string expertID, string oldPassword, string newPassword);
         Task<Expert> LoginExpert(string username, string password);
     }

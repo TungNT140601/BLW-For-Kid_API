@@ -54,7 +54,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var list = ratingService.GetAllRatingOfOneCus();
+                var list = await ratingService.GetAllRatingOfOneCus();
                 var rating = new List<Rating>();
                 foreach (var item in list)
                 {

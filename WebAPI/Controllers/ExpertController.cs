@@ -172,7 +172,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteExpert(ExpertDeleteVM model)
+        public async Task<IActionResult> DeleteExpert(string id)
         {
             
 
@@ -183,8 +183,7 @@ namespace WebAPI.Controllers
                 {
                     if (role == CommonValues.ADMIN || role == CommonValues.STAFF)
                     {
-                        var expertdel = mapper.Map<Expert>(model);
-                        var check = expertService.Delete(expertdel);
+                        var check = expertService.Delete(id);
                         return await check ? Ok(new
                         {
                             Status = 1,
