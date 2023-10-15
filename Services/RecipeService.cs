@@ -14,7 +14,7 @@ namespace Services
     public interface IRecipeService
     {
         Task<Recipe> Get(string id);
-        IEnumerable<Recipe> GetAll(bool isPremium, string? search, List<string>? ageIds, List<string>? mealIds);
+        Task<IEnumerable<Recipe>> GetAll(bool isPremium, string? search, List<string>? ageIds, List<string>? mealIds);
         IEnumerable<GetAllRecipeModel> GetAllRecipeModels(bool isPremium, string? cusId, string? search, List<string>? mealIds, List<string>? ageIds);
         Task<bool> Add(Recipe recipe, List<IngredientOfRecipe> ingredientOfRecipes, List<Direction> directions, string staffCreateId);
         Task<bool> Update(Recipe recipe, List<IngredientOfRecipe> ingredientOfRecipes, List<Direction> directions, string staffUpdateId);
@@ -22,7 +22,7 @@ namespace Services
         int CountFavorite(string recipeId);
         int CountRating(string recipeId);
         double AveRate(string recipeId);
-        IEnumerable<Rating> GetRatings(string recipeId);
+        Task<IEnumerable<Rating>> GetRatings(string recipeId);
         Task<Favorite> GetFavorite(string recipeId, string cusId);
     }
     public class RecipeService : IRecipeService
@@ -187,7 +187,7 @@ namespace Services
             }
         }
 
-        public IEnumerable<Recipe> GetAll(bool isPremium, string? search, List<string>? ageIds, List<string>? mealIds)
+        public async Task<IEnumerable<Recipe>> GetAll(bool isPremium, string? search, List<string>? ageIds, List<string>? mealIds)
         {
             try
             {
@@ -234,8 +234,8 @@ namespace Services
                 }
                 foreach (var recipe in recipes)
                 {
-                    recipe.Age = ageRepository.Get(recipe.AgeId).Result;
-                    recipe.Meal = mealRepository.Get(recipe.MealId).Result;
+                    recipe.Age = await ageRepository.Get(recipe.AgeId);
+                    recipe.Meal = await mealRepository.Get(recipe.MealId);
                 }
                 return recipes;
             }
@@ -431,14 +431,14 @@ namespace Services
                 throw new Exception(ex.Message);
             }
         }
-        public IEnumerable<Rating> GetRatings(string recipeId)
+        public async Task<IEnumerable<Rating>> GetRatings(string recipeId)
         {
             try
             {
                 var ratings = ratingRepository.GetAll(x => x.RecipeId == recipeId).ToList();
                 foreach (var item in ratings)
                 {
-                    item.Customer = customerRepository.Get(item.CustomerId).Result;
+                    item.Customer = await customerRepository.Get(item.CustomerId);
                 }
                 return ratings;
             }
@@ -463,11 +463,18 @@ namespace Services
             try
             {
                 string mealId = null;
-                if(mealIds != null)
+                if (mealIds != null)
                 {
                     if (mealIds.Any())
                     {
-                        mealId = string.Join(",", mealIds);
+                        if (string.IsNullOrEmpty(mealIds[0]))
+                        {
+                            mealId = null;
+                        }
+                        else
+                        {
+                            mealId = string.Join(",", mealIds);
+                        }
                     }
                     else
                     {
@@ -480,11 +487,18 @@ namespace Services
                 }
 
                 string ageId = null;
-                if(ageIds != null)
+                if (ageIds != null)
                 {
                     if (ageIds.Any())
                     {
-                        ageId = string.Join(",", ageIds);
+                        if (string.IsNullOrEmpty(ageIds[0]))
+                        {
+                            ageId = null;
+                        }
+                        else
+                        {
+                            ageId = string.Join(",", ageIds);
+                        }
                     }
                     else
                     {
@@ -524,7 +538,7 @@ namespace Services
                         TotalFavorite = dataReader.GetInt32(dataReader.GetOrdinal("TotalFavorite")),
                         TotalRate = dataReader.GetInt32(dataReader.GetOrdinal("TotalRate")),
                         AveRate = double.Parse(dataReader["AveRate"].ToString()),
-                };
+                    };
 
                     models.Add(model);
                 }

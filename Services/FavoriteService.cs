@@ -11,7 +11,7 @@ namespace Services
 {
     public interface IFavoriteService
     {
-        IEnumerable<Favorite> GetAllRecipeFavoriteOfOneCus(string cusId);
+        Task<IEnumerable<Favorite>> GetAllRecipeFavoriteOfOneCus(string cusId);
         Task<bool> Add(Favorite favorite);
         Task<bool> Delete(string cusId, string recipeId);
         int TotalFavOnRecipe(string recipeId);
@@ -29,16 +29,16 @@ namespace Services
             this.recipeRepository = recipeRepository;
         }
 
-        public  IEnumerable<Favorite> GetAllRecipeFavoriteOfOneCus(string cusId)
+        public async Task<IEnumerable<Favorite>> GetAllRecipeFavoriteOfOneCus(string cusId)
         {
             try
             {
-                var check =  repository.GetAll(x => x.CustomerId == cusId);
+                var check = repository.GetAll(x => x.CustomerId == cusId);
                 foreach (var item in check)
                 {
-                    item.Customer = cusRepository.Get(item.CustomerId).Result;
+                    item.Customer = await cusRepository.Get(item.CustomerId);
                     item.Customer.Favorites = null;
-                    item.Recipe = recipeRepository.Get(item.RecipeId).Result;
+                    item.Recipe = await recipeRepository.Get(item.RecipeId);
                     item.Recipe.Favorites = null;
                 }
                 return check;
@@ -93,7 +93,7 @@ namespace Services
                 }
                 return count;
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

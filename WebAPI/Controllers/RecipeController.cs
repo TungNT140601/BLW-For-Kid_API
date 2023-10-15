@@ -122,7 +122,7 @@ namespace WebAPI.Controllers
                     }
                 }
 
-                var recipes = recipeService.GetAllRecipeModels(isPremium, cusId, recipeSearch.Search, recipeSearch.AgeIds, recipeSearch.MealIds);
+                var recipes = recipeService.GetAllRecipeModels(isPremium, cusId, recipeSearch.Search, recipeSearch.MealIds, recipeSearch.AgeIds);
 
                 if (recipeSearch.Rating != null)
                 {

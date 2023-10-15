@@ -11,7 +11,7 @@ namespace Services
 {
     public interface IRatingService
     {
-        IEnumerable<Rating> GetAllRatingOfOneCus();
+        Task<IEnumerable<Rating>> GetAllRatingOfOneCus();
         Task<Rating> GetRating(string cusId, string recipeId);
         Task<bool> AddOrUpdate(Rating rating);
         Task<bool> Delete(string cusId, string recipeId);
@@ -30,16 +30,16 @@ namespace Services
             this.cusRepository = cusRepository;
             this.recipeRepository = recipeRepository;
         }
-        public IEnumerable<Rating> GetAllRatingOfOneCus()
+        public async Task<IEnumerable<Rating>> GetAllRatingOfOneCus()
         {
             try
             {
                 var ratings = repository.GetAll(x => x.IsDelete == false);
                 foreach (var rating in ratings)
                 {
-                    rating.Customer = cusRepository.Get(rating.CustomerId).Result;
+                    rating.Customer = await cusRepository.Get(rating.CustomerId);
                     rating.Customer.Ratings.Clear();
-                    rating.Recipe = recipeRepository.Get(rating.RecipeId).Result;
+                    rating.Recipe = await recipeRepository.Get(rating.RecipeId);
                     rating.Recipe.Ratings.Clear();
                 }
                 return ratings;
@@ -91,7 +91,7 @@ namespace Services
                     rating.Date = DateTime.Now;
                     rating.IsDelete = false;
                     return await repository.Add(rating);
-                }              
+                }
             }
             catch (Exception ex)
             {
@@ -104,7 +104,7 @@ namespace Services
             try
             {
                 var rating = repository.GetAll(x => x.CustomerId == cusId && x.RecipeId == recipeId).FirstOrDefault();
-                if(rating != null) 
+                if (rating != null)
                 {
                     return await repository.DeleteWithCondition(rating);
                 }
@@ -128,7 +128,7 @@ namespace Services
                 foreach (var rating in totalRating)
                 {
                     count++;
-                }               
+                }
                 return count;
             }
             catch (Exception ex)
@@ -154,7 +154,7 @@ namespace Services
                 }
                 foreach (var rating in listRtingofRecipeId)
                 {
-                    count +=(double) rating.Rate;
+                    count += (double)rating.Rate;
                 }
                 var avgRating = count / totalRatingOfRecipe;
                 var remainder = avgRating - Math.Floor(avgRating);

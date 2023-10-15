@@ -71,15 +71,15 @@ namespace Services
             }
         }
 
-        public Task<bool> Delete(string id)
+        public async Task<bool> Delete(string id)
         {
             try
             {
-                var expert = expertRepository.Get(id);
+                var expert = await expertRepository.Get(id);
                 if (expert != null)
                 {
-                    expert.Result.IsDelete = false;
-                    return expertRepository.Update(id, expert.Result);
+                    expert.IsDelete = false;
+                    return await expertRepository.Update(id, expert);
                 }
                 else
                 {
@@ -92,11 +92,11 @@ namespace Services
             }
         }
 
-        public Task<bool> Update(Expert item)
+        public async Task<bool> Update(Expert item)
         {
             try
             {
-                var expert = expertRepository.Get(item.ExpertId).Result;
+                var expert = await expertRepository.Get(item.ExpertId);
                 if (expertRepository.GetAll(x => x.ExpertId != item.ExpertId && x.Email == item.Email && x.IsDelete == false).Any())
                 {
                     throw new Exception("Email exist");
@@ -130,7 +130,7 @@ namespace Services
                 expert.Achievements = item.Achievements;
                 expert.IsActive = true;
                 expert.IsDelete = false;
-                return expertRepository.Update(expert.ExpertId, item);
+                return await expertRepository.Update(expert.ExpertId, item);
             }
             catch (Exception ex)
             {
