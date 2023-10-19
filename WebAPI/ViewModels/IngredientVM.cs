@@ -4,7 +4,7 @@ namespace WebAPI.ViewModels
 {
     public class IngredientVM
     {
-        
+        public string? IngredientId { get; set; }
         public string? IngredientName { get; set; }
         public string? Measure { get; set; }
         public double? Protein { get; set; }
@@ -26,7 +26,7 @@ namespace WebAPI.ViewModels
         [JsonIgnore]
         public string? StaffUpdate { get; set; }
     }
-     public class IngredientDeleteVM
+    public class IngredientDeleteVM
     {
         public string? IngredientId { get; set; }
         [JsonIgnore]
