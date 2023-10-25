@@ -518,7 +518,7 @@ namespace WebAPI.Controllers
             if (recipeVM.IngredientOfRecipeVMs.Any())
             {
                 var checkValidQuantity = false;
-                var duplicate = recipeVM.IngredientOfRecipeVMs.GroupBy(x => x.IngredientId).Any(x => x.Count() > 0);
+                var duplicate = recipeVM.IngredientOfRecipeVMs.GroupBy(x => x.IngredientId).Any(x => x.Count() > 1);
                 foreach (var item in recipeVM.IngredientOfRecipeVMs)
                 {
                     if (item.Quantity == null || item.Quantity <= 0)
