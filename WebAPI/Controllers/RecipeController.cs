@@ -390,16 +390,9 @@ namespace WebAPI.Controllers
             #endregion
             #region Image
             var image = "";
-            if (recipeVM.RecipeImage != null)
+            if (string.IsNullOrWhiteSpace(recipeVM.RecipeImage))
             {
-                foreach (var item in recipeVM.RecipeImage)
-                {
-                    image += item + ";";
-                }
-            }
-            else
-            {
-                errMsg += ";Select Recipe's Image";
+                errMsg += ";Choose 1 image for recipe";
             }
             #endregion
             #region AgeId
@@ -439,7 +432,7 @@ namespace WebAPI.Controllers
             {
                 errMsg += ";StandTime Time Empty";
             }
-            else if (recipeVM.StandTime <= 0)
+            else if (recipeVM.StandTime < 0)
             {
                 errMsg += ";StandTime Time Invalid";
             }

@@ -57,7 +57,7 @@ namespace WebAPI.ViewModels
         public int? TotalTime { get; set; }
         public int? Servings { get; set; }
         public string? MealId { get; set; }
-        public List<string>? RecipeImage { get; set; }
+        public string RecipeImage { get; set; }
         public string? AgeId { get; set; }
         public bool? ForPremium { get; set; }
         public List<DirectionAddVM>? DirectionVMs { get; set; }
