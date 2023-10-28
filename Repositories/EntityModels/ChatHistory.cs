@@ -10,8 +10,8 @@ namespace Repositories.EntityModels
         public DateTime SendTime { get; set; }
         public string SendPerson { get; set; } = null!;
         public string? Image { get; set; }
-        public string? Message { get; set; }
         public bool IsRemove { get; set; }
+        public string? Message { get; set; }
 
         public virtual Chat? Chat { get; set; } = null!;
     }

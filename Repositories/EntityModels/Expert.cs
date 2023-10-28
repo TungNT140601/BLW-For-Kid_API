@@ -24,13 +24,13 @@ namespace Repositories.EntityModels
         public string? Title { get; set; }
         public string? Position { get; set; }
         public string? WorkUnit { get; set; }
+        public bool? IsActive { get; set; }
+        public bool? IsDelete { get; set; }
         public string? Description { get; set; }
         public string? ProfessionalQualification { get; set; }
         public string? WorkProgress { get; set; }
         public string? Achievements { get; set; }
-        public bool? IsActive { get; set; }
-        public bool? IsDelete { get; set; }
 
-        public virtual ICollection<Chat> Chats { get; set; }
+        public virtual ICollection<Chat>? Chats { get; set; }
     }
 }

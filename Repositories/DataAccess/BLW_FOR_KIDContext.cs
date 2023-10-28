@@ -127,8 +127,6 @@ namespace Repositories.DataAccess
 
                 entity.Property(e => e.Image).HasColumnType("text");
 
-                entity.Property(e => e.Message).HasColumnType("text");
-
                 entity.Property(e => e.SendPerson).HasMaxLength(20);
 
                 entity.Property(e => e.SendTime).HasColumnType("datetime");
@@ -204,8 +202,6 @@ namespace Repositories.DataAccess
 
                 entity.Property(e => e.DirectionId).HasMaxLength(20);
 
-                entity.Property(e => e.DirectionDesc).HasColumnType("text");
-
                 entity.Property(e => e.DirectionImage).HasColumnType("text");
 
                 entity.Property(e => e.RecipeId).HasMaxLength(20);
@@ -239,13 +235,9 @@ namespace Repositories.DataAccess
 
                 entity.Property(e => e.ExpertId).HasMaxLength(20);
 
-                entity.Property(e => e.Achievements).HasColumnType("text");
-
                 entity.Property(e => e.Avatar).HasColumnType("text");
 
                 entity.Property(e => e.DateOfBirth).HasColumnType("datetime");
-
-                entity.Property(e => e.Description).HasColumnType("text");
 
                 entity.Property(e => e.Email).HasMaxLength(255);
 
@@ -261,13 +253,9 @@ namespace Repositories.DataAccess
 
                 entity.Property(e => e.Position).HasMaxLength(255);
 
-                entity.Property(e => e.ProfessionalQualification).HasColumnType("text");
-
                 entity.Property(e => e.Title).HasMaxLength(255);
 
                 entity.Property(e => e.Username).HasMaxLength(255);
-
-                entity.Property(e => e.WorkProgress).HasColumnType("text");
 
                 entity.Property(e => e.WorkUnit).HasMaxLength(255);
             });
@@ -359,8 +347,6 @@ namespace Repositories.DataAccess
 
                 entity.Property(e => e.IngredientImage).HasColumnType("text");
 
-                entity.Property(e => e.IngredientName).HasColumnType("text");
-
                 entity.Property(e => e.IsDelete).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.Measure).HasMaxLength(255);
@@ -425,8 +411,6 @@ namespace Repositories.DataAccess
 
                 entity.Property(e => e.IsDelete).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.MealName).HasColumnType("text");
-
                 entity.Property(e => e.StaffCreate).HasMaxLength(20);
 
                 entity.Property(e => e.StaffDelete).HasMaxLength(20);
@@ -472,7 +456,7 @@ namespace Repositories.DataAccess
 
                 entity.Property(e => e.PayTime).HasColumnType("datetime");
 
-                entity.Property(e => e.PrivateCode).HasMaxLength(1);
+                entity.Property(e => e.PrivateCode).HasMaxLength(255);
 
                 entity.Property(e => e.StartDate).HasColumnType("datetime");
 
@@ -552,8 +536,6 @@ namespace Repositories.DataAccess
 
                 entity.Property(e => e.RatingId).HasMaxLength(20);
 
-                entity.Property(e => e.Comment).HasColumnType("text");
-
                 entity.Property(e => e.CustomerId).HasMaxLength(20);
 
                 entity.Property(e => e.Date).HasColumnType("datetime");
@@ -585,6 +567,8 @@ namespace Repositories.DataAccess
 
                 entity.Property(e => e.AgeId).HasMaxLength(20);
 
+                entity.Property(e => e.CookTime).HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.CreateTime).HasColumnType("datetime");
 
                 entity.Property(e => e.DeleteDate).HasColumnType("datetime");
@@ -593,15 +577,21 @@ namespace Repositories.DataAccess
 
                 entity.Property(e => e.MealId).HasMaxLength(20);
 
+                entity.Property(e => e.PrepareTime).HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.RecipeImage).HasColumnType("text");
 
-                entity.Property(e => e.RecipeName).HasColumnType("text");
+                entity.Property(e => e.Servings).HasDefaultValueSql("((1))");
 
                 entity.Property(e => e.StaffCreate).HasMaxLength(20);
 
                 entity.Property(e => e.StaffDelete).HasMaxLength(20);
 
                 entity.Property(e => e.StaffUpdate).HasMaxLength(20);
+
+                entity.Property(e => e.StandTime).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalTime).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.UpdateTime).HasColumnType("datetime");
 
