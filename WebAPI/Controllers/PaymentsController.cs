@@ -63,24 +63,24 @@ namespace WebAPI.Controllers
                 byte[] b1 = null;
                 switch (amount)
                 {
-                    case 79000:
-                        {
-                            imagePath = Path.Combine(wwwPath, "Momo_QR_Payment", "premium_79000.jpg");
-                            b1 = System.IO.File.ReadAllBytes(imagePath);
-                            break;
-                        }
-                    case 299000:
-                        {
-                            imagePath = Path.Combine(wwwPath, "Momo_QR_Payment", "premium_299000.jpg");
-                            b1 = System.IO.File.ReadAllBytes(imagePath);
-                            break;
-                        }
-                    case 50000:
-                        {
-                            imagePath = Path.Combine(wwwPath, "Momo_QR_Payment", "premium_50000.jpg");
-                            b1 = System.IO.File.ReadAllBytes(imagePath);
-                            break;
-                        }
+                    //case 79000:
+                    //    {
+                    //        imagePath = Path.Combine(wwwPath, "Momo_QR_Payment", "premium_79000.jpg");
+                    //        b1 = System.IO.File.ReadAllBytes(imagePath);
+                    //        break;
+                    //    }
+                    //case 299000:
+                    //    {
+                    //        imagePath = Path.Combine(wwwPath, "Momo_QR_Payment", "premium_299000.jpg");
+                    //        b1 = System.IO.File.ReadAllBytes(imagePath);
+                    //        break;
+                    //    }
+                    //case 50000:
+                    //    {
+                    //        imagePath = Path.Combine(wwwPath, "Momo_QR_Payment", "premium_50000.jpg");
+                    //        b1 = System.IO.File.ReadAllBytes(imagePath);
+                    //        break;
+                    //    }
                     case 120000:
                         {
                             imagePath = Path.Combine(wwwPath, "Momo_QR_Payment", "premium_120000.jpg");

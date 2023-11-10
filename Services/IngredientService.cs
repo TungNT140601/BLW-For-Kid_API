@@ -30,7 +30,7 @@ namespace Services
         {
             try
             {
-                if (ingredientRepository.GetAll(x => x.IngredientName == ingredient.IngredientName && x.IsDelete == false).Any())
+                if (ingredientRepository.GetAll(x => x.IngredientName.Trim().ToLower() == ingredient.IngredientName.Trim().ToLower() && x.IsDelete == false).Any())
                 {
                     throw new Exception("Tên nguyên liệu trùng nhau");
                 }
@@ -98,7 +98,7 @@ namespace Services
             try
             {
                 var ingredient = await ingredientRepository.Get(item.IngredientId);
-                if (ingredientRepository.GetAll(x => x.IngredientId != item.IngredientId && x.IngredientName == item.IngredientName && x.IsDelete == false).Any())
+                if (ingredientRepository.GetAll(x => x.IngredientId != item.IngredientId && x.IngredientName.Trim().ToLower() == item.IngredientName.Trim().ToLower() && x.IsDelete == false).Any())
                 {
                     throw new Exception("Tên nguyên liệu trùng nhau");
                 }

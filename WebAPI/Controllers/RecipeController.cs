@@ -389,7 +389,6 @@ namespace WebAPI.Controllers
             }
             #endregion
             #region Image
-            var image = "";
             if (string.IsNullOrWhiteSpace(recipeVM.RecipeImage))
             {
                 errMsg += ";Choose 1 image for recipe";
@@ -476,19 +475,11 @@ namespace WebAPI.Controllers
                     }
 
                     //Image
-                    var imageDirection = "";
-                    if (directionVM.DirectionImage.Any())
-                    {
-                        foreach (var item in directionVM.DirectionImage)
-                        {
-                            imageDirection += item + ";";
-                        }
-                    }
                     directions.Add(new Direction
                     {
                         DirectionDesc = directionVM.DirectionDesc,
                         DirectionNum = directionVM.DirectionNum,
-                        DirectionImage = imageDirection,
+                        DirectionImage = directionVM.DirectionImage,
                     });
                 }
 
@@ -551,7 +542,7 @@ namespace WebAPI.Controllers
             {
                 RecipeId = recipeVM.RecipeId,
                 RecipeName = recipeVM.RecipeName,
-                RecipeImage = image,
+                RecipeImage = recipeVM.RecipeImage,
                 RecipeDesc = recipeVM.RecipeDesc,
                 StandTime = recipeVM.StandTime,
                 CookTime = recipeVM.CookTime,

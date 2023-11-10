@@ -13,6 +13,6 @@
         public string? DirectionId { get; set; }
         public int? DirectionNum { get; set; }
         public string? DirectionDesc { get; set; }
-        public List<string>? DirectionImage { get; set; }
+        public string? DirectionImage { get; set; }
     }
 }

@@ -83,7 +83,7 @@ namespace Services
                     ratingOfCus.Rate = rating.Rate;
                     ratingOfCus.Comment = rating.Comment;
                     ratingOfCus.RatingImage = rating.RatingImage;
-                    return await repository.Update(rating.RatingId, ratingOfCus);
+                    return await repository.Update(ratingOfCus.RatingId, ratingOfCus);
                 }
                 else
                 {
