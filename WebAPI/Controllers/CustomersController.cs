@@ -37,10 +37,10 @@ namespace WebAPI.Controllers
                 {
                     err += ";Tên không được để trống";
                 }
-                if (customerVM.Gender == null)
-                {
-                    err += ";Vui lòng chọn giới tính";
-                }
+                //if (customerVM.Gender == null)
+                //{
+                //    err += ";Vui lòng chọn giới tính";
+                //}
                 if (!string.IsNullOrWhiteSpace(err))
                 {
                     throw new Exception(err);

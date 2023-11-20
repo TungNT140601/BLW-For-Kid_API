@@ -79,7 +79,7 @@ namespace Services
                 }
                 else
                 {
-                    if(cus.IsActive.Value)
+                    if (cus.IsActive.Value)
                     {
                         cus.IsActive = false;
                     }
@@ -131,7 +131,7 @@ namespace Services
                 }
                 else
                 {
-                    if (customerRepository.GetAll(x => x.PhoneNum == cus.PhoneNum && x.CustomerId != cus.CustomerId && x.IsDelete == false).Any())
+                    if (customerRepository.GetAll(x => x.PhoneNum != null && x.PhoneNum == cus.PhoneNum && x.CustomerId != cus.CustomerId && x.IsDelete == false).Any())
                     {
                         throw new Exception("Số điện thoại đã được sử dụng");
                     }
