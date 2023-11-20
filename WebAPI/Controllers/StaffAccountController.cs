@@ -40,7 +40,7 @@ namespace WebAPI.Controllers
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(30),
+                expires: DateTime.UtcNow.AddYears(5),
                 signingCredentials: creds
             );
 

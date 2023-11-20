@@ -11,7 +11,6 @@ namespace Repositories.EntityModels
         }
 
         public string IngredientId { get; set; } = null!;
-        public string? IngredientName { get; set; }
         public string? IngredientImage { get; set; }
         public string? Measure { get; set; }
         public double? Protein { get; set; }
@@ -25,10 +24,11 @@ namespace Repositories.EntityModels
         public DateTime? DeleteDate { get; set; }
         public string? StaffDelete { get; set; }
         public bool? IsDelete { get; set; }
+        public string? IngredientName { get; set; }
 
         public virtual StaffAccount? StaffCreateNavigation { get; set; }
         public virtual StaffAccount? StaffDeleteNavigation { get; set; }
         public virtual StaffAccount? StaffUpdateNavigation { get; set; }
-        public virtual ICollection<IngredientOfRecipe> IngredientOfRecipes { get; set; }
+        public virtual ICollection<IngredientOfRecipe>? IngredientOfRecipes { get; set; }
     }
 }

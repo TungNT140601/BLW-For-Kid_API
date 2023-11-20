@@ -62,7 +62,7 @@ namespace WebAPI.Controllers
                 return Ok(new
                 {
                     Status = 1,
-                    Data = age
+                    Data = age.OrderBy(c => c.AgeName)
                 });
             }
             catch (Exception ex)

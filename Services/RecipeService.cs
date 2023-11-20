@@ -535,9 +535,9 @@ namespace Services
                         AgeName = dataReader["AgeName"].ToString(),
                         IsFavorite = dataReader.GetBoolean(dataReader.GetOrdinal("IsFavorite")),
                         ForPremium = dataReader.GetBoolean(dataReader.GetOrdinal("ForPremium")),
-                        TotalFavorite = dataReader.GetInt32(dataReader.GetOrdinal("TotalFavorite")),
-                        TotalRate = dataReader.GetInt32(dataReader.GetOrdinal("TotalRate")),
-                        AveRate = double.Parse(dataReader["AveRate"].ToString()),
+                        TotalFavorite = int.Parse(string.IsNullOrEmpty(dataReader["TotalFavorite"].ToString()) ? "0" : dataReader["TotalFavorite"].ToString()),
+                        TotalRate = int.Parse(string.IsNullOrEmpty(dataReader["TotalRate"].ToString()) ? "0" : dataReader["TotalRate"].ToString()),
+                        AveRate = double.Parse(string.IsNullOrEmpty(dataReader["AveRate"].ToString()) ? "0" : dataReader["AveRate"].ToString()),
                     };
 
                     models.Add(model);

@@ -66,7 +66,7 @@ namespace WebAPI.Controllers
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(30),
+                expires: DateTime.UtcNow.AddDays(7),
                 signingCredentials: creds
             );
 

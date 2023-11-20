@@ -389,17 +389,9 @@ namespace WebAPI.Controllers
             }
             #endregion
             #region Image
-            var image = "";
-            if (recipeVM.RecipeImage != null)
+            if (string.IsNullOrWhiteSpace(recipeVM.RecipeImage))
             {
-                foreach (var item in recipeVM.RecipeImage)
-                {
-                    image += item + ";";
-                }
-            }
-            else
-            {
-                errMsg += ";Select Recipe's Image";
+                errMsg += ";Choose 1 image for recipe";
             }
             #endregion
             #region AgeId
@@ -439,7 +431,7 @@ namespace WebAPI.Controllers
             {
                 errMsg += ";StandTime Time Empty";
             }
-            else if (recipeVM.StandTime <= 0)
+            else if (recipeVM.StandTime < 0)
             {
                 errMsg += ";StandTime Time Invalid";
             }
@@ -483,19 +475,11 @@ namespace WebAPI.Controllers
                     }
 
                     //Image
-                    var imageDirection = "";
-                    if (directionVM.DirectionImage.Any())
-                    {
-                        foreach (var item in directionVM.DirectionImage)
-                        {
-                            imageDirection += item + ";";
-                        }
-                    }
                     directions.Add(new Direction
                     {
                         DirectionDesc = directionVM.DirectionDesc,
                         DirectionNum = directionVM.DirectionNum,
-                        DirectionImage = imageDirection,
+                        DirectionImage = directionVM.DirectionImage,
                     });
                 }
 
@@ -518,7 +502,7 @@ namespace WebAPI.Controllers
             if (recipeVM.IngredientOfRecipeVMs.Any())
             {
                 var checkValidQuantity = false;
-                var duplicate = recipeVM.IngredientOfRecipeVMs.GroupBy(x => x.IngredientId).Any(x => x.Count() > 0);
+                var duplicate = recipeVM.IngredientOfRecipeVMs.GroupBy(x => x.IngredientId).Any(x => x.Count() > 1);
                 foreach (var item in recipeVM.IngredientOfRecipeVMs)
                 {
                     if (item.Quantity == null || item.Quantity <= 0)
@@ -558,7 +542,7 @@ namespace WebAPI.Controllers
             {
                 RecipeId = recipeVM.RecipeId,
                 RecipeName = recipeVM.RecipeName,
-                RecipeImage = image,
+                RecipeImage = recipeVM.RecipeImage,
                 RecipeDesc = recipeVM.RecipeDesc,
                 StandTime = recipeVM.StandTime,
                 CookTime = recipeVM.CookTime,

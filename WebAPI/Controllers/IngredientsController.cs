@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
                 return Ok(new
                 {
                     Status = "Success",
-                    Data = ingredientVMs
+                    Data = ingredientVMs.OrderBy(x => x.IngredientName)
                 });
             }
             catch (Exception ex)
